@@ -1,7 +1,7 @@
 /** @type {import('tailwindcss').Config} */
 export default {
     darkMode: ["class"],
-    content: [],
+    content: [    "./index.html",    "./src/**/*.{js,ts,jsx,tsx}",  ],
   theme: {
   	extend: {
   		borderRadius: {
@@ -9,10 +9,12 @@ export default {
   			md: 'calc(var(--radius) - 2px)',
   			sm: 'calc(var(--radius) - 4px)'
   		},
-  		colors: {
-  			background: 'hsl(var(--background))',
-  			foreground: 'hsl(var(--foreground))',
-  			card: {
+  		      colors: {
+  		        'primary-light': '#A5BDE4',
+  		        'primary-dark': '#1C2F4E',
+  		        'card-bg': '#FAFAFA',
+  		        background: 'hsl(var(--background))',
+  		        foreground: 'hsl(var(--foreground))',  			card: {
   				DEFAULT: 'hsl(var(--card))',
   				foreground: 'hsl(var(--card-foreground))'
   			},
