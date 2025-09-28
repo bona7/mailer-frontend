@@ -21,13 +21,13 @@ function SignUp() {
 
         <div className="flex justify-center space-x-2 mb-6 sm:mb-8">
           <button 
-            className="w-1/2 py-2 px-4 sm:py-3 rounded-2xl border-2 text-base sm:text-lg border-primary-dark text-primary-dark hover:bg-[#A5BDE4]/20 transition-colors"
+            className="w-1/2 py-2 px-4 sm:py-3 rounded-xl border-2 text-base sm:text-lg border-primary-dark text-primary-dark hover:bg-[#A5BDE4]/20 transition-colors"
             onClick={handleSignInClick}
           >
             Sign IN
           </button>
           <button 
-            className="w-1/2 py-2 px-4 sm:py-3 rounded-2xl border-2 text-base sm:text-lg text-white bg-primary-dark border-primary-dark"
+            className="w-1/2 py-2 px-4 sm:py-3 rounded-xl border-2 text-base sm:text-lg text-white bg-primary-dark border-primary-dark"
           >
             Sign Up
           </button>
@@ -37,22 +37,22 @@ function SignUp() {
           <input 
             type="email" 
             placeholder="@gmail.com" 
-            className="w-full px-4 py-3 sm:py-4 border rounded-lg text-right placeholder-gray-400 border-primary-dark"
+            className="w-full px-4 py-3 sm:py-4 border rounded-xl text-right placeholder-gray-400 border-primary-dark"
           />
           <input 
             type="password" 
             placeholder="Password" 
-            className="w-full px-4 py-3 sm:py-4 border rounded-lg placeholder-gray-400 border-primary-dark"
+            className="w-full px-4 py-3 sm:py-4 border rounded-xl placeholder-gray-400 border-primary-dark"
           />
           <input 
             type="password" 
-            placeholder="Password Confirm" 
-            className="w-full px-4 py-3 sm:py-4 border rounded-lg placeholder-gray-400 border-primary-dark"
+            placeholder="Confirm Password" 
+            className="w-full px-4 py-3 sm:py-4 border rounded-xl placeholder-gray-400 border-primary-dark"
           />
         </div>
 
         <button 
-          className="w-full mt-6 sm:mt-8 py-3 rounded-lg text-white text-lg sm:text-xl bg-primary-dark"
+          className="w-full mt-6 sm:mt-8 py-3 rounded-xl text-white text-lg sm:text-xl bg-primary-dark"
         >
           sign up
         </button>
