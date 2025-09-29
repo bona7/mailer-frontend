@@ -1,43 +1,46 @@
-import React, { useState } from 'react';
-import { useNavigate } from 'react-router-dom';
-import MailerLogoHeader from '../assets/mailer-logo-header.svg';
-import DomainDropdown from '../components/domain_dropdown';
+import React, { useState } from "react";
+import { useNavigate } from "react-router-dom";
+import MailerLogoHeader from "../assets/mailer-logo-header.svg";
+import DomainDropdown from "../components/domain_dropdown";
 
 function Verify() {
   const navigate = useNavigate();
-  const [selectedDomain, setSelectedDomain] = useState('gmail.com');
+  const [selectedDomain, setSelectedDomain] = useState("gmail.com");
   const [isDirectInput, setIsDirectInput] = useState(false);
 
   const handleDomainSelect = (domain) => {
-    if (domain === '직접 입력') {
+    if (domain === "직접 입력") {
       setIsDirectInput(true);
-      setSelectedDomain('');
+      setSelectedDomain("");
     } else {
       setIsDirectInput(false);
       setSelectedDomain(domain);
     }
   };
 
-  // In a real app, you'd handle form state and submission
-  const handleVerification = () => {
-    // Logic to verify the code
-    console.log('Verification logic goes here');
-    // Navigate to the main page or dashboard on success
-    navigate('/'); 
+  // 계정 인증 완료되어야지 넘어가도록 수정
+  const handleAccountAdd = () => {
+    navigate("/accountadded");
   };
 
   return (
     <div className="relative flex items-center justify-center min-h-screen bg-primary-light/35 p-4">
-      <img src={MailerLogoHeader} alt="Mailer Header Logo" className="absolute top-8 left-8 w-32" />
-      <div className="w-full max-w-4xl pt-8 pb-8 pr-48 pl-48 sm:pt-12 sm:pb-12 sm:pr-48 sm:pl-48 rounded-xl shadow-lg bg-card-bg min-h-[580px]">
+      <img
+        src={MailerLogoHeader}
+        alt="Mailer Header Logo"
+        className="absolute top-8 left-8 w-32"
+      />
+      <div className="w-full max-w-4xl pt-8 pb-8 pr-48 pl-48 sm:pt-12 sm:pb-12 sm:pr-48 sm:pl-48 rounded-xl shadow-lg bg-white min-h-[580px]">
         <div className="px-8 -mx-44 sm:-mx-44">
-          <h1 className="text-xl sm:text-2xl font-regular text-primary-dark mb-8 text-left">Verification Code</h1>
+          <h1 className="text-xl sm:text-2xl font-regular text-primary-dark mb-8 text-left">
+            Verification Code
+          </h1>
         </div>
 
         <div className="space-y-4 sm:space-y-5">
           <div className="flex items-center space-x-2">
-            <input 
-              type="text" 
+            <input
+              type="text"
               placeholder="@"
               className="w-full px-4 py-3 sm:py-3 border rounded-xl text-right placeholder-gray-400 border-primary-dark h-11"
             />
@@ -55,19 +58,32 @@ function Verify() {
                   onClick={() => setIsDirectInput(false)}
                   className="absolute inset-y-0 right-0 flex items-center pr-2"
                 >
-                  <svg className={`w-4 h-4 text-gray-500`} fill="none" stroke="currentColor" viewBox="0 0 24 24" xmlns="http://www.w3.org/2000/svg"><path strokeLinecap="round" strokeLinejoin="round" strokeWidth="2" d="M19 9l-7 7-7-7"></path></svg>
+                  <svg
+                    className={`w-4 h-4 text-gray-500`}
+                    fill="none"
+                    stroke="currentColor"
+                    viewBox="0 0 24 24"
+                    xmlns="http://www.w3.org/2000/svg"
+                  >
+                    <path
+                      strokeLinecap="round"
+                      strokeLinejoin="round"
+                      strokeWidth="2"
+                      d="M19 9l-7 7-7-7"
+                    ></path>
+                  </svg>
                 </button>
               </div>
             ) : (
               <DomainDropdown
-                selectedDomain={selectedDomain} 
-                onDomainChange={handleDomainSelect} 
+                selectedDomain={selectedDomain}
+                onDomainChange={handleDomainSelect}
               />
             )}
           </div>
-          <input 
-            type="text" 
-            placeholder="two-factor verification code" 
+          <input
+            type="text"
+            placeholder="two-factor verification code"
             className="w-full px-4 py-3 sm:py-3 border rounded-xl placeholder-gray-400 border-primary-dark h-11"
           />
         </div>
@@ -79,8 +95,8 @@ function Verify() {
         </div>
 
         <div className="flex justify-end">
-          <button 
-            onClick={handleVerification}
+          <button
+            onClick={handleAccountAdd}
             className="mt-6 sm:mt-6 py-3 px-6 rounded-xl text-white text-md bg-primary-dark"
           >
             Verified
