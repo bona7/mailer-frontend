@@ -1,7 +1,7 @@
 
 import React, { useState, useRef, useEffect } from 'react';
 
-function DomainDrop({ selectedDomain, onDomainChange }) {
+function DomainDropdown({ selectedDomain, onDomainChange }) {
   const [isOpen, setIsOpen] = useState(false);
   const domains = ['gmail.com', 'naver.com', 'daum.net', 'snu.ac.kr', '직접 입력'];
   const dropdownRef = useRef(null);
@@ -52,4 +52,4 @@ function DomainDrop({ selectedDomain, onDomainChange }) {
   );
 }
 
-export default DomainDrop;
+export default DomainDropdown;

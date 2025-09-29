@@ -1,7 +1,7 @@
 import React, { useState } from 'react';
 import { useNavigate } from 'react-router-dom';
 import MailerLogoHeader from '../assets/mailer-logo-header.svg';
-import DomainDrop from '../components/domain_drop';
+import DomainDropdown from '../components/domain_dropdown';
 
 function Verify() {
   const navigate = useNavigate();
@@ -59,7 +59,7 @@ function Verify() {
                 </button>
               </div>
             ) : (
-              <DomainDrop 
+              <DomainDropdown
                 selectedDomain={selectedDomain} 
                 onDomainChange={handleDomainSelect} 
               />

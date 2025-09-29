@@ -1,0 +1,22 @@
+name: Slack Notifications
+
+on:
+  push:
+    branches:
+      - main
+  pull_request:
+    types: [opened]
+
+jobs:
+  notify:
+    runs-on: ubuntu-latest
+    steps:
+      - name: Send notification to Slack
+        uses: slackapi/slack-github-action@v1.24.0
+        with:
+          payload: |
+            {
+              "text": "🚀 *GitHub Event Detected* \nRepository: ${{ github.repository }} \nEvent: ${{ github.event_name }} \nActor: ${{ github.actor }}"
+            }
+        env:
+          SLACK_WEBHOOK_URL: ${{ secrets.SLACK_WEBHOOK_URL }}
