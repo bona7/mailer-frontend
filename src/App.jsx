@@ -1,12 +1,9 @@
-import "./App.css";
-import TestPage from "./pages/TestPage.jsx";
+
+import Router from './app/Router';
+import './App.css';
 
 function App() {
-  return (
-    <>
-      <TestPage />
-    </>
-  );
+  return <Router />;
 }
 
 export default App;
