@@ -34,45 +34,44 @@ const emailList = [
   {
     sender: "보낸 사람 가나다",
     time: "20:18",
-    subject: "제목 및 내용",
-    isRead: false,
+    title: "제목",
+    content: "내용",
+    account: "first",
   },
   {
-    sender: "보낸 사람 가나다",
+    sender: "보낸 사람 라마바",
     time: "15:18",
-    subject: "제목 및 내용",
-    isRead: false,
+    title: "다른 제목",
+    content: "다른 내용",
+    account: "second",
   },
   {
-    sender: "보낸 사람 가나다",
+    sender: "보낸 사람 사아자",
     time: "14:18",
-    subject: "제목 및 내용",
-    isRead: false,
+    title: "또 다른 제목",
+    content: "또 다른 내용",
+    account: "third",
   },
   {
-    sender: "보낸 사람 가나다",
+    sender: "보낸 사람 차카타",
     time: "Sep.13",
-    subject: "제목 및 내용",
-    isRead: false,
+    title: "하나 더",
+    content: "내용입니다",
+    account: "first",
   },
   {
-    sender: "보낸 사람 가나다",
+    sender: "보낸 사람 파하",
     time: "Sep.10",
-    subject: "제목 및 내용",
-    isRead: false,
-  },
-  {
-    sender: "보낸 사람 가나다",
-    time: "20:18",
-    subject: "제목 및 내용",
-    isRead: false,
+    title: "마지막 제목",
+    content: "마지막 내용",
+    account: "second",
   },
 ];
 
 const accountEmails = [
-  { email: "korj03kory@snu.ac.kr", color: "bg-[#c47b7b]" },
-  { email: "korj03kory@gmail.com", color: "bg-[#b441cd]" },
-  { email: "HCI2026@gmail.com", color: "bg-[#82b657]" },
+  { email: "korj03kory@snu.ac.kr", type: "first" },
+  { email: "korj03kory@gmail.com", type: "second" },
+  { email: "HCI2026@gmail.com", type: "third" },
 ];
 
 const contacts = [
@@ -87,11 +86,7 @@ const contacts = [
 const aiSummaries = [
   {
     to: "To. (    )",
-    content: "가나다라마바사아자아",
-    date: "2025.09.10",
-  },
-  {
-    to: "To. (    )",
+    title: "~~~~~~~~~~~~",
     content: "가나다라마바사아자아",
     date: "2025.09.10",
   },
