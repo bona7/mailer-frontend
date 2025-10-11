@@ -136,7 +136,7 @@ const AppLayout = ({ children, selectedAccounts, setSelectedAccounts }) => {
           </CardContent>
         </Card>
 
-        <Card className="border border-primary overflow-y-auto grow flex flex-col">
+        <Card className="border border-primary overflow-y-auto h-[460px] flex flex-col">
           <CardHeader className="px-3 py-2">
             <CardTitle className="font-st1 text-primary-dark">
               AI Summary

@@ -1,5 +1,12 @@
 import { BrowserRouter, Routes, Route } from "react-router-dom";
-import { SignUp, SignIn, Verify, AccountAdded, TestPage } from "@/pages";
+import {
+  SignUp,
+  SignIn,
+  Verify,
+  AccountAdded,
+  TestPage,
+  ViewTemplate,
+} from "@/pages";
 
 function Router() {
   return (
@@ -10,6 +17,7 @@ function Router() {
         <Route path="/signup" element={<SignUp />} />
         <Route path="/verify" element={<Verify />} />
         <Route path="/accountadded" element={<AccountAdded />} />
+        <Route path="/viewtemplate" element={<ViewTemplate />} />
       </Routes>
     </BrowserRouter>
   );
