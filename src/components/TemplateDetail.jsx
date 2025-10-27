@@ -1,8 +1,22 @@
+import { useState } from "react";
 import { Button } from "@/components/ui/button";
 import { Avatar, AvatarFallback } from "@/components/ui/avatar";
 import { Heart } from "lucide-react";
+import CollectionDropdown from "./CollectionDropdown";
 
 const TemplateDetail = ({ templateName, authorName, aboutText }) => {
+  const [isDropdownOpen, setIsDropdownOpen] = useState(false);
+  const [isHeartFilled, setIsHeartFilled] = useState(false);
+
+  const toggleDropdown = () => {
+    setIsDropdownOpen((prev) => !prev);
+  };
+
+  const handleAddCollection = (selectedIds) => {
+    setIsHeartFilled(selectedIds.length > 0);
+    setIsDropdownOpen(false);
+  };
+
   return (
     <div className="relative bg-white rounded-lg w-[912px] h-[562px] overflow-hidden border">
       <div className="absolute top-4 left-4 font-st2 text-black">
@@ -19,13 +33,24 @@ const TemplateDetail = ({ templateName, authorName, aboutText }) => {
               <Button className="bg-secondary-dark hover:bg-secondary-light text-gray-f0 font-button px-2 py-2 h-auto">
                 Open in Compose
               </Button>
-              <Button
-                variant="outline"
-                size="icon"
-                className="border-secondary-dark text-secondary-dark size-8"
-              >
-                <Heart className="size-3.5" />
-              </Button>
+              <div className="relative">
+                <Button
+                  variant="outline"
+                  size="icon"
+                  className="border-secondary-dark text-secondary-dark size-8"
+                  onClick={toggleDropdown}
+                >
+                  <Heart
+                    className={`size-3.5 ${
+                      isHeartFilled ? "text-secondary-dark" : "none"
+                    }`}
+                    fill={isHeartFilled ? "currentColor" : "none"}
+                  />
+                </Button>
+                {isDropdownOpen && (
+                  <CollectionDropdown onAdd={handleAddCollection} />
+                )}
+              </div>
             </div>
           </div>
 

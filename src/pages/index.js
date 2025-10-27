@@ -4,5 +4,14 @@ import Verify from "../pages/Verify";
 import AccountAdded from "../pages/AccountAdd";
 import TestPage from "./MainPage";
 import ViewTemplate from "./ViewTemplate";
+import MyTemplate from "./MyTemplate";
 
-export { SignUp, SignIn, Verify, AccountAdded, TestPage, ViewTemplate };
+export {
+  SignUp,
+  SignIn,
+  Verify,
+  AccountAdded,
+  TestPage,
+  ViewTemplate,
+  MyTemplate,
+};

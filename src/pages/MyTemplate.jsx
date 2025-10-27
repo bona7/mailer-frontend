@@ -25,7 +25,7 @@ const templates = [
   { id: 18, name: "템플릿 이름 18", about: "설명 18", authorName: "Author 18" },
 ];
 
-const ViewTemplate = () => {
+const MyTemplate = () => {
   const [selectedAccounts, setSelectedAccounts] = useState([]);
   const [isModalOpen, setIsModalOpen] = useState(false);
   const [selectedTemplate, setSelectedTemplate] = useState(null);
@@ -46,10 +46,10 @@ const ViewTemplate = () => {
       setSelectedAccounts={setSelectedAccounts}
     >
       <main className="col-start-2 row-start-2 p-6 space-y-4 bg-gray-f5/40 rounded-lg border border-primary overflow-hidden">
-        <h1 className="font-h7 text-primary-dark">View Templates</h1>
+        <h1 className="font-h7 text-primary-dark">My Templates</h1>
         <Separator className="bg-gray-bf my-1.5" />
         <section>
-          <h2 className="font-st1 text-primary-dark mb-2">대학교</h2>
+          <h2 className="font-st1 text-primary-dark mb-2">계정1</h2>
           <div className="flex overflow-x-auto gap-8 p-2">
             {templates.slice(0, 6).map((template) => (
               <TemplateCard
@@ -61,7 +61,7 @@ const ViewTemplate = () => {
           </div>
         </section>
         <section>
-          <h2 className="font-st1 text-primary-dark mb-2">업무/회사</h2>
+          <h2 className="font-st1 text-primary-dark mb-2">계정2</h2>
           <div className="flex overflow-x-auto gap-8 p-2">
             {templates.slice(6, 12).map((template) => (
               <TemplateCard
@@ -73,7 +73,7 @@ const ViewTemplate = () => {
           </div>
         </section>
         <section>
-          <h2 className="font-st1 text-primary-dark mb-2">서비스 문의</h2>
+          <h2 className="font-st1 text-primary-dark mb-2">계정3</h2>
           <div className="flex overflow-x-auto gap-8 p-2">
             {templates.slice(12, 18).map((template) => (
               <TemplateCard
@@ -104,4 +104,4 @@ const ViewTemplate = () => {
   );
 };
 
-export default ViewTemplate;
+export default MyTemplate;
