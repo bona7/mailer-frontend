@@ -365,3 +365,22 @@
     animation: fade-in-delay 1s ease-out forwards;
   }
 }
+
+/* Custom Scrollbar */
+::-webkit-scrollbar {
+  height: 8px; /* Height of horizontal scrollbar */
+  width: 8px; /* Width of vertical scrollbar */
+}
+
+::-webkit-scrollbar-track {
+  background: transparent;
+}
+
+::-webkit-scrollbar-thumb {
+  background: #d9d9d9; /* gray-d9 */
+  border-radius: 4px;
+}
+
+::-webkit-scrollbar-thumb:hover {
+  background: #bfbfbf; /* gray-bf */
+}
