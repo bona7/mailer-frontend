@@ -18,7 +18,7 @@ const MainPage = () => {
       selectedAccounts={selectedAccounts}
       setSelectedAccounts={setSelectedAccounts}
     >
-      <section className="col-start-2 row-start-2 bg-gray-f5/20 rounded-lg border border-primary p-4">
+      <section className="col-start-2 row-start-2 bg-gray-f5/20 rounded-lg border border-primary p-4 overflow-y-auto">
         <div className="flex items-center gap-2 pl-1.5">
           <h2 className="font-h7 text-primary-dark">In box</h2>
           <button

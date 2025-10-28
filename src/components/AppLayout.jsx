@@ -23,7 +23,7 @@ const AppLayout = ({ children, selectedAccounts, setSelectedAccounts }) => {
   };
 
   return (
-    <div className="relative grid grid-cols-[10rem_1fr_14rem] grid-rows-[auto_1fr] w-full min-h-dvh gap-x-4 pb-10 md:px-10 lg:px-16">
+    <div className="grid grid-cols-[10rem_1fr_14rem] grid-rows-[auto_minmax(0,1fr)] w-full h-dvh gap-x-4 pb-10 md:px-10 lg:px-16">
       {/* Header */}
       <header className="col-span-3 grid grid-cols-subgrid items-center py-6">
         <div className="col-start-1">
@@ -51,7 +51,7 @@ const AppLayout = ({ children, selectedAccounts, setSelectedAccounts }) => {
       </header>
 
       {/* Left Sidebar */}
-      <aside className="col-start-1 row-start-2 py-4">
+      <aside className="col-start-1 row-start-2 py-4 overflow-y-auto">
         <nav className="flex flex-col gap-4">
           {sidebarItems.map((item, index) => (
             <div key={index} className="flex flex-col gap-1.5">
@@ -82,7 +82,7 @@ const AppLayout = ({ children, selectedAccounts, setSelectedAccounts }) => {
       {children}
 
       {/* Right Sidebar */}
-      <aside className="col-start-3 row-start-2 space-y-4 flex flex-col">
+      <aside className="col-start-3 row-start-2 space-y-4 flex flex-col overflow-y-auto">
         <Card className="border border-primary">
           <CardHeader className="px-3 py-2">
             <CardTitle className="font-st1 text-primary-dark">
