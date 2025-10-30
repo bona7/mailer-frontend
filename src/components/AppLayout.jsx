@@ -4,6 +4,7 @@ import { Card, CardContent, CardHeader, CardTitle } from "@/components/ui/card";
 import { Input } from "@/components/ui/input";
 import { Plus } from "lucide-react";
 import { logo, X, Contact } from "@/assets";
+import { useNavigate } from "react-router-dom";
 
 import {
   sidebarItems,
@@ -14,6 +15,8 @@ import {
 import { getAccountColor } from "@/lib/utils";
 
 const AppLayout = ({ children, selectedAccounts, setSelectedAccounts }) => {
+  const navigate = useNavigate();
+
   const handleAccountClick = (accountType) => {
     setSelectedAccounts((prev) =>
       prev.includes(accountType)
@@ -22,12 +25,31 @@ const AppLayout = ({ children, selectedAccounts, setSelectedAccounts }) => {
     );
   };
 
+  //페이지 이동 함수
+  const handleSubmenuClick = (subItem) => {
+    const routeMap = {
+      "View Templates": "/viewtemplate",
+      "My Templates": "/mytemplate",
+      "All email(8003)": "/",
+    };
+
+    const route = routeMap[subItem];
+    if (route) {
+      navigate(route);
+    }
+  };
+
   return (
     <div className="grid grid-cols-[10rem_1fr_14rem] grid-rows-[auto_minmax(0,1fr)] w-full h-dvh gap-x-4 pb-10 md:px-10 lg:px-16">
       {/* Header */}
       <header className="col-span-3 grid grid-cols-subgrid items-center py-6">
         <div className="col-start-1">
-          <img src={logo} alt="Logo" className="w-28 h-6" />
+          <img
+            src={logo}
+            alt="Logo"
+            className="w-28 h-6 cursor-pointer"
+            onClick={() => navigate("/")}
+          />
         </div>
         <div className="col-start-2">
           <Input
@@ -68,6 +90,7 @@ const AppLayout = ({ children, selectedAccounts, setSelectedAccounts }) => {
                     <div
                       key={subIndex}
                       className="font-b2 text-primary-dark cursor-pointer hover:text-primary"
+                      onClick={() => handleSubmenuClick(subItem)}
                     >
                       {subItem}
                     </div>
@@ -86,7 +109,7 @@ const AppLayout = ({ children, selectedAccounts, setSelectedAccounts }) => {
         <Card className="border border-primary">
           <CardHeader className="px-3 py-2">
             <CardTitle className="font-st1 text-primary-dark">
-              My Account
+              My Accounts
             </CardTitle>
           </CardHeader>
           <CardContent className="px-3 pb-3 space-y-1.5">
@@ -126,13 +149,21 @@ const AppLayout = ({ children, selectedAccounts, setSelectedAccounts }) => {
               Contacts
             </CardTitle>
           </CardHeader>
-          <CardContent className="space-y-1">
+          <CardContent className="space-y-1 pb-3 pr-3">
             {contacts.map((contact, index) => (
-              <div key={index} className="flex items-center gap-1">
+              <div key={index} className="flex items-center gap-1 py-1">
                 <Contact className="w-2.5 h-2.5" />
-                <span className="font-b1 text-sm text-black">{contact}</span>
+                <div className="flex items-center justify-between flex-1">
+                  <span className="font-b1 text-sm text-black">{contact}</span>
+                  <span className="pr-2">
+                    <X className="!size-3" />
+                  </span>
+                </div>
               </div>
             ))}
+            <Button className="!mt-3 w-full h-7 text-primary rounded-md bg-transparent hover:bg-transparent hover:text-primary-light">
+              <Plus className="w-4 h-4" />
+            </Button>
           </CardContent>
         </Card>
 

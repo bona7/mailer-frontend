@@ -6,16 +6,16 @@ const sidebarItems = [
     hasSubmenu: false,
   },
   {
-    icon: Mail,
-    label: "Template",
-    hasSubmenu: true,
-    submenu: ["View Templates", "My Templates"],
-  },
-  {
     icon: Inbox,
     label: "Inbox (8003)",
     hasSubmenu: true,
     submenu: ["All email(8003)", "Starred (70)", "Spam (106)"],
+  },
+  {
+    icon: Mail,
+    label: "Template",
+    hasSubmenu: true,
+    submenu: ["View Templates", "My Templates"],
   },
   {
     icon: Send,
@@ -54,16 +54,44 @@ const emailList = [
   },
   {
     sender: "보낸 사람 차카타",
-    time: "Sep.13",
+    time: "Nov.1",
     title: "하나 더",
     content: "내용입니다",
     account: "first",
   },
   {
     sender: "보낸 사람 파하",
-    time: "Sep.10",
+    time: "Nov.1",
     title: "마지막 제목",
     content: "마지막 내용",
+    account: "second",
+  },
+  {
+    sender: "보낸 사람 아아",
+    time: "Oct.26",
+    title: "아아아",
+    content: "어어어",
+    account: "second",
+  },
+  {
+    sender: "보낸 사람 듀",
+    time: "Oct.23",
+    title: "듀...",
+    content: "가나디",
+    account: "first",
+  },
+  {
+    sender: "보낸 사람 겨울",
+    time: "Oct.19",
+    title: "요즘 날씨가 춥네요",
+    content: "읏추추추추ㅜ",
+    account: "third",
+  },
+  {
+    sender: "보낸 사람 멋사",
+    time: "Oct.17",
+    title: "2장프 파이팅",
+    content: "모두 행복하세요",
     account: "second",
   },
 ];
@@ -78,9 +106,8 @@ const contacts = [
   "Lewis Hamilton",
   "Carlos Sainz",
   "Charles Leclerc",
-  "유지원(서울대 멋사 언정)",
+  "유지원(서울대 멋사)",
   "김민지(서울대 멋사)",
-  "Prof.정의철",
 ];
 
 const aiSummaries = [
