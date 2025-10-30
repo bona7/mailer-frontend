@@ -1,9 +1,14 @@
-
-import React, { useState, useRef, useEffect } from 'react';
+import React, { useState, useRef, useEffect } from "react";
 
 function DomainDropdown({ selectedDomain, onDomainChange }) {
   const [isOpen, setIsOpen] = useState(false);
-  const domains = ['gmail.com', 'naver.com', 'daum.net', 'snu.ac.kr', '직접 입력'];
+  const domains = [
+    "gmail.com",
+    "naver.com",
+    "daum.net",
+    "snu.ac.kr",
+    "직접 입력",
+  ];
   const dropdownRef = useRef(null);
 
   const handleOptionClick = (domain) => {
@@ -30,8 +35,21 @@ function DomainDropdown({ selectedDomain, onDomainChange }) {
         onClick={() => setIsOpen(!isOpen)}
         className="flex items-center justify-between w-full px-4 py-3 sm:py-3 border rounded-xl bg-white border-primary-dark text-gray-500 h-11"
       >
-        <span>{selectedDomain}</span>
-        <svg className={`w-4 h-4 pl-1 text-gray-500 transition-transform ${isOpen ? 'transform rotate-180' : ''}`} fill="none" stroke="currentColor" viewBox="0 0 24 24" xmlns="http://www.w3.org/2000/svg"><path strokeLinecap="round" strokeLinejoin="round" strokeWidth="2" d="M19 9l-7 7-7-7"></path></svg>
+        <span className="font-b1 text-gray-26">{selectedDomain}</span>
+        <svg
+          className={`w-4 h-4 pl-1 text-gray-500 transition-transform ${isOpen ? "transform rotate-180" : ""}`}
+          fill="none"
+          stroke="currentColor"
+          viewBox="0 0 24 24"
+          xmlns="http://www.w3.org/2000/svg"
+        >
+          <path
+            strokeLinecap="round"
+            strokeLinejoin="round"
+            strokeWidth="2"
+            d="M19 9l-7 7-7-7"
+          ></path>
+        </svg>
       </button>
       {isOpen && (
         <div className="absolute z-10 w-full mt-1 bg-white border border-primary-dark rounded-xl shadow-lg">
@@ -40,7 +58,7 @@ function DomainDropdown({ selectedDomain, onDomainChange }) {
               <li
                 key={domain}
                 onClick={() => handleOptionClick(domain)}
-                className="px-4 py-2 text-sm text-gray-700 hover:bg-gray-100 cursor-pointer"
+                className="px-4 py-2 text-sm text-gray-26 hover:bg-gray-100 cursor-pointer"
               >
                 {domain}
               </li>
