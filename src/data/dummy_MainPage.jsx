@@ -1,12 +1,13 @@
-import { Edit, Mail, Inbox, Send, Trash2 } from "lucide-react";
+import { Send } from "lucide-react";
+import { Inbox, Template, Trash, Compose } from "@/assets";
 const sidebarItems = [
   {
-    icon: Edit,
+    icon: Compose,
     label: "Compose",
     hasSubmenu: false,
   },
   {
-    icon: Mail,
+    icon: Template,
     label: "Template",
     hasSubmenu: true,
     submenu: ["View Templates", "My Templates"],
@@ -24,7 +25,7 @@ const sidebarItems = [
     submenu: ["All sent email", "Draft", "Schedule sent"],
   },
   {
-    icon: Trash2,
+    icon: Trash,
     label: "Trash",
     hasSubmenu: false,
   },

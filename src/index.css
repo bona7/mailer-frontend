@@ -86,10 +86,17 @@
     font-weight: 400;
   }
 
-  .font-button {
+  .font-bt {
     font-family: var(--font-main);
     font-size: 12px;
     line-height: 18px;
+    font-weight: 700;
+  }
+
+  .font-bt2 {
+    font-family: var(--font-main);
+    font-size: 11px;
+    line-height: Auto;
     font-weight: 700;
   }
 

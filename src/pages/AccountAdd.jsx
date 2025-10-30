@@ -23,11 +23,11 @@ function AccountAdded() {
   //const handleMainPageClick 메인 페이지로 이동하는 핸들러
 
   return (
-    <div className="relative flex flex-col items-center justify-center min-h-screen bg-primary-light/35 p-4">
+    <div className="relative flex flex-col items-center justify-center min-h-screen p-4">
       <img
         src={MailerLogoHeader}
         alt="Mailer Header Logo"
-        className="absolute top-8 left-8 w-32"
+        className="absolute top-8 left-8 w-28 h-6"
       />
 
       <div className="w-full max-w-xl p-8 sm:p-12 rounded-2xl shadow-lg bg-white text-center animate-fade-in">
