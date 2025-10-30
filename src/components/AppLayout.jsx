@@ -1,9 +1,11 @@
+import React, { useState } from "react";
 import { Avatar, AvatarFallback } from "@/components/ui/avatar";
 import { Button } from "@/components/ui/button";
 import { Card, CardContent, CardHeader, CardTitle } from "@/components/ui/card";
 import { Input } from "@/components/ui/input";
 import { Plus } from "lucide-react";
 import { logo, X, Contact } from "@/assets";
+import { useNavigate } from "react-router-dom";
 
 import {
   sidebarItems,
@@ -12,6 +14,7 @@ import {
   aiSummaries,
 } from "@/data/dummy_MainPage.jsx";
 import { getAccountColor } from "@/lib/utils";
+import MailComposeModal from "@/components/modals/MailComposeModal";
 
 const AppLayout = ({ children, selectedAccounts, setSelectedAccounts }) => {
   const handleAccountClick = (accountType) => {
@@ -21,13 +24,22 @@ const AppLayout = ({ children, selectedAccounts, setSelectedAccounts }) => {
         : [...prev, accountType],
     );
   };
+  const navigate = useNavigate();
+  const [isComposeModalOpen, setIsComposeModalOpen] = useState(false);
 
   return (
     <div className="relative grid grid-cols-[10rem_1fr_14rem] grid-rows-[auto_1fr] w-full min-h-dvh gap-x-4 pb-10 md:px-10 lg:px-16">
       {/* Header */}
       <header className="col-span-3 grid grid-cols-subgrid items-center py-6">
         <div className="col-start-1">
-          <img src={logo} alt="Logo" className="w-28 h-6" />
+          <img
+            src={logo}
+            alt="Logo"
+            className="w-28 h-6"
+            onClick={() => {
+              navigate("/");
+            }}
+          />
         </div>
         <div className="col-start-2">
           <Input
@@ -58,6 +70,11 @@ const AppLayout = ({ children, selectedAccounts, setSelectedAccounts }) => {
               <Button
                 variant="ghost"
                 className="justify-start h-auto gap-1 p-0 font-st1 text-primary-dark hover:text-primary hover:bg-transparent"
+                onClick={() => {
+                  if (item.label === "Compose") {
+                    setIsComposeModalOpen(true);
+                  }
+                }}
               >
                 <item.icon />
                 {item.label}
@@ -79,7 +96,16 @@ const AppLayout = ({ children, selectedAccounts, setSelectedAccounts }) => {
         </nav>
       </aside>
 
-      {children}
+      <div className="relative col-start-2 row-start-2">
+        {children}
+
+        {isComposeModalOpen && (
+          <MailComposeModal
+            isOpen={isComposeModalOpen}
+            onClose={() => setIsComposeModalOpen(false)}
+          />
+        )}
+      </div>
 
       {/* Right Sidebar */}
       <aside className="col-start-3 row-start-2 space-y-4 flex flex-col">

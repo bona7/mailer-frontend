@@ -1,7 +1,7 @@
-import SignUp from "../pages/SignUp";
-import SignIn from "../pages/SignIn";
-import Verify from "../pages/Verify";
-import AccountAdded from "../pages/AccountAdd";
-import TestPage from "./MainPage";
+import SignUp from "./SignUp";
+import SignIn from "./SignIn";
+import Verify from "./Verify";
+import AccountAdded from "./AccountAdd";
+import MainPage from "./MainPage";
 
-export { SignUp, SignIn, Verify, AccountAdded, TestPage };
+export { SignUp, SignIn, Verify, AccountAdded, MainPage };
