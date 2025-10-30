@@ -1,10 +1,9 @@
 import { useState } from "react";
 import { Button } from "@/components/ui/button";
-import { Avatar, AvatarFallback } from "@/components/ui/avatar";
 import { Heart } from "lucide-react";
 import CollectionDropdown from "./CollectionDropdown";
 
-const TemplateDetail = ({ templateName, authorName, aboutText }) => {
+const TemplateDetail = ({ templateName, aboutText, bodyText }) => {
   const [isDropdownOpen, setIsDropdownOpen] = useState(false);
   const [isHeartFilled, setIsHeartFilled] = useState(false);
 
@@ -56,22 +55,6 @@ const TemplateDetail = ({ templateName, authorName, aboutText }) => {
 
           <div className="mt-auto space-y-4">
             <div>
-              <h2 className="font-st1 text-black">Made by</h2>
-              <div className="flex items-center gap-2 mt-1">
-                <Avatar className="size-8">
-                  <AvatarFallback>AN</AvatarFallback>
-                </Avatar>
-                <div>
-                  <p className="font-b1 text-black">
-                    {authorName || "Author Name"}
-                  </p>
-                  <p className="font-overline text-black cursor-pointer hover:underline">
-                    Go to other templates ‘{authorName || "Author Name"}’ made
-                  </p>
-                </div>
-              </div>
-            </div>
-            <div>
               <h2 className="font-st1 text-black">About</h2>
               <p className="font-b2 text-gray-8c mt-1">
                 {aboutText || "Detailed description of the template goes here."}
@@ -81,7 +64,9 @@ const TemplateDetail = ({ templateName, authorName, aboutText }) => {
         </div>
 
         {/* Right Column */}
-        <div className="flex-grow bg-gray-d9 rounded-lg ml-8"></div>
+        <div className="flex-grow bg-gray-d9 rounded-lg ml-8 p-4 whitespace-pre-wrap font-b2 text-gray-8c overflow-y-auto">
+          {bodyText}
+        </div>
       </div>
     </div>
   );

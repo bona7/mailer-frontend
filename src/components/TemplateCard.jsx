@@ -8,7 +8,7 @@ const TemplateCard = ({ template, onClick }) => (
   >
     <div className="h-[188px] bg-gray-200 rounded-md"></div>
     <div className="flex justify-between items-center px-1 pt-1">
-      <h3 className="font-b1 text-gray-59">{template.name}</h3>
+      <h3 className="font-b1 text-gray-59 truncate">{template.name}</h3>
       <div className="flex items-center gap-1">
         <Heart
           className="size-3.5 text-secondary-dark hover:fill-secondary-light cursor-pointer"
@@ -24,8 +24,10 @@ const TemplateCard = ({ template, onClick }) => (
       </div>
     </div>
     <div className="flex flex-col px-1 pb-1">
-      <p className="font-b2 text-gray-43">About</p>
-      <p className="font-b2 text-gray-8c truncate">{template.about}</p>
+      <p className="font-b2 px-0.5 text-gray-59">{template.about}</p>
+      <p className="font-b2 px-0.5 text-gray-8c truncate mt-1">
+        {template.body}
+      </p>
     </div>
   </div>
 );
