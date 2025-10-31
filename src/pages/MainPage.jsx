@@ -1,19 +1,20 @@
 import { useState } from "react";
 import { Separator } from "@/components/ui/separator";
 import { Refresh } from "@/assets";
-import { emailList } from "@/data/dummy_MainPage.jsx";
-import MailList from "@/components/MailList";
-import AppLayout from "@/components/AppLayout";
+import { allMails } from "@/data/mails_dummy.jsx";
+import { MailList, AppLayout } from "@/components";
 import { useNavigate } from "react-router-dom";
 
 const MainPage = () => {
   const [selectedAccounts, setSelectedAccounts] = useState([]);
   const navigate = useNavigate();
 
+  const inboxMails = allMails.filter((mail) => mail.folder === "inbox");
+
   const filteredEmails =
     selectedAccounts.length > 0
-      ? emailList.filter((email) => selectedAccounts.includes(email.account))
-      : emailList;
+      ? inboxMails.filter((email) => selectedAccounts.includes(email.account))
+      : inboxMails;
 
   return (
     <AppLayout

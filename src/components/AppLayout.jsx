@@ -74,6 +74,12 @@ const AppLayout = ({ children, selectedAccounts, setSelectedAccounts }) => {
                   if (item.label === "Compose") {
                     setIsComposeModalOpen(true);
                   }
+                  if (item.label === "Inbox") {
+                    navigate("/");
+                  }
+                  if (item.label === "Trash") {
+                    navigate("/trash");
+                  }
                 }}
               >
                 <item.icon />

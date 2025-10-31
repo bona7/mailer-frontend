@@ -1,16 +1,35 @@
 import { Checkbox } from "@/components/ui/checkbox";
 import { getAccountColor } from "@/lib/utils";
 
-const MailList = ({ sender, time, title, content, account, onClick }) => {
+const MailList = ({
+  sender,
+  time,
+  title,
+  content,
+  account,
+  onClick,
+  showCheckbox = false,
+  checked,
+  onCheckChange,
+}) => {
   const accountColor = getAccountColor(account);
   const mailId = `${sender}-${time}-${title}`;
 
   return (
     <div
-      className="w-full cursor-pointer hover:bg-gray-f5 pt-4"
+      className={`w-full cursor-pointer hover:bg-gray-f5 pt-4 `}
       onClick={onClick}
     >
       <div className="flex items-center gap-3 pb-1">
+        {showCheckbox && (
+          <div className="ml-1.5" onClick={(e) => e.stopPropagation()}>
+            <Checkbox
+              checked={checked}
+              onCheckedChange={onCheckChange}
+              size="default"
+            />
+          </div>
+        )}
         <div className="flex items-center gap-2 w-40 pl-1.5">
           <div className={`w-2 h-2 rounded-full ${accountColor}`} />
           <span className="font-semibold text-sm text-gray-59 truncate">
@@ -30,9 +49,7 @@ const MailList = ({ sender, time, title, content, account, onClick }) => {
           <span>{time}</span>
           <div className="flex items-center gap-1">
             <Checkbox id={mailId} size="sm" />
-            <label htmlFor={mailId} className="text-sm font-medium">
-              AI Sum.
-            </label>
+            <label className="text-sm font-medium">AI Sum.</label>
           </div>
         </div>
       </div>

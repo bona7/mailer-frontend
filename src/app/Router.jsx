@@ -6,6 +6,7 @@ import {
   AccountAdded,
   MainPage,
   MailDetail,
+  Trash,
 } from "@/pages";
 
 function Router() {
@@ -18,6 +19,7 @@ function Router() {
         <Route path="/verify" element={<Verify />} />
         <Route path="/accountadded" element={<AccountAdded />} />
         <Route path="/mail/:id" element={<MailDetail />} />
+        <Route path="/trash" element={<Trash />} />
       </Routes>
     </BrowserRouter>
   );

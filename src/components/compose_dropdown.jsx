@@ -1,6 +1,6 @@
 import React, { useState, useRef, useEffect } from "react";
 
-function ComposeDropdown({ title, options, selectedOption, onOptionChange }) {
+function ComposeDropdown({ options, selectedOption, onOptionChange }) {
   const [isOpen, setIsOpen] = useState(false);
   const dropdownRef = useRef(null);
 
@@ -26,10 +26,9 @@ function ComposeDropdown({ title, options, selectedOption, onOptionChange }) {
       <div className="relative" ref={dropdownRef}>
         <button
           type="button"
-          onClick={() => setIsOpen(!isOpen)}
           className="h-8 flex items-center py-2 justify-between w-full rounded-xl"
         >
-          <div className="flex">
+          <div className="flex" onClick={() => setIsOpen(!isOpen)}>
             <label htmlFor="recipients" className="text-gray-8c font-st2">
               From.
             </label>
@@ -50,7 +49,10 @@ function ComposeDropdown({ title, options, selectedOption, onOptionChange }) {
               ></path>
             </svg>
           </div>
-          <span className="flex-grow text-left font-st2 px-3">
+          <span
+            className="flex-grow text-left font-st2 px-3 "
+            onClick={() => setIsOpen(!isOpen)}
+          >
             {selectedOption}
           </span>
         </button>

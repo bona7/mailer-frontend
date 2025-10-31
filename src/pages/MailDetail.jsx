@@ -1,16 +1,18 @@
 import { useState } from "react";
 import { Separator } from "@/components/ui/separator";
 import { useParams } from "react-router-dom";
-import { emailList, accountEmails } from "@/data/dummy_MainPage.jsx";
+import { allMails } from "@/data/mails_dummy.jsx";
+import { accountEmails } from "@/data/dummy_MainPage";
 import AppLayout from "@/components/AppLayout";
 import { getAccountColor } from "@/lib/utils";
 
 const MailDetail = () => {
   const [selectedAccounts, setSelectedAccounts] = useState([]);
   const { id } = useParams();
+  console.log(id);
 
   const emailId = parseInt(id, 10);
-  const email = emailList.find((email) => email.id === emailId);
+  const email = allMails.find((email) => email.id === emailId);
   const account = accountEmails.find((acc) => acc.type === email.account);
   console.log(email);
 
