@@ -4,9 +4,11 @@ import { Refresh } from "@/assets";
 import { emailList } from "@/data/dummy_MainPage.jsx";
 import MailList from "@/components/MailList";
 import AppLayout from "@/components/AppLayout";
+import { useNavigate } from "react-router-dom";
 
 const MainPage = () => {
   const [selectedAccounts, setSelectedAccounts] = useState([]);
+  const navigate = useNavigate();
 
   const filteredEmails =
     selectedAccounts.length > 0
@@ -18,7 +20,7 @@ const MainPage = () => {
       selectedAccounts={selectedAccounts}
       setSelectedAccounts={setSelectedAccounts}
     >
-      <section className="col-start-2 row-start-2 h-full bg-gray-f5/20 rounded-lg border border-primary p-4">
+      <section className="h-full bg-gray-f5/20 rounded-lg border border-primary p-4 ">
         <div className="flex items-center gap-2 pl-1.5">
           <h2 className="font-h7 text-primary-dark">In box</h2>
           <button
@@ -38,6 +40,7 @@ const MainPage = () => {
               title={email.title}
               content={email.content}
               account={email.account}
+              onClick={() => navigate(`/mail/${index}`)}
             />
           ))}
         </div>

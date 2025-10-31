@@ -35,7 +35,7 @@ const AppLayout = ({ children, selectedAccounts, setSelectedAccounts }) => {
           <img
             src={logo}
             alt="Logo"
-            className="w-28 h-6"
+            className="w-28 h-6 cursor-pointer"
             onClick={() => {
               navigate("/");
             }}
@@ -96,15 +96,17 @@ const AppLayout = ({ children, selectedAccounts, setSelectedAccounts }) => {
         </nav>
       </aside>
 
-      <div className="relative col-start-2 row-start-2">
-        {children}
+      <div className="relative col-start-2 row-start-2 flex justify-center min-w-0">
+        <div className="w-full flex-shrink">
+          {children}
 
-        {isComposeModalOpen && (
-          <MailComposeModal
-            isOpen={isComposeModalOpen}
-            onClose={() => setIsComposeModalOpen(false)}
-          />
-        )}
+          {isComposeModalOpen && (
+            <MailComposeModal
+              isOpen={isComposeModalOpen}
+              onClose={() => setIsComposeModalOpen(false)}
+            />
+          )}
+        </div>
       </div>
 
       {/* Right Sidebar */}
