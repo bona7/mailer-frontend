@@ -19,6 +19,12 @@ const sidebarItems = [
     submenu: ["All email(8003)", "Starred (70)", "Spam (106)"],
   },
   {
+    icon: Mail,
+    label: "Template",
+    hasSubmenu: true,
+    submenu: ["View Templates", "My Templates"],
+  },
+  {
     icon: Send,
     label: "Sent",
     hasSubmenu: true,
@@ -41,9 +47,8 @@ const contacts = [
   "Lewis Hamilton",
   "Carlos Sainz",
   "Charles Leclerc",
-  "유지원(서울대 멋사 언정)",
+  "유지원(서울대 멋사)",
   "김민지(서울대 멋사)",
-  "Prof.정의철",
 ];
 
 const aiSummaries = [

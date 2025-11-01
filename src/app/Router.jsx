@@ -7,6 +7,8 @@ import {
   MainPage,
   MailDetail,
   Trash,
+  ViewTemplate,
+  MyTemplate,
 } from "@/pages";
 
 function Router() {
@@ -20,6 +22,8 @@ function Router() {
         <Route path="/accountadded" element={<AccountAdded />} />
         <Route path="/mail/:id" element={<MailDetail />} />
         <Route path="/trash" element={<Trash />} />
+        <Route path="/viewtemplate" element={<ViewTemplate />} />
+        <Route path="/mytemplate" element={<MyTemplate />} />
       </Routes>
     </BrowserRouter>
   );
