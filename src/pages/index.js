@@ -17,5 +17,5 @@ export {
   ViewTemplate,
   MyTemplate,
   MailDetail,
-  Trash
+  Trash,
 };

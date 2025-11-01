@@ -43,7 +43,7 @@ const AppLayout = ({ children, selectedAccounts, setSelectedAccounts }) => {
   };
 
   return (
-    <div className="grid grid-cols-[10rem_1fr_14rem] grid-rows-[auto_minmax(0,1fr)] w-full h-dvh gap-x-4 pb-10 md:px-10 lg:px-16">
+    <div className="relative grid grid-cols-[10rem_1fr_14rem] grid-rows-[auto_1fr] w-full h-dvh gap-x-4 pb-10 md:px-10 lg:px-16 overflow-hidden">
       {/* Header */}
       <header className="col-span-3 grid grid-cols-subgrid items-center py-6">
         <div className="col-start-1">
@@ -118,8 +118,8 @@ const AppLayout = ({ children, selectedAccounts, setSelectedAccounts }) => {
         </nav>
       </aside>
 
-      <div className="relative col-start-2 row-start-2 flex justify-center min-w-0">
-        <div className="w-full flex-shrink">
+      <div className="relative col-start-2 row-start-2 flex justify-center min-w-0 min-h-0">
+        <div className="w-full h-full flex flex-col">
           {children}
 
           {isComposeModalOpen && (
