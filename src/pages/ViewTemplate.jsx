@@ -70,6 +70,7 @@ const ViewTemplate = () => {
               templateName={selectedTemplate.topic}
               aboutText={selectedTemplate.subCategory}
               bodyText={selectedTemplate.body}
+              onClose={handleCloseModal}
             />
           </div>
         </div>

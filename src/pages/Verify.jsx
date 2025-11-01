@@ -9,6 +9,7 @@ function Verify() {
   const [isVerified, setIsVerified] = useState(false);
   const [selectedDomain, setSelectedDomain] = useState("gmail.com");
   const [isDirectInput, setIsDirectInput] = useState(false);
+  const [emailPrefix, setEmailPrefix] = useState("");
   const jobOptions = [
     "중/고등학생",
     "대학(학부)생",
@@ -65,6 +66,13 @@ function Verify() {
     }
   };
 
+  const handleEmailPrefixChange = (e) => {
+    const value = e.target.value;
+    // @를 제거하고 앞부분만 저장
+    const prefix = value.replace("@", "");
+    setEmailPrefix(prefix);
+  };
+
   // 계정 인증 완료되어야지 넘어가도록 수정
   const handleAccountAdd = () => {
     navigate("/accountadded");
@@ -91,7 +99,9 @@ function Verify() {
           <div className="flex items-center space-x-1.5">
             <input
               type="text"
-              placeholder="@"
+              value={emailPrefix + "@"}
+              onChange={handleEmailPrefixChange}
+              placeholder="email@"
               className="w-full px-4 py-3 sm:py-3 border rounded-xl text-right placeholder-gray-bf border-primary-dark h-11"
             />
             {isDirectInput ? (

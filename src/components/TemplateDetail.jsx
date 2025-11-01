@@ -1,9 +1,9 @@
 import { useState } from "react";
 import { Button } from "@/components/ui/button";
-import { Heart } from "lucide-react";
+import { Heart, X } from "lucide-react";
 import CollectionDropdown from "./CollectionDropdown";
 
-const TemplateDetail = ({ templateName, aboutText, bodyText }) => {
+const TemplateDetail = ({ templateName, aboutText, bodyText, onClose }) => {
   const [isDropdownOpen, setIsDropdownOpen] = useState(false);
   const [isHeartFilled, setIsHeartFilled] = useState(false);
 
@@ -21,6 +21,14 @@ const TemplateDetail = ({ templateName, aboutText, bodyText }) => {
       <div className="absolute top-4 left-4 font-st2 text-black">
         Template Name
       </div>
+      <Button
+        variant="ghost"
+        size="icon"
+        className="absolute top-4 right-4 size-6 hover:bg-gray-100"
+        onClick={onClose}
+      >
+        <X className="size-4" />
+      </Button>
       <div className="p-14 flex h-full">
         {/* Left Column */}
         <div className="flex flex-col w-[280px]">
@@ -64,7 +72,7 @@ const TemplateDetail = ({ templateName, aboutText, bodyText }) => {
         </div>
 
         {/* Right Column */}
-        <div className="flex-grow bg-gray-d9 rounded-lg ml-8 p-4 whitespace-pre-wrap font-b2 text-gray-8c overflow-y-auto">
+        <div className="flex-grow bg-transparent border border-secondary-dark rounded-lg ml-8 p-4 whitespace-pre-wrap font-b2 text-gray-8c overflow-y-auto">
           {bodyText}
         </div>
       </div>
