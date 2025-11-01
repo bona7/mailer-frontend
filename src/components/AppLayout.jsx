@@ -26,7 +26,6 @@ const AppLayout = ({ children, selectedAccounts, setSelectedAccounts }) => {
         : [...prev, accountType],
     );
   };
-  const navigate = useNavigate();
   const [isComposeModalOpen, setIsComposeModalOpen] = useState(false);
 
   //페이지 이동 함수

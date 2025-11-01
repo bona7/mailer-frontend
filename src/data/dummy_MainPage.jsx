@@ -19,12 +19,6 @@ const sidebarItems = [
     submenu: ["All email(8003)", "Starred (70)", "Spam (106)"],
   },
   {
-    icon: Mail,
-    label: "Template",
-    hasSubmenu: true,
-    submenu: ["View Templates", "My Templates"],
-  },
-  {
     icon: Send,
     label: "Sent",
     hasSubmenu: true,
