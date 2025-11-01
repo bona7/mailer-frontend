@@ -1,8 +1,10 @@
-import SignUp from "../pages/SignUp";
-import SignIn from "../pages/SignIn";
-import Verify from "../pages/Verify";
-import AccountAdded from "../pages/AccountAdd";
-import TestPage from "./MainPage";
+import SignUp from "./SignUp";
+import SignIn from "./SignIn";
+import Verify from "./Verify";
+import AccountAdded from "./AccountAdd";
+import MainPage from "./MainPage";
+import MailDetail from "./MailDetail";
+import Trash from "./Trash";
 import ViewTemplate from "./ViewTemplate";
 import MyTemplate from "./MyTemplate";
 
@@ -11,7 +13,9 @@ export {
   SignIn,
   Verify,
   AccountAdded,
-  TestPage,
+  MainPage,
   ViewTemplate,
   MyTemplate,
+  MailDetail,
+  Trash
 };

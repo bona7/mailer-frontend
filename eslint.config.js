@@ -18,6 +18,12 @@ export default defineConfig([
       "react/react-in-jsx-scope": "off",
       "react/jsx-uses-react": "off",
       "react/prop-types": "off",
+      "no-unused-vars": [
+        "warn",
+        {
+          varsIgnorePattern: "React", // React는 unused로 보지 않음
+        },
+      ],
     },
   },
   {

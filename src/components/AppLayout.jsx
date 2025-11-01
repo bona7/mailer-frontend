@@ -1,3 +1,4 @@
+import React, { useState } from "react";
 import { Avatar, AvatarFallback } from "@/components/ui/avatar";
 import { Button } from "@/components/ui/button";
 import { Card, CardContent, CardHeader, CardTitle } from "@/components/ui/card";
@@ -13,6 +14,7 @@ import {
   aiSummaries,
 } from "@/data/dummy_MainPage.jsx";
 import { getAccountColor } from "@/lib/utils";
+import MailComposeModal from "@/components/modals/MailComposeModal";
 
 const AppLayout = ({ children, selectedAccounts, setSelectedAccounts }) => {
   const navigate = useNavigate();
@@ -24,6 +26,8 @@ const AppLayout = ({ children, selectedAccounts, setSelectedAccounts }) => {
         : [...prev, accountType],
     );
   };
+  const navigate = useNavigate();
+  const [isComposeModalOpen, setIsComposeModalOpen] = useState(false);
 
   //페이지 이동 함수
   const handleSubmenuClick = (subItem) => {
@@ -48,7 +52,9 @@ const AppLayout = ({ children, selectedAccounts, setSelectedAccounts }) => {
             src={logo}
             alt="Logo"
             className="w-28 h-6 cursor-pointer"
-            onClick={() => navigate("/")}
+            onClick={() => {
+              navigate("/");
+            }}
           />
         </div>
         <div className="col-start-2">
@@ -80,6 +86,17 @@ const AppLayout = ({ children, selectedAccounts, setSelectedAccounts }) => {
               <Button
                 variant="ghost"
                 className="justify-start h-auto gap-1 p-0 font-st1 text-primary-dark hover:text-primary hover:bg-transparent"
+                onClick={() => {
+                  if (item.label === "Compose") {
+                    setIsComposeModalOpen(true);
+                  }
+                  if (item.label === "Inbox") {
+                    navigate("/");
+                  }
+                  if (item.label === "Trash") {
+                    navigate("/trash");
+                  }
+                }}
               >
                 <item.icon />
                 {item.label}
@@ -102,7 +119,18 @@ const AppLayout = ({ children, selectedAccounts, setSelectedAccounts }) => {
         </nav>
       </aside>
 
-      {children}
+      <div className="relative col-start-2 row-start-2 flex justify-center min-w-0">
+        <div className="w-full flex-shrink">
+          {children}
+
+          {isComposeModalOpen && (
+            <MailComposeModal
+              isOpen={isComposeModalOpen}
+              onClose={() => setIsComposeModalOpen(false)}
+            />
+          )}
+        </div>
+      </div>
 
       {/* Right Sidebar */}
       <aside className="col-start-3 row-start-2 space-y-4 flex flex-col overflow-y-auto">

@@ -1,9 +1,16 @@
-import { Edit, Mail, Inbox, Send, Trash2 } from "lucide-react";
+import { Send } from "lucide-react";
+import { Inbox, Template, Trash, Compose } from "@/assets";
 const sidebarItems = [
   {
-    icon: Edit,
+    icon: Compose,
     label: "Compose",
     hasSubmenu: false,
+  },
+  {
+    icon: Template,
+    label: "Template",
+    hasSubmenu: true,
+    submenu: ["View Templates", "My Templates"],
   },
   {
     icon: Inbox,
@@ -24,75 +31,9 @@ const sidebarItems = [
     submenu: ["All sent email", "Draft", "Schedule sent"],
   },
   {
-    icon: Trash2,
+    icon: Trash,
     label: "Trash",
     hasSubmenu: false,
-  },
-];
-
-const emailList = [
-  {
-    sender: "보낸 사람 가나다",
-    time: "20:18",
-    title: "제목",
-    content: "내용",
-    account: "first",
-  },
-  {
-    sender: "보낸 사람 라마바",
-    time: "15:18",
-    title: "다른 제목",
-    content: "다른 내용",
-    account: "second",
-  },
-  {
-    sender: "보낸 사람 사아자",
-    time: "14:18",
-    title: "또 다른 제목",
-    content: "또 다른 내용",
-    account: "third",
-  },
-  {
-    sender: "보낸 사람 차카타",
-    time: "Nov.1",
-    title: "하나 더",
-    content: "내용입니다",
-    account: "first",
-  },
-  {
-    sender: "보낸 사람 파하",
-    time: "Nov.1",
-    title: "마지막 제목",
-    content: "마지막 내용",
-    account: "second",
-  },
-  {
-    sender: "보낸 사람 아아",
-    time: "Oct.26",
-    title: "아아아",
-    content: "어어어",
-    account: "second",
-  },
-  {
-    sender: "보낸 사람 듀",
-    time: "Oct.23",
-    title: "듀...",
-    content: "가나디",
-    account: "first",
-  },
-  {
-    sender: "보낸 사람 겨울",
-    time: "Oct.19",
-    title: "요즘 날씨가 춥네요",
-    content: "읏추추추추ㅜ",
-    account: "third",
-  },
-  {
-    sender: "보낸 사람 멋사",
-    time: "Oct.17",
-    title: "2장프 파이팅",
-    content: "모두 행복하세요",
-    account: "second",
   },
 ];
 
@@ -119,4 +60,4 @@ const aiSummaries = [
   },
 ];
 
-export { sidebarItems, emailList, accountEmails, contacts, aiSummaries };
+export { sidebarItems, accountEmails, contacts, aiSummaries };
