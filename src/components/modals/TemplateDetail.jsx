@@ -48,7 +48,7 @@ const TemplateDetail = ({ template, onClose }) => {
                 <Button
                   variant="outline"
                   size="icon"
-                  className="border-secondary-dark text-secondary-dark size-8"
+                  className="border-secondary-dark text-secondary-dark size-9"
                   onClick={toggleDropdown}
                 >
                   <Heart
