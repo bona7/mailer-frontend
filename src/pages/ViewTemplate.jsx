@@ -67,9 +67,7 @@ const ViewTemplate = () => {
         >
           <div onClick={(e) => e.stopPropagation()}>
             <TemplateDetail
-              templateName={selectedTemplate.topic}
-              aboutText={selectedTemplate.subCategory}
-              bodyText={selectedTemplate.body}
+              template={selectedTemplate}
               onClose={handleCloseModal}
             />
           </div>

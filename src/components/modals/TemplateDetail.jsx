@@ -1,9 +1,13 @@
 import { useState } from "react";
 import { Button } from "@/components/ui/button";
 import { Heart, X } from "lucide-react";
-import CollectionDropdown from "./CollectionDropdown";
+import CollectionDropdown from "../CollectionDropdown";
 
-const TemplateDetail = ({ templateName, aboutText, bodyText, onClose }) => {
+const TemplateDetail = ({ template, onClose }) => {
+  const title = template.title;
+  const templateName = template.topic;
+  const aboutText = template.subCategory;
+  const bodyText = template.body;
   const [isDropdownOpen, setIsDropdownOpen] = useState(false);
   const [isHeartFilled, setIsHeartFilled] = useState(false);
 
@@ -19,7 +23,7 @@ const TemplateDetail = ({ templateName, aboutText, bodyText, onClose }) => {
   return (
     <div className="relative bg-white rounded-lg w-[912px] h-[562px] overflow-hidden border">
       <div className="absolute top-4 left-4 font-st2 text-black">
-        Template Name
+        {templateName}
       </div>
       <Button
         variant="ghost"
@@ -29,7 +33,7 @@ const TemplateDetail = ({ templateName, aboutText, bodyText, onClose }) => {
       >
         <X className="size-4" />
       </Button>
-      <div className="p-14 flex h-full">
+      <div className="p-14 flex h-full gap-20">
         {/* Left Column */}
         <div className="flex flex-col w-[280px]">
           <div className="mt-32">
@@ -63,7 +67,7 @@ const TemplateDetail = ({ templateName, aboutText, bodyText, onClose }) => {
 
           <div className="mt-auto space-y-4">
             <div>
-              <h2 className="font-st1 text-black">About</h2>
+              <h2 className="font-st1 text-gray-26">About</h2>
               <p className="font-b2 text-gray-8c mt-1">
                 {aboutText || "Detailed description of the template goes here."}
               </p>
@@ -72,8 +76,20 @@ const TemplateDetail = ({ templateName, aboutText, bodyText, onClose }) => {
         </div>
 
         {/* Right Column */}
-        <div className="flex-grow bg-transparent border border-secondary-dark rounded-lg ml-8 p-4 whitespace-pre-wrap font-b2 text-gray-8c overflow-y-auto">
-          {bodyText}
+        <div className="flex flex-col gap-2">
+          <div className="flex flex-col gap-0.5">
+            <label className="font-overline pl-1 text-gray-8c">Title</label>
+            <div className="bg-transparent border-[1.5px] border-secondary-dark rounded-lg pl-5 pr-6 py-2 whitespace-pre-wrap font-b2 text-gray-8c overflow-y-auto">
+              {title}
+            </div>
+          </div>
+
+          <div className="flex flex-col gap-0.5">
+            <label className="font-overline pl-1 text-gray-8c">Content</label>
+            <div className="flex-grow bg-transparent border-[1.5px] border-secondary-dark rounded-lg pl-5 pr-6 pt-4 pb-5 whitespace-pre-wrap font-b2 text-gray-8c overflow-y-auto">
+              {bodyText}
+            </div>
+          </div>
         </div>
       </div>
     </div>
