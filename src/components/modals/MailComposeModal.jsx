@@ -10,6 +10,20 @@ function MailComposeModal({ isOpen, onClose }) {
   const [selectedFromEmail, setSelectedFromEmail] = useState(
     accountEmails[0].email, // 이메일 선택여부 context로 관리 이후 선택된 이메일로 초기값 설정하도록 수정 필요
   );
+  const [attachedFiles, setAttachedFiles] = useState([]);
+
+  const handleFileUpload = (event) => {
+    const files = Array.from(event.target.files);
+    setAttachedFiles((prev) => [...prev, ...files]);
+  };
+
+  const handleAttachmentClick = () => {
+    document.getElementById("file-input").click();
+  };
+
+  const removeFile = (index) => {
+    setAttachedFiles((prev) => prev.filter((_, i) => i !== index));
+  };
 
   if (!isOpen) return null;
 
@@ -36,7 +50,7 @@ function MailComposeModal({ isOpen, onClose }) {
           <Input
             id="recipients"
             type="email"
-            className="border-none px-5 h-8 focus-visible:ring-0 focus-visible:ring-offset-0"
+            className="border-none pax-5 h-8 focus-visible:ring-0 focus-visible:ring-offset-0"
           />
         </div>
         <div className="flex items-center border-b border-secondary-dark">
@@ -46,9 +60,33 @@ function MailComposeModal({ isOpen, onClose }) {
             className="p-0 h-8 border-none focus-visible:ring-0 focus-visible:ring-offset-0 placeholder:font-st2 placeholder:text-gray-8c"
           />
         </div>
-        <div className="flex-grow py-4">
+        <div className="flex-grow py-4 flex flex-col">
+          {/* Attached files display */}
+          {attachedFiles.length > 0 && (
+            <div className="mb-2 p-2 bg-gray-f0 rounded border">
+              <div className="text-sm font-medium text-secondary-dark mb-2">
+                첨부파일:
+              </div>
+              <div className="flex flex-wrap gap-2">
+                {attachedFiles.map((file, index) => (
+                  <div
+                    key={index}
+                    className="flex items-center gap-1 bg-white px-2 py-1 rounded text-xs"
+                  >
+                    <span className="text-gray-8c">{file.name}</span>
+                    <button
+                      onClick={() => removeFile(index)}
+                      className="text-gray-500 hover:text-red-500"
+                    >
+                      <X className="w-3 h-3" />
+                    </button>
+                  </div>
+                ))}
+              </div>
+            </div>
+          )}
           {/* This would be a rich text editor */}
-          <textarea className="w-full h-full bg-transparent border-none resize-none focus:outline-none" />
+          <textarea className="w-full flex-grow bg-transparent border-none resize-none focus:outline-none" />
         </div>
         <div className="flex justify-between items-center mt-auto">
           <div className="flex items-center gap-2">
@@ -59,7 +97,16 @@ function MailComposeModal({ isOpen, onClose }) {
             >
               Send
             </Button>
-            <img src={attachment} alt="attachment" className="w-4 h-5" />
+            <button onClick={handleAttachmentClick} className="cursor-pointer">
+              <img src={attachment} alt="attachment" className="w-4 h-5" />
+            </button>
+            <input
+              id="file-input"
+              type="file"
+              multiple
+              onChange={handleFileUpload}
+              style={{ display: "none" }}
+            />
           </div>
           <div className="flex items-center gap-0">
             {/* Formatting buttons */}

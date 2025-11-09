@@ -1,4 +1,4 @@
-import React, { useState } from "react";
+import React, { useState, useRef, useEffect } from "react";
 import { useNavigate } from "react-router-dom";
 import { useSignUp } from "@clerk/clerk-react";
 import MailerLogo from "../assets/mailer-logo.svg";
@@ -7,16 +7,50 @@ import MailerLogoHeader from "../assets/mailer-logo-header.svg";
 function SignUp() {
   const navigate = useNavigate();
   const { signUp, setActive, isLoaded } = useSignUp();
-  const [email, setEmail] = useState("");
+  const [emailPrefix, setEmailPrefix] = useState("");
+  const [selectedDomain, setSelectedDomain] = useState("gmail.com");
+  const [isDirectInput, setIsDirectInput] = useState(false);
+  const [isDropdownOpen, setIsDropdownOpen] = useState(false);
   const [password, setPassword] = useState("");
-  const [confirmPassword, setConfirmPassword] = useState("");
   const [error, setError] = useState("");
   const [pendingVerification, setPendingVerification] = useState(false);
   const [code, setCode] = useState("");
+  const dropdownRef = useRef(null);
+
+  const domains = [
+    "gmail.com",
+    "naver.com",
+    "daum.net",
+    "snu.ac.kr",
+    "직접 입력",
+  ];
 
   const handleSignInClick = () => {
     navigate("/signin");
   };
+
+  const handleDomainSelect = (domain) => {
+    if (domain === "직접 입력") {
+      setIsDirectInput(true);
+      setSelectedDomain("");
+    } else {
+      setIsDirectInput(false);
+      setSelectedDomain(domain);
+    }
+    setIsDropdownOpen(false);
+  };
+
+  useEffect(() => {
+    function handleClickOutside(event) {
+      if (dropdownRef.current && !dropdownRef.current.contains(event.target)) {
+        setIsDropdownOpen(false);
+      }
+    }
+    document.addEventListener("mousedown", handleClickOutside);
+    return () => {
+      document.removeEventListener("mousedown", handleClickOutside);
+    };
+  }, []);
 
   const handleSubmit = async (e) => {
     e.preventDefault();
@@ -25,14 +59,12 @@ function SignUp() {
       return;
     }
 
-    if (password !== confirmPassword) {
-      setError("비밀번호가 일치하지 않습니다.");
-      return;
-    }
+    // 전체 이메일 주소 생성
+    const fullEmail = `${emailPrefix}@${selectedDomain}`;
 
     try {
       await signUp.create({
-        emailAddress: email,
+        emailAddress: fullEmail,
         password,
       });
 
@@ -77,19 +109,19 @@ function SignUp() {
         alt="Mailer Header Logo"
         className="absolute top-8 left-8 w-28 h-6"
       />
-      <div className="w-full max-w-xl p-8 sm:p-12 rounded-2xl shadow-lg bg-white">
-        <div className="flex justify-center mb-6 sm:mb-8">
-          <img src={MailerLogo} alt="Mailer Logo" className="w-48" />
+      <div className="w-[540px] h-[528px] p-8 sm:p-12 rounded-2xl shadow-lg bg-white">
+        <div className="flex justify-center mt-8 mb-6 sm:mb-8">
+          <img src={MailerLogo} alt="Mailer Logo" className="w-34 p-4" />
         </div>
 
-        <div className="flex justify-center space-x-2 mb-6 sm:mb-8">
+        <div className="flex justify-center gap-7 mb-6 sm:mb-8">
           <button
-            className="w-1/2 py-2 px-4 sm:py-3 rounded-xl border-2 text-base sm:text-lg border-primary-dark text-primary-dark hover:bg-[#A5BDE4]/20 transition-colors"
+            className="w-52 h-9 rounded-[20px] border-2 text-base sm:text-lg border-primary-dark text-primary-dark hover:bg-[#A5BDE4]/20 transition-colors"
             onClick={handleSignInClick}
           >
-            Sign IN
+            Sign In
           </button>
-          <button className="w-1/2 py-2 px-4 sm:py-3 rounded-xl border-2 text-base sm:text-lg text-white bg-primary-dark border-primary-dark">
+          <button className="w-52 h-9 rounded-[20px] border-2 text-base sm:text-lg text-white bg-primary-dark border-primary-dark">
             Sign Up
           </button>
         </div>
@@ -101,34 +133,104 @@ function SignUp() {
                 {error}
               </div>
             )}
-            <input
-              type="email"
-              placeholder="@gmail.com"
-              value={email}
-              onChange={(e) => setEmail(e.target.value)}
-              required
-              className="w-full px-4 py-3 sm:py-4 border rounded-xl text-right placeholder-gray-400 border-primary-dark"
-            />
+            <div className="flex items-center gap-0 w-[444px]">
+              <input
+                type="text"
+                placeholder=""
+                value={emailPrefix}
+                onChange={(e) => setEmailPrefix(e.target.value)}
+                required
+                className="flex-1 h-10 px-2 border border-r-0 rounded-l-lg placeholder-gray-500 border-primary-dark text-sm focus:outline-none"
+              />
+              <span className="h-10 flex items-center border-t border-b border-primary-dark text-gray-500 bg-white">
+                @
+              </span>
+              {isDirectInput ? (
+                <div className="relative w-32">
+                  <input
+                    type="text"
+                    value={selectedDomain}
+                    onChange={(e) => setSelectedDomain(e.target.value)}
+                    placeholder="domain.com"
+                    className="w-full h-10 pl-2 pr-6 border rounded-r-lg border-primary-dark placeholder-gray-500 text-sm focus:outline-none"
+                  />
+                  <button
+                    type="button"
+                    onClick={() => {
+                      setIsDirectInput(false);
+                      setSelectedDomain("gmail.com");
+                    }}
+                    className="absolute inset-y-0 right-0 flex items-center pr-2"
+                  >
+                    <svg
+                      className="w-4 h-4 text-gray-500"
+                      fill="none"
+                      stroke="currentColor"
+                      viewBox="0 0 24 24"
+                    >
+                      <path
+                        strokeLinecap="round"
+                        strokeLinejoin="round"
+                        strokeWidth="2"
+                        d="M19 9l-7 7-7-7"
+                      ></path>
+                    </svg>
+                  </button>
+                </div>
+              ) : (
+                <div className="relative w-32" ref={dropdownRef}>
+                  <button
+                    type="button"
+                    onClick={() => setIsDropdownOpen(!isDropdownOpen)}
+                    className="flex items-center justify-start w-full h-10 pl-2 border border-l-0 rounded-r-lg bg-white border-primary-dark text-gray-500"
+                  >
+                    <span className="text-sm text-gray-500">
+                      {selectedDomain}
+                    </span>
+                    <svg
+                      className={`w-4 h-4 text-gray-500 transition-transform ml-2 ${isDropdownOpen ? "transform rotate-180" : ""}`}
+                      fill="none"
+                      stroke="currentColor"
+                      viewBox="0 0 24 24"
+                    >
+                      <path
+                        strokeLinecap="round"
+                        strokeLinejoin="round"
+                        strokeWidth="2"
+                        d="M19 9l-7 7-7-7"
+                      ></path>
+                    </svg>
+                  </button>
+                  {isDropdownOpen && (
+                    <div className="absolute z-10 w-full mt-1 bg-white border border-primary-dark rounded-lg shadow-lg">
+                      <ul className="py-1 max-h-48 overflow-y-auto">
+                        {domains.map((domain) => (
+                          <li
+                            key={domain}
+                            onClick={() => handleDomainSelect(domain)}
+                            className="pl-2 pr-8 py-2 text-sm text-gray-700 hover:bg-gray-100 cursor-pointer"
+                          >
+                            {domain}
+                          </li>
+                        ))}
+                      </ul>
+                    </div>
+                  )}
+                </div>
+              )}
+            </div>
             <input
               type="password"
               placeholder="Password"
               value={password}
               onChange={(e) => setPassword(e.target.value)}
               required
-              className="w-full px-4 py-3 sm:py-4 border rounded-xl placeholder-gray-400 border-primary-dark"
-            />
-            <input
-              type="password"
-              placeholder="Confirm Password"
-              value={confirmPassword}
-              onChange={(e) => setConfirmPassword(e.target.value)}
-              required
-              className="w-full px-4 py-3 sm:py-4 border rounded-xl placeholder-gray-400 border-primary-dark"
+              className="w-[444px] h-10 px-4 border rounded-lg placeholder-gray-400 border-primary-dark"
             />
             <button
               type="submit"
               disabled={!isLoaded}
-              className="w-full mt-6 sm:mt-8 py-3 rounded-xl text-white text-lg sm:text-xl bg-primary-dark disabled:opacity-50"
+              className="w-[444px] h-8 mt-2 sm:mt-2 flex items-center justify-center rounded-xl text-white font-b2 bg-primary-dark disabled:opacity-50"
             >
               sign up
             </button>
@@ -156,7 +258,7 @@ function SignUp() {
             <button
               type="submit"
               disabled={!isLoaded}
-              className="w-full mt-6 sm:mt-8 py-3 rounded-xl text-white text-lg sm:text-xl bg-primary-dark disabled:opacity-50"
+              className="w-full mt-2 sm:mt-8 py-3 rounded-xl text-white text-lg sm:text-xl bg-primary-dark disabled:opacity-50"
             >
               인증 완료
             </button>
