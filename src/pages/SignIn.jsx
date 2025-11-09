@@ -1,13 +1,43 @@
-import React from "react";
+import React, { useState } from "react";
 import { useNavigate } from "react-router-dom";
+import { useSignIn } from "@clerk/clerk-react";
 import MailerLogo from "../assets/mailer-logo.svg";
 import MailerLogoHeader from "../assets/mailer-logo-header.svg";
 
 function SignIn() {
   const navigate = useNavigate();
+  const { signIn, setActive, isLoaded } = useSignIn();
+  const [email, setEmail] = useState("");
+  const [password, setPassword] = useState("");
+  const [error, setError] = useState("");
 
   const handleSignUpClick = () => {
     navigate("/signup");
+  };
+
+  const handleSubmit = async (e) => {
+    e.preventDefault();
+
+    if (!isLoaded) {
+      return;
+    }
+
+    try {
+      const result = await signIn.create({
+        identifier: email,
+        password,
+      });
+
+      if (result.status === "complete") {
+        await setActive({ session: result.createdSessionId });
+        navigate("/"); // 로그인 성공 시 메인 페이지로 이동
+      } else {
+        console.log("추가 인증 필요:", result);
+      }
+    } catch (err) {
+      console.error("로그인 오류:", err);
+      setError(err.errors?.[0]?.message || "로그인에 실패했습니다.");
+    }
   };
 
   return (
@@ -34,20 +64,35 @@ function SignIn() {
           </button>
         </div>
 
-        <div className="space-y-4 sm:space-y-5">
+        <form onSubmit={handleSubmit} className="space-y-4 sm:space-y-5">
+          {error && (
+            <div className="p-3 text-sm text-red-600 bg-red-50 rounded-lg">
+              {error}
+            </div>
+          )}
           <input
             type="email"
             placeholder="@gmail.com"
+            value={email}
+            onChange={(e) => setEmail(e.target.value)}
+            required
             className="w-full px-4 py-3 sm:py-4 border rounded-xl text-right placeholder-gray-400 border-primary-dark"
           />
           <input
             type="password"
             placeholder="Password"
+            value={password}
+            onChange={(e) => setPassword(e.target.value)}
+            required
             className="w-full px-4 py-3 sm:py-4 border rounded-xl placeholder-gray-400 border-primary-dark"
           />
-        </div>
+        </form>
 
-        <button className="w-full mt-6 sm:mt-8 py-3 rounded-xl text-white text-lg sm:text-xl bg-primary-dark">
+        <button
+          onClick={handleSubmit}
+          disabled={!isLoaded}
+          className="w-full mt-6 sm:mt-8 py-3 rounded-xl text-white text-lg sm:text-xl bg-primary-dark disabled:opacity-50"
+        >
           sign in
         </button>
       </div>
