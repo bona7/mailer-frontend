@@ -61,33 +61,33 @@ function MailComposeModal({ isOpen, onClose }) {
           />
         </div>
         <div className="flex-grow py-4 flex flex-col">
-          {/* Attached files display */}
-          {attachedFiles.length > 0 && (
-            <div className="mb-2 p-2 bg-gray-f0 rounded border">
-              <div className="text-sm font-medium text-secondary-dark mb-2">
-                첨부파일:
-              </div>
-              <div className="flex flex-wrap gap-2">
-                {attachedFiles.map((file, index) => (
-                  <div
-                    key={index}
-                    className="flex items-center gap-1 bg-white px-2 py-1 rounded text-xs"
-                  >
-                    <span className="text-gray-8c">{file.name}</span>
-                    <button
-                      onClick={() => removeFile(index)}
-                      className="text-gray-500 hover:text-red-500"
-                    >
-                      <X className="w-3 h-3" />
-                    </button>
-                  </div>
-                ))}
-              </div>
-            </div>
-          )}
           {/* This would be a rich text editor */}
           <textarea className="w-full flex-grow bg-transparent border-none resize-none focus:outline-none" />
         </div>
+        {/* Attached files display */}
+        {attachedFiles.length > 0 && (
+          <div className="mb-2 p-2 bg-gray-f0 rounded-[9px] border">
+            <div className="text-sm font-medium text-secondary-dark mb-2">
+              첨부파일:
+            </div>
+            <div className="flex flex-wrap gap-2">
+              {attachedFiles.map((file, index) => (
+                <div
+                  key={index}
+                  className="flex items-center gap-1 bg-white px-2 py-1 rounded-[9px] text-xs"
+                >
+                  <span className="text-gray-8c">{file.name}</span>
+                  <button
+                    onClick={() => removeFile(index)}
+                    className="text-gray-500 hover:text-red-500"
+                  >
+                    <X className="w-3 h-3" />
+                  </button>
+                </div>
+              ))}
+            </div>
+          </div>
+        )}
         <div className="flex justify-between items-center mt-auto">
           <div className="flex items-center gap-2">
             <Button
@@ -110,9 +110,6 @@ function MailComposeModal({ isOpen, onClose }) {
           </div>
           <div className="flex items-center gap-0">
             {/* Formatting buttons */}
-            <Button variant="ghost" size="icon">
-              A
-            </Button>
             <select className="bg-transparent">
               <option>Montserrat</option>
             </select>

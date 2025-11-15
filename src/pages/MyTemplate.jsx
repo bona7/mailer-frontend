@@ -2,6 +2,8 @@ import { useState } from "react";
 import AppLayout from "@/components/AppLayout";
 import { TemplateCard, TemplateDetail } from "@/components";
 import { Separator } from "@/components/ui/separator";
+import CategoryButton from "@/components/CategoryButton";
+import CreateTemplateButton from "@/components/CreateTemplateButton";
 
 // Placeholder for dummy data
 const templates = [
@@ -49,7 +51,20 @@ const MyTemplate = () => {
         <h1 className="font-h7 text-primary-dark">My Templates</h1>
         <Separator className="bg-gray-bf my-1.5" />
         <section>
-          <h2 className="font-st1 text-primary-dark mb-2">계정1</h2>
+          <div className="flex items-center justify-between mb-2">
+            <div className="flex items-center gap-4">
+              <h2 className="font-st1 text-primary-dark">계정1</h2>
+              <div className="flex gap-2">
+                <CategoryButton>대학교</CategoryButton>
+                <CategoryButton>업무/회사</CategoryButton>
+                <CategoryButton>서비스 문의</CategoryButton>
+                <CategoryButton defaultSelected={false}>
+                  My Own Template
+                </CategoryButton>
+              </div>
+            </div>
+            <CreateTemplateButton className="mr-4" />
+          </div>
           <div className="flex overflow-x-auto gap-8 p-2">
             {templates.slice(0, 6).map((template) => (
               <TemplateCard
@@ -61,7 +76,20 @@ const MyTemplate = () => {
           </div>
         </section>
         <section>
-          <h2 className="font-st1 text-primary-dark mb-2">계정2</h2>
+          <div className="flex items-center justify-between mb-2">
+            <div className="flex items-center gap-4">
+              <h2 className="font-st1 text-primary-dark">계정2</h2>
+              <div className="flex gap-2">
+                <CategoryButton>대학교</CategoryButton>
+                <CategoryButton>업무/회사</CategoryButton>
+                <CategoryButton>서비스 문의</CategoryButton>
+                <CategoryButton defaultSelected={false}>
+                  My Own Template
+                </CategoryButton>
+              </div>
+            </div>
+            <CreateTemplateButton className="mr-4" />
+          </div>
           <div className="flex overflow-x-auto gap-8 p-2">
             {templates.slice(6, 12).map((template) => (
               <TemplateCard
@@ -73,7 +101,20 @@ const MyTemplate = () => {
           </div>
         </section>
         <section>
-          <h2 className="font-st1 text-primary-dark mb-2">계정3</h2>
+          <div className="flex items-center justify-between mb-2">
+            <div className="flex items-center gap-4">
+              <h2 className="font-st1 text-primary-dark">계정3</h2>
+              <div className="flex gap-2">
+                <CategoryButton>대학교</CategoryButton>
+                <CategoryButton>업무/회사</CategoryButton>
+                <CategoryButton>서비스 문의</CategoryButton>
+                <CategoryButton defaultSelected={false}>
+                  My Own Template
+                </CategoryButton>
+              </div>
+            </div>
+            <CreateTemplateButton className="mr-4" />
+          </div>
           <div className="flex overflow-x-auto gap-8 p-2">
             {templates.slice(12, 18).map((template) => (
               <TemplateCard
