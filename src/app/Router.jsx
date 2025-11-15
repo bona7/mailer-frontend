@@ -4,6 +4,7 @@ import {
   SignUp,
   SignIn,
   Verify,
+  MainVerify,
   AccountAdded,
   MainPage,
   MailDetail,
@@ -34,6 +35,7 @@ function Router() {
             </ProtectedRoute>
           }
         />
+        <Route path="/mainverify" element={<MainVerify />} />
         <Route
           path="/accountadded"
           element={
