@@ -1,15 +1,18 @@
-import React, { useState } from "react";
-import { useNavigate } from "react-router-dom";
+import React, { useState, useEffect } from "react";
+import { useNavigate, useLocation } from "react-router-dom";
 import MailerLogoHeader from "../assets/mailer-logo-header.svg";
 import DomainDropdown from "../components/domain_dropdown";
 import Dropdown from "@/components/Dropdown";
 
 function Verify() {
   const navigate = useNavigate();
-  const [isVerified, setIsVerified] = useState(false);
+  const location = useLocation();
   const [selectedDomain, setSelectedDomain] = useState("gmail.com");
   const [isDirectInput, setIsDirectInput] = useState(false);
   const [emailPrefix, setEmailPrefix] = useState("");
+  const [selectedJob, setSelectedJob] = useState("");
+  const [selectedPurpose, setSelectedPurpose] = useState("");
+  const [selectedInterest, setSelectedInterest] = useState("");
   const jobOptions = [
     "중/고등학생",
     "대학(학부)생",
@@ -52,9 +55,14 @@ function Verify() {
     "기타 (직접 입력)",
   ];
 
-  const handleVerify = () => {
-    setIsVerified(true);
-  };
+  useEffect(() => {
+    // SignUp 페이지에서 전달받은 이메일 정보로 초기화
+    if (location.state?.email) {
+      const [prefix, domain] = location.state.email.split("@");
+      setEmailPrefix(prefix);
+      setSelectedDomain(domain);
+    }
+  }, [location]);
 
   const handleDomainSelect = (domain) => {
     if (domain === "직접 입력") {
@@ -78,6 +86,9 @@ function Verify() {
     navigate("/accountadded");
   };
 
+  // 필수 항목이 모두 선택되었는지 확인
+  const isFormValid = selectedJob && selectedPurpose;
+
   return (
     <div className="relative flex items-center justify-center min-h-screen p-4">
       <img
@@ -91,7 +102,7 @@ function Verify() {
       <div className="w-full max-w-4xl pt-8 pb-8 pr-48 pl-48 sm:pt-12 sm:pb-12 sm:pr-48 sm:pl-48 rounded-xl shadow-lg bg-white min-h-[580px]">
         <div className="px-8 -mx-44 sm:-mx-44">
           <h1 className="font-h7 text-primary-dark mb-8 text-left">
-            Verification Code
+            On board Info
           </h1>
         </div>
 
@@ -141,51 +152,45 @@ function Verify() {
               />
             )}
           </div>
-          <input
-            type="text"
-            placeholder="two-factor verification code"
-            className="w-full px-4 py-3 sm:py-3 border rounded-xl placeholder-gray-bf placeholder:font-b1 border-primary-dark h-11"
+        </div>
+
+        <div className="flex flex-col gap-1 mt-4">
+          <Dropdown
+            title="직업"
+            required={true}
+            options={jobOptions}
+            selectedOption={selectedJob}
+            onOptionChange={setSelectedJob}
+          />
+          <Dropdown
+            title="계정 목적"
+            required={true}
+            options={purposeOptions}
+            selectedOption={selectedPurpose}
+            onOptionChange={setSelectedPurpose}
+          />
+          <Dropdown
+            title="관심사"
+            required={false}
+            options={interestOptions}
+            selectedOption={selectedInterest}
+            onOptionChange={setSelectedInterest}
           />
         </div>
 
-        <div className="text-right mt-1.5">
-          <a href="#" className="font-b2 text-primary hover:underline">
-            Go to get your code
-          </a>
-        </div>
-
-        <div className="flex justify-end">
+        <div className="flex justify-end mt-6">
           <button
-            onClick={handleVerify}
-            className="mt-4 sm:mt-4 py-1.5 px-6 rounded-xl text-gray-fa font-b1 bg-primary-dark"
+            onClick={handleAccountAdd}
+            disabled={!isFormValid}
+            className={`py-1.5 px-6 rounded-xl text-gray-fa font-b1 ${
+              isFormValid
+                ? "bg-primary-dark hover:bg-primary cursor-pointer"
+                : "bg-gray-400 cursor-not-allowed"
+            }`}
           >
-            Verified
+            완료
           </button>
         </div>
-
-        {isVerified && (
-          <>
-            <div className="mt-5 px-8 -mx-44 sm:-mx-44">
-              <h1 className="font-h7 text-primary-dark mb-2 text-left">
-                On board Info
-              </h1>
-            </div>
-
-            <div className="flex flex-col gap-1">
-              <Dropdown title="직업" required={true} options={jobOptions} />
-              <Dropdown
-                title="계정 목적"
-                required={true}
-                options={purposeOptions}
-              />
-              <Dropdown
-                title="관심사"
-                required={false}
-                options={interestOptions}
-              />
-            </div>
-          </>
-        )}
       </div>
     </div>
   );

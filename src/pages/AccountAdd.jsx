@@ -1,4 +1,5 @@
 import React from "react";
+import { useNavigate } from "react-router-dom";
 import MailerLogoHeader from "../assets/mailer-logo-header.svg";
 
 // Checkmark SVG component for success animation
@@ -20,7 +21,11 @@ const CheckmarkIcon = () => (
 );
 
 function AccountAdded() {
-  //const handleMainPageClick 메인 페이지로 이동하는 핸들러
+  const navigate = useNavigate();
+
+  const handleMainPageClick = () => {
+    navigate("/");
+  };
 
   return (
     <div className="relative flex flex-col items-center justify-center min-h-screen p-4">
@@ -43,7 +48,7 @@ function AccountAdded() {
             Your account has been successfully added to your mailbox.
           </p>
           <button
-            // 메인페이지로 이동하는 핸들러 추가
+            onClick={handleMainPageClick}
             className="w-full max-w-xs mx-auto py-3 rounded-xl text-white text-lg sm:text-xl bg-primary-dark hover:bg-primary-dark/90 transition-colors"
           >
             Go to Mailbox

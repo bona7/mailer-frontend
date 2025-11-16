@@ -1,6 +1,7 @@
 import SignUp from "./SignUp";
 import SignIn from "./SignIn";
 import Verify from "./Verify";
+import MainVerify from "./Main_Verify";
 import AccountAdded from "./AccountAdd";
 import MainPage from "./MainPage";
 import MailDetail from "./MailDetail";
@@ -12,6 +13,7 @@ export {
   SignUp,
   SignIn,
   Verify,
+  MainVerify,
   AccountAdded,
   MainPage,
   ViewTemplate,

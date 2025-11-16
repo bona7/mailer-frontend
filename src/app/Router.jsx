@@ -1,8 +1,10 @@
 import { BrowserRouter, Routes, Route } from "react-router-dom";
+import ProtectedRoute from "@/components/ProtectedRoute";
 import {
   SignUp,
   SignIn,
   Verify,
+  MainVerify,
   AccountAdded,
   MainPage,
   MailDetail,
@@ -15,15 +17,65 @@ function Router() {
   return (
     <BrowserRouter>
       <Routes>
-        <Route path="/" element={<MainPage />} />
         <Route path="/signin" element={<SignIn />} />
         <Route path="/signup" element={<SignUp />} />
-        <Route path="/verify" element={<Verify />} />
-        <Route path="/accountadded" element={<AccountAdded />} />
-        <Route path="/mail/:id" element={<MailDetail />} />
-        <Route path="/trash" element={<Trash />} />
-        <Route path="/viewtemplate" element={<ViewTemplate />} />
-        <Route path="/mytemplate" element={<MyTemplate />} />
+        <Route
+          path="/"
+          element={
+            <ProtectedRoute>
+              <MainPage />
+            </ProtectedRoute>
+          }
+        />
+        <Route
+          path="/verify"
+          element={
+            <ProtectedRoute>
+              <Verify />
+            </ProtectedRoute>
+          }
+        />
+        <Route path="/mainverify" element={<MainVerify />} />
+        <Route
+          path="/accountadded"
+          element={
+            <ProtectedRoute>
+              <AccountAdded />
+            </ProtectedRoute>
+          }
+        />
+        <Route
+          path="/mail/:id"
+          element={
+            <ProtectedRoute>
+              <MailDetail />
+            </ProtectedRoute>
+          }
+        />
+        <Route
+          path="/trash"
+          element={
+            <ProtectedRoute>
+              <Trash />
+            </ProtectedRoute>
+          }
+        />
+        <Route
+          path="/viewtemplate"
+          element={
+            <ProtectedRoute>
+              <ViewTemplate />
+            </ProtectedRoute>
+          }
+        />
+        <Route
+          path="/mytemplate"
+          element={
+            <ProtectedRoute>
+              <MyTemplate />
+            </ProtectedRoute>
+          }
+        />
       </Routes>
     </BrowserRouter>
   );

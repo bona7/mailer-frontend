@@ -6,6 +6,7 @@ import { Input } from "@/components/ui/input";
 import { Plus } from "lucide-react";
 import { logo, X, Contact } from "@/assets";
 import { useNavigate } from "react-router-dom";
+import { useClerk, useUser } from "@clerk/clerk-react";
 
 import {
   sidebarItems,
@@ -18,6 +19,8 @@ import MailComposeModal from "@/components/modals/MailComposeModal";
 
 const AppLayout = ({ children, selectedAccounts, setSelectedAccounts }) => {
   const navigate = useNavigate();
+  const { signOut } = useClerk();
+  const { user } = useUser();
 
   const handleAccountClick = (accountType) => {
     setSelectedAccounts((prev) =>
@@ -27,6 +30,11 @@ const AppLayout = ({ children, selectedAccounts, setSelectedAccounts }) => {
     );
   };
   const [isComposeModalOpen, setIsComposeModalOpen] = useState(false);
+
+  const handleSignOut = async () => {
+    await signOut();
+    navigate("/signin");
+  };
 
   //페이지 이동 함수
   const handleSubmenuClick = (subItem) => {
@@ -65,13 +73,17 @@ const AppLayout = ({ children, selectedAccounts, setSelectedAccounts }) => {
         <div className="col-start-3 flex items-center gap-2 justify-self-end pr-2">
           <Avatar className="w-7 h-7">
             <AvatarFallback className="text-xs text-white bg-gray-400">
-              RK
+              {user?.firstName?.charAt(0) || "U"}
+              {user?.lastName?.charAt(0) || ""}
             </AvatarFallback>
           </Avatar>
           <span className="font-h7 text-black whitespace-nowrap">
-            Raina Kim
+            {user?.fullName || "User"}
           </span>
-          <Button className="px-0 bg-transparent text-primary font-button hover:bg-transparent hover:text-primary-light ">
+          <Button
+            onClick={handleSignOut}
+            className="px-0 bg-transparent text-primary font-button hover:bg-transparent hover:text-primary-light "
+          >
             sign out
           </Button>
         </div>
