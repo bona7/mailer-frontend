@@ -2,9 +2,9 @@ import { useState } from "react";
 import { Separator } from "@/components/ui/separator";
 import { useParams } from "react-router-dom";
 import { allMails } from "@/data/mails_dummy.jsx";
-import { accountEmails } from "@/data/dummy_MainPage";
 import AppLayout from "@/components/AppLayout";
 import { getAccountColor } from "@/lib/utils";
+import { useAccounts } from "@/api/hooks/useAccounts"; // useAccounts 훅 임포트
 
 const MailDetail = () => {
   const [selectedAccounts, setSelectedAccounts] = useState([]);
@@ -13,8 +13,31 @@ const MailDetail = () => {
 
   const emailId = parseInt(id, 10);
   const email = allMails.find((email) => email.id === emailId);
-  const account = accountEmails.find((acc) => acc.type === email.account);
-  console.log(email);
+
+  const { data: accounts, isLoading, isError } = useAccounts(); // useAccounts 훅 사용
+
+  // 로딩 또는 에러 상태 처리
+  if (isLoading)
+    return (
+      <AppLayout>
+        <p>Loading email details...</p>
+      </AppLayout>
+    );
+  if (isError)
+    return (
+      <AppLayout>
+        <p>Error loading email details.</p>
+      </AppLayout>
+    );
+  if (!email)
+    return (
+      <AppLayout>
+        <p>Email not found.</p>
+      </AppLayout>
+    );
+
+  // 실제 계정 데이터에서 해당 계정 찾기
+  const account = accounts?.find((acc) => acc.address === email.account); // email.account가 실제 이메일 주소라고 가정
 
   return (
     <AppLayout
@@ -32,9 +55,10 @@ const MailDetail = () => {
             <div className="flex items-center gap-1">
               <span className="font-b2  text-gray-1f">My email: </span>
               <div
-                className={`w-2 h-2 rounded-full ${getAccountColor(email.account)}`}
+                className={`w-2 h-2 rounded-full ${getAccountColor(account?.address)}`} // account.address 전달
               />
-              <span className="font-b2  text-gray-1f">{account.email}</span>
+              <span className="font-b2  text-gray-1f">{account?.address}</span>{" "}
+              {/* account.address 표시 */}
             </div>
             <span className="font-b2 text-gray-1f">{email.sender}</span>
           </div>

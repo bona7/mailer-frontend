@@ -5,11 +5,11 @@ export function cn(...inputs) {
   return twMerge(clsx(inputs));
 }
 
-export const getAccountColor = (account) => {
-  const colorMap = {
-    first: "bg-account-first",
-    second: "bg-account-second",
-    third: "bg-account-third",
-  };
-  return colorMap[account] || colorMap["first"];
+export const getAccountColor = (emailAddress) => {
+  const colors = ["bg-[#C47B7B]", "bg-[#B441CE]", "bg-[#82B658]"];
+  if (!emailAddress) return colors[0]; // 기본 색상
+
+  const charCode = emailAddress.charCodeAt(0);
+  const colorIndex = charCode % colors.length;
+  return colors[colorIndex];
 };

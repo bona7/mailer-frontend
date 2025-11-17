@@ -5,12 +5,14 @@ import {
   SignIn,
   Verify,
   MainVerify,
-  AccountAdded,
+  AccountAddedSuccess,
   MainPage,
   MailDetail,
   Trash,
   ViewTemplate,
   MyTemplate,
+  AddAccountPage,
+  AccountListPage,
 } from "@/pages";
 
 function Router() {
@@ -40,7 +42,23 @@ function Router() {
           path="/accountadded"
           element={
             <ProtectedRoute>
-              <AccountAdded />
+              <AccountAddedSuccess /> {/* Changed from AccountAdded */}
+            </ProtectedRoute>
+          }
+        />
+        <Route
+          path="/add-account"
+          element={
+            <ProtectedRoute>
+              <AddAccountPage />
+            </ProtectedRoute>
+          }
+        />
+        <Route
+          path="/accounts"
+          element={
+            <ProtectedRoute>
+              <AccountListPage />
             </ProtectedRoute>
           }
         />
