@@ -3,7 +3,7 @@ import { Button } from "@/components/ui/button";
 import { Input } from "@/components/ui/input";
 import ComposeDropdown from "@/components/compose_dropdown";
 import attachment from "@/assets/attachment.svg";
-import { accountEmails } from "@/data/dummy_MainPage";
+import { accountEmails } from "@/data/sidebar_MainPage";
 import { X } from "lucide-react";
 
 function MailComposeModal({ isOpen, onClose }) {

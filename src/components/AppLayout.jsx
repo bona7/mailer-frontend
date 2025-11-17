@@ -13,7 +13,7 @@ import {
   accountEmails,
   contacts,
   aiSummaries,
-} from "@/data/dummy_MainPage.jsx";
+} from "@/data/sidebar_MainPage.jsx";
 import { getAccountColor } from "@/lib/utils";
 import MailComposeModal from "@/components/modals/MailComposeModal";
 
@@ -36,17 +36,11 @@ const AppLayout = ({ children, selectedAccounts, setSelectedAccounts }) => {
     navigate("/signin");
   };
 
-  //페이지 이동 함수
-  const handleSubmenuClick = (subItem) => {
-    const routeMap = {
-      "View Templates": "/viewtemplate",
-      "My Templates": "/mytemplate",
-      "All email(8003)": "/",
-    };
-
-    const route = routeMap[subItem];
-    if (route) {
-      navigate(route);
+  const handleItemClick = (item) => {
+    if (item.action === "openComposeModal") {
+      setIsComposeModalOpen(true);
+    } else if (item.path) {
+      navigate(item.path);
     }
   };
 
@@ -97,17 +91,7 @@ const AppLayout = ({ children, selectedAccounts, setSelectedAccounts }) => {
               <Button
                 variant="ghost"
                 className="justify-start h-auto gap-1 p-0 font-st1 text-primary-dark hover:text-primary hover:bg-transparent"
-                onClick={() => {
-                  if (item.label === "Compose") {
-                    setIsComposeModalOpen(true);
-                  }
-                  if (item.label === "Inbox") {
-                    navigate("/");
-                  }
-                  if (item.label === "Trash") {
-                    navigate("/trash");
-                  }
-                }}
+                onClick={() => handleItemClick(item)}
               >
                 <item.icon />
                 {item.label}
@@ -118,9 +102,9 @@ const AppLayout = ({ children, selectedAccounts, setSelectedAccounts }) => {
                     <div
                       key={subIndex}
                       className="font-b2 text-primary-dark cursor-pointer hover:text-primary"
-                      onClick={() => handleSubmenuClick(subItem)}
+                      onClick={() => handleItemClick(subItem)}
                     >
-                      {subItem}
+                      {subItem.label}
                     </div>
                   ))}
                 </div>

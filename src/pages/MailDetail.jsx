@@ -2,7 +2,7 @@ import { useState } from "react";
 import { Separator } from "@/components/ui/separator";
 import { useParams } from "react-router-dom";
 import { allMails } from "@/data/mails_dummy.jsx";
-import { accountEmails } from "@/data/dummy_MainPage";
+import { accountEmails } from "@/data/sidebar_MainPage";
 import AppLayout from "@/components/AppLayout";
 import { getAccountColor } from "@/lib/utils";
 
