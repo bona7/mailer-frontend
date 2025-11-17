@@ -3,10 +3,11 @@ import { Avatar, AvatarFallback } from "@/components/ui/avatar";
 import { Button } from "@/components/ui/button";
 import { Card, CardContent, CardHeader, CardTitle } from "@/components/ui/card";
 import { Input } from "@/components/ui/input";
-import { Plus } from "lucide-react";
-import { logo, X, Contact } from "@/assets";
+import { Plus, X } from "lucide-react";
+import { logo, Contact } from "@/assets";
 import { useNavigate } from "react-router-dom";
 import { useClerk, useUser } from "@clerk/clerk-react";
+import { useAccounts, useDeleteAccount } from "@/api/hooks/useAccounts"; // useAccounts 훅 임포트
 
 import {
   sidebarItems,
@@ -15,20 +16,30 @@ import {
   aiSummaries,
 } from "@/data/sidebar_MainPage.jsx";
 import { getAccountColor } from "@/lib/utils";
-import MailComposeModal from "@/components/modals/MailComposeModal";
+import MailComposeModal from "@/components/modals/MailComposeModal"; // MailComposeModal 임포트
 
 const AppLayout = ({ children, selectedAccounts, setSelectedAccounts }) => {
   const navigate = useNavigate();
   const { signOut } = useClerk();
   const { user } = useUser();
 
-  const handleAccountClick = (accountType) => {
+  const { data: accounts, isLoading, isError } = useAccounts(); // useAccounts 훅 사용
+  const deleteAccountMutation = useDeleteAccount();
+
+  const handleAccountClick = (accountAddress) => {
     setSelectedAccounts((prev) =>
-      prev.includes(accountType)
-        ? prev.filter((t) => t !== accountType)
-        : [...prev, accountType],
+      prev.includes(accountAddress)
+        ? prev.filter((t) => t !== accountAddress)
+        : [...prev, accountAddress],
     );
   };
+
+  const handleDeleteAccount = async (accountId) => {
+    if (window.confirm("정말로 이 계정을 삭제하시겠습니까?")) {
+      await deleteAccountMutation.mutateAsync(accountId);
+    }
+  };
+
   const [isComposeModalOpen, setIsComposeModalOpen] = useState(false);
 
   const handleSignOut = async () => {
@@ -136,31 +147,42 @@ const AppLayout = ({ children, selectedAccounts, setSelectedAccounts }) => {
             </CardTitle>
           </CardHeader>
           <CardContent className="px-3 pb-3 space-y-1.5">
-            {accountEmails.map((account, index) => {
-              const isSelected = selectedAccounts.includes(account.type);
+            {isLoading && <p>Loading accounts...</p>}
+            {isError && <p>Error loading accounts.</p>}
+            {accounts?.map((account) => {
+              const isSelected = selectedAccounts.includes(account.address);
               return (
                 <button
-                  key={index}
-                  onClick={() => handleAccountClick(account.type)}
+                  key={account.id}
+                  onClick={() => handleAccountClick(account.address)}
                   className={`flex items-center gap-1 py-1 w-full rounded-md ${isSelected ? "bg-primary border-transparent" : "border border-gray-bf"}`}
                 >
                   <div
-                    className={`w-2 h-2 ${getAccountColor(account.type)} rounded ml-1.5`}
+                    className={`w-2 h-2 ${getAccountColor(account.address)} rounded ml-1.5`}
                   />
                   <div className="flex items-center justify-between flex-1">
                     <span
                       className={`font-b2 ${isSelected ? "text-gray-f5" : "text-gray-700"}`}
                     >
-                      {account.email}
+                      {account.address}
                     </span>
-                    <span className="pr-2">
+                    <span
+                      className="pr-2"
+                      onClick={(e) => {
+                        e.stopPropagation(); // Prevent account selection when deleting
+                        handleDeleteAccount(account.id);
+                      }}
+                    >
                       <X className="!size-3" />
                     </span>
                   </div>
                 </button>
               );
             })}
-            <Button className="!mt-3 w-full h-7 text-primary rounded-md bg-transparent hover:bg-transparent hover:text-primary-light">
+            <Button
+              className="!mt-3 w-full h-7 text-primary rounded-md bg-transparent hover:bg-transparent hover:text-primary-light"
+              onClick={() => navigate("/add-account")}
+            >
               <Plus className="w-4 h-4" />
             </Button>
           </CardContent>

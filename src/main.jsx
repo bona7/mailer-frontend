@@ -1,6 +1,8 @@
 import { StrictMode } from "react";
 import { createRoot } from "react-dom/client";
 import { ClerkProvider } from "@clerk/clerk-react";
+import { QueryClientProvider } from "@tanstack/react-query"; // 추가
+import queryClient from "./app/queryClient"; // 추가
 import "./index.css";
 import App from "./App.jsx";
 
@@ -13,7 +15,12 @@ if (!PUBLISHABLE_KEY) {
 createRoot(document.getElementById("root")).render(
   <StrictMode>
     <ClerkProvider publishableKey={PUBLISHABLE_KEY}>
-      <App />
+      <QueryClientProvider client={queryClient}>
+        {" "}
+        {/* 추가 */}
+        <App />
+      </QueryClientProvider>{" "}
+      {/* 추가 */}
     </ClerkProvider>
   </StrictMode>,
 );

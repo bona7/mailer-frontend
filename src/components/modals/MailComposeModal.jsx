@@ -5,12 +5,21 @@ import ComposeDropdown from "@/components/compose_dropdown";
 import attachment from "@/assets/attachment.svg";
 import { accountEmails } from "@/data/sidebar_MainPage";
 import { X } from "lucide-react";
+import { useAddAccount, useAccounts } from "@/api/hooks/useAccounts"; // useAddAccount 훅 임포트
 
-function MailComposeModal({ isOpen, onClose }) {
+function MailComposeModal({ isOpen, onClose, isAddAccountMode = false }) {
+  const { data: accounts } = useAccounts(); // 계정 목록 가져오기
+  const addAccountMutation = useAddAccount();
+
   const [selectedFromEmail, setSelectedFromEmail] = useState(
-    accountEmails[0], // 이메일 선택여부 context로 관리 이후 선택된 이메일로 초기값 설정하도록 수정 필요
+    accounts && accounts.length > 0 ? accounts[0].address : "", // 실제 계정 데이터로 초기값 설정
   );
   const [attachedFiles, setAttachedFiles] = useState([]);
+
+  // 계정 추가 모드 상태
+  const [email, setEmail] = useState("");
+  const [password, setPassword] = useState("");
+  const [domain, setDomain] = useState("");
 
   const handleFileUpload = (event) => {
     const files = Array.from(event.target.files);
@@ -23,6 +32,23 @@ function MailComposeModal({ isOpen, onClose }) {
 
   const removeFile = (index) => {
     setAttachedFiles((prev) => prev.filter((_, i) => i !== index));
+  };
+
+  const handleAddAccountSubmit = async () => {
+    try {
+      await addAccountMutation.mutateAsync({
+        address: email,
+        password,
+        domain,
+      });
+      alert("계정이 성공적으로 추가되었습니다.");
+      onClose();
+    } catch (error) {
+      alert(
+        "계정 추가에 실패했습니다: " +
+          (error.response?.data?.detail || error.message),
+      );
+    }
   };
 
   if (!isOpen) return null;
@@ -38,7 +64,7 @@ function MailComposeModal({ isOpen, onClose }) {
         </button>
         <div className="flex items-center border-b border-secondary-dark">
           <ComposeDropdown
-            options={accountEmails}
+            options={accountEmails.map((account) => account.email)}
             selectedOption={selectedFromEmail}
             onOptionChange={setSelectedFromEmail}
           />

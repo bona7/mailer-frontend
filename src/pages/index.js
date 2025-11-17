@@ -2,22 +2,26 @@ import SignUp from "./SignUp";
 import SignIn from "./SignIn";
 import Verify from "./Verify";
 import MainVerify from "./Main_Verify";
-import AccountAdded from "./AccountAdd";
+import AccountAddedSuccess from "./AccountAddedSuccess";
 import MainPage from "./MainPage";
 import MailDetail from "./MailDetail";
 import Trash from "./Trash";
 import ViewTemplate from "./ViewTemplate";
 import MyTemplate from "./MyTemplate";
+import AddAccountPage from "./AccountAdd"; // This is the form component
+import AccountListPage from "./AccountListPage";
 
 export {
   SignUp,
   SignIn,
   Verify,
   MainVerify,
-  AccountAdded,
+  AccountAddedSuccess,
   MainPage,
   ViewTemplate,
   MyTemplate,
   MailDetail,
   Trash,
+  AddAccountPage,
+  AccountListPage,
 };

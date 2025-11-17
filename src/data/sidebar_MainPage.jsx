@@ -46,12 +46,6 @@ const sidebarItems = [
   },
 ];
 
-const accountEmails = [
-  { email: "korj03kory@snu.ac.kr", type: "first" },
-  { email: "korj03kory@gmail.com", type: "second" },
-  { email: "HCI2026@gmail.com", type: "third" },
-];
-
 const contacts = [
   "Lewis Hamilton",
   "Carlos Sainz",
@@ -69,4 +63,4 @@ const aiSummaries = [
   },
 ];
 
-export { sidebarItems, accountEmails, contacts, aiSummaries };
+export { sidebarItems, contacts, aiSummaries };

@@ -17,6 +17,10 @@ function SignUp() {
   const [error, setError] = useState("");
   const dropdownRef = useRef(null);
 
+  // New state for verification
+  const [verificationCode, setVerificationCode] = useState("");
+  const [isCodeSent, setIsCodeSent] = useState(false);
+
   const domains = [
     "gmail.com",
     "naver.com",
@@ -54,19 +58,26 @@ function SignUp() {
 
   const handleSubmit = async (e) => {
     e.preventDefault();
+    if (isCodeSent) {
+      await handleVerifyAndSignIn();
+    } else {
+      await handleSignUpAndSendCode();
+    }
+  };
+
+  const handleSignUpAndSendCode = async () => {
+    setError("");
 
     if (!isLoaded) {
       console.log("Clerk가 아직 로드되지 않았습니다.");
       return;
     }
 
-    // 비밀번호 확인 검증
     if (password !== passwordConfirmation) {
       setError("비밀번호가 일치하지 않습니다.");
       return;
     }
 
-    // 전체 이메일 주소 생성
     const fullEmail = `${emailPrefix}@${selectedDomain}`;
     console.log("회원가입 시도:", fullEmail);
 
@@ -77,16 +88,40 @@ function SignUp() {
       });
 
       console.log("회원가입 성공, 인증 코드 전송 중...");
-
-      // 이메일 인증 코드 전송
       await signUp.prepareEmailAddressVerification({ strategy: "email_code" });
 
-      console.log("MainVerify 페이지로 이동...");
-      // MainVerify 페이지로 이동
-      navigate("/mainverify", { state: { email: fullEmail } });
+      setIsCodeSent(true);
+      setError(""); // Clear previous errors
     } catch (err) {
       console.error("회원가입 오류:", err);
       setError(err.errors?.[0]?.message || "회원가입에 실패했습니다.");
+    }
+  };
+
+  const handleVerifyAndSignIn = async () => {
+    setError("");
+
+    if (!isLoaded || !signUp) {
+      setError("회원가입 정보를 찾을 수 없습니다.");
+      return;
+    }
+
+    try {
+      const completeSignUp = await signUp.attemptEmailAddressVerification({
+        code: verificationCode,
+      });
+
+      if (completeSignUp.status === "complete") {
+        await setActive({ session: completeSignUp.createdSessionId });
+        console.log("인증 성공, 메인 페이지로 이동...");
+        navigate("/"); // Navigate to main page on success
+      } else {
+        console.log("추가 단계 필요:", completeSignUp);
+        setError("인증이 완료되지 않았습니다. 다시 시도해주세요.");
+      }
+    } catch (err) {
+      console.error("인증 오류:", err);
+      setError(err.errors?.[0]?.message || "인증에 실패했습니다.");
     }
   };
 
@@ -97,7 +132,7 @@ function SignUp() {
         alt="Mailer Header Logo"
         className="absolute top-8 left-8 w-28 h-6"
       />
-      <div className="w-[540px] h-[580px] p-8 sm:p-12 rounded-2xl shadow-lg bg-white">
+      <div className="w-[540px] p-8 sm:p-12 rounded-2xl shadow-lg bg-white">
         <div className="flex justify-center mt-8 mb-6 sm:mb-8">
           <img src={MailerLogo} alt="Mailer Logo" className="w-34 p-4" />
         </div>
@@ -128,6 +163,7 @@ function SignUp() {
               onChange={(e) => setEmailPrefix(e.target.value)}
               required
               className="flex-1 h-10 px-2 border border-r-0 rounded-l-lg placeholder-gray-500 border-primary-dark text-sm focus:outline-none"
+              disabled={isCodeSent}
             />
             <span className="h-10 flex items-center border-t border-b border-primary-dark text-gray-500 bg-white">
               @
@@ -140,6 +176,7 @@ function SignUp() {
                   onChange={(e) => setSelectedDomain(e.target.value)}
                   placeholder="domain.com"
                   className="w-full h-10 pl-2 pr-6 border rounded-r-lg border-primary-dark placeholder-gray-500 text-sm focus:outline-none"
+                  disabled={isCodeSent}
                 />
                 <button
                   type="button"
@@ -148,6 +185,7 @@ function SignUp() {
                     setSelectedDomain("gmail.com");
                   }}
                   className="absolute inset-y-0 right-0 flex items-center pr-2"
+                  disabled={isCodeSent}
                 >
                   <svg
                     className="w-4 h-4 text-gray-500"
@@ -170,6 +208,7 @@ function SignUp() {
                   type="button"
                   onClick={() => setIsDropdownOpen(!isDropdownOpen)}
                   className="flex items-center justify-start w-full h-10 pl-2 border border-l-0 rounded-r-lg bg-white border-primary-dark text-gray-500"
+                  disabled={isCodeSent}
                 >
                   <span className="text-sm text-gray-500">
                     {selectedDomain}
@@ -213,6 +252,7 @@ function SignUp() {
             onChange={(e) => setPassword(e.target.value)}
             required
             className="w-[444px] h-10 px-4 border rounded-lg placeholder-gray-400 border-primary-dark focus:outline-none"
+            disabled={isCodeSent}
           />
           <div className="relative w-[444px]">
             <input
@@ -222,6 +262,7 @@ function SignUp() {
               onChange={(e) => setPasswordConfirmation(e.target.value)}
               required
               className="w-full h-10 px-4 pr-10 border rounded-lg placeholder-gray-400 border-primary-dark focus:outline-none"
+              disabled={isCodeSent}
             />
             <button
               type="button"
@@ -265,12 +306,30 @@ function SignUp() {
               )}
             </button>
           </div>
+
+          {isCodeSent && (
+            <div className="space-y-4 sm:space-y-5 pt-4">
+              <p className="text-sm text-center text-gray-700">
+                {`${emailPrefix}@${selectedDomain}`}으로 전송된 인증 코드를
+                입력해주세요.
+              </p>
+              <input
+                type="text"
+                placeholder="Verification Code"
+                value={verificationCode}
+                onChange={(e) => setVerificationCode(e.target.value)}
+                required
+                className="w-[444px] h-10 px-4 border rounded-lg placeholder-gray-400 border-primary-dark focus:outline-none"
+              />
+            </div>
+          )}
+
           <button
             type="submit"
             disabled={!isLoaded}
             className="w-[444px] h-8 mt-2 sm:mt-2 flex items-center justify-center rounded-xl text-white font-b2 bg-primary-dark disabled:opacity-50"
           >
-            sign up
+            {isCodeSent ? "Verify and Sign In" : "Sign Up"}
           </button>
         </form>
       </div>
