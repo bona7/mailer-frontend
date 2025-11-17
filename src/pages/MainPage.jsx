@@ -81,7 +81,7 @@ const MainPage = () => {
             </div>
           )}
         </div>
-        <Separator className="bg-gray-bf" />
+        <hr className="border-gray-bf" />
         <div className="flex flex-col overflow-y-auto min-h-0">
           {currentEmails.map((email, index) => (
             <MailList

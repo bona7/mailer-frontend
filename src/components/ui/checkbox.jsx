@@ -8,6 +8,7 @@ const Checkbox = React.forwardRef(
   ({ className, size = "default", ...props }, ref) => {
     const sizeClasses = {
       sm: "h-2 w-2 [&>svg]:h-2 [&>svg]:w-2 rounded-xs",
+      med: "h-2.5 w-2.5 [&>svg]:h-3 [&>svg]:w-3 rounded-[2px]",
       default: "h-4 w-4 [&>svg]:h-4 [&>svg]:w-4",
       lg: "h-6 w-6 [&>svg]:h-6 [&>svg]:w-6",
     };
