@@ -49,7 +49,7 @@ const Trash = () => {
           />
           <div className="flex gap-2">
             <TrashButton
-              text={"Selected Delete"}
+              text={"Delete Forever"}
               onClick={() => alert("Delete action triggered")}
               className="px-2"
             />

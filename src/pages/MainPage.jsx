@@ -2,12 +2,13 @@ import { useState } from "react";
 import { Separator } from "@/components/ui/separator";
 import { Refresh } from "@/assets";
 import { allMails } from "@/data/mails_dummy.jsx";
-import { MailList, AppLayout } from "@/components";
+import { MailList, AppLayout, TrashButton } from "@/components";
 import { useNavigate } from "react-router-dom";
 import { ChevronLeft, ChevronRight } from "lucide-react";
 
 const MainPage = () => {
   const [selectedAccounts, setSelectedAccounts] = useState([]);
+  const [selectedMailIds, setSelectedMailIds] = useState([]);
   const [currentPage, setCurrentPage] = useState(1);
   const navigate = useNavigate();
   const ITEMS_PER_PAGE = 20;
@@ -40,6 +41,15 @@ const MainPage = () => {
   const handleAccountChange = (accounts) => {
     setSelectedAccounts(accounts);
     setCurrentPage(1);
+  };
+
+  // 개별 메일 선택 핸들러
+  const handleMailCheckChange = (mailId, isChecked) => {
+    setSelectedMailIds((prevSelected) =>
+      isChecked
+        ? [...prevSelected, mailId]
+        : prevSelected.filter((id) => id !== mailId),
+    );
   };
 
   return (
@@ -82,6 +92,25 @@ const MainPage = () => {
           )}
         </div>
         <hr className="border-gray-bf" />
+        <div className="flex items-center justify-between mt-1.5">
+          <TrashButton
+            text={"Select All"}
+            onClick={() => {
+              if (selectedMailIds.length === filteredEmails.length) {
+                // All are selected, deselect all
+                setSelectedMailIds([]);
+              } else {
+                // Select all
+                setSelectedMailIds(filteredEmails.map((email) => email.id));
+              }
+            }}
+          />
+          <TrashButton
+            text={"Selected Delete"}
+            onClick={() => alert("Selected Delete action triggered")}
+          />
+        </div>
+
         <div className="flex flex-col overflow-y-auto min-h-0">
           {currentEmails.map((email, index) => (
             <MailList
@@ -92,6 +121,10 @@ const MainPage = () => {
               content={email.content}
               account={email.account}
               onClick={() => navigate(`/mail/${index}`)}
+              checked={selectedMailIds.includes(email.id)}
+              onCheckChange={(isChecked) =>
+                handleMailCheckChange(email.id, isChecked)
+              }
             />
           ))}
         </div>
