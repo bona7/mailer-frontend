@@ -1,14 +1,14 @@
-import React, { useState } from "react";
+import { useState } from "react";
 import { Button } from "@/components/ui/button";
 import { Input } from "@/components/ui/input";
 import ComposeDropdown from "@/components/compose_dropdown";
 import attachment from "@/assets/attachment.svg";
-import { accountEmails } from "@/data/dummy_MainPage";
+import { accountEmails } from "@/data/sidebar_MainPage";
 import { X } from "lucide-react";
 
 function MailComposeModal({ isOpen, onClose }) {
   const [selectedFromEmail, setSelectedFromEmail] = useState(
-    accountEmails[0].email, // 이메일 선택여부 context로 관리 이후 선택된 이메일로 초기값 설정하도록 수정 필요
+    accountEmails[0], // 이메일 선택여부 context로 관리 이후 선택된 이메일로 초기값 설정하도록 수정 필요
   );
   const [attachedFiles, setAttachedFiles] = useState([]);
 
@@ -29,7 +29,7 @@ function MailComposeModal({ isOpen, onClose }) {
 
   return (
     <div className="absolute bottom-0 right-0 z-50">
-      <div className="relative w-[40rem] h-[32.5rem] bg-gray-fa rounded-lg border border-secondary-dark p-5 flex flex-col">
+      <div className="relative w-[min(90cqw,640px)] h-[32.5rem] bg-gray-fa rounded-lg border border-secondary-dark p-5 flex flex-col">
         <button
           onClick={onClose}
           className="absolute top-3 right-3 text-gray-8c hover:text-gray-1f"
@@ -38,7 +38,7 @@ function MailComposeModal({ isOpen, onClose }) {
         </button>
         <div className="flex items-center border-b border-secondary-dark">
           <ComposeDropdown
-            options={accountEmails.map((account) => account.email)}
+            options={accountEmails}
             selectedOption={selectedFromEmail}
             onOptionChange={setSelectedFromEmail}
           />

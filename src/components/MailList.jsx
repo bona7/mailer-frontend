@@ -8,7 +8,6 @@ const MailList = ({
   content,
   account,
   onClick,
-  showCheckbox = false,
   checked,
   onCheckChange,
 }) => {
@@ -20,17 +19,15 @@ const MailList = ({
       className={`w-full cursor-pointer hover:bg-gray-f5 pt-4 `}
       onClick={onClick}
     >
-      <div className="flex items-center gap-3 pb-1">
-        {showCheckbox && (
-          <div className="ml-1.5" onClick={(e) => e.stopPropagation()}>
-            <Checkbox
-              checked={checked}
-              onCheckedChange={onCheckChange}
-              size="default"
-            />
-          </div>
-        )}
-        <div className="flex items-center gap-2 w-40 pl-1.5">
+      <div className="flex items-center gap-2.5 pb-1">
+        <div className="ml-1.5" onClick={(e) => e.stopPropagation()}>
+          <Checkbox
+            checked={checked}
+            onCheckedChange={onCheckChange}
+            size="med"
+          />
+        </div>
+        <div className="flex items-center gap-2 w-40">
           <div className={`w-2 h-2 rounded-full ${accountColor}`} />
           <span className="font-semibold text-sm text-gray-59 truncate">
             {sender}

@@ -6,7 +6,7 @@ function TrashButton({ text, onClick, className = "" }) {
     <Button
       variant="outline"
       className={
-        "flex items-center justify-center gap-1 px-1.5 py-0.5 h-auto rounded-md border border-black font-bt text-primary-dark leading-6 bg-transparent " +
+        "flex items-center justify-center gap-1 px-1.5 py-0.5 h-auto rounded-md border border-primary-dark font-bt text-primary-dark leading-6 bg-transparent " +
         cn(" ", className)
       }
       onClick={onClick}
