@@ -1,6 +1,6 @@
 import React from "react";
 import Dropdown from "./Dropdown";
-import { accountEmails } from "@/data/dummy_MainPage";
+import { accountEmails } from "@/data/sidebar_MainPage";
 import { getAccountColor } from "@/lib/utils";
 
 function AccountDropdown({ selectedOption, onOptionChange }) {

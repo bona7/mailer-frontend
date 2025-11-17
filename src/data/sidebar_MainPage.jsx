@@ -4,29 +4,44 @@ const sidebarItems = [
   {
     icon: Compose,
     label: "Compose",
+    action: "openComposeModal",
     hasSubmenu: false,
+  },
+  {
+    icon: Inbox,
+    label: "Inbox (8003)",
+    path: "/",
+    hasSubmenu: true,
+    submenu: [
+      { label: "All email(8003)", path: "/" },
+      { label: "Starred (70)", path: "/" },
+      { label: "Spam (106)", path: "/" },
+    ],
   },
   {
     icon: Template,
     label: "Template",
     hasSubmenu: true,
-    submenu: ["View Templates", "My Templates"],
+    submenu: [
+      { label: "View Templates", path: "/viewtemplate" },
+      { label: "My Templates", path: "/mytemplate" },
+    ],
   },
-  {
-    icon: Inbox,
-    label: "Inbox (8003)",
-    hasSubmenu: true,
-    submenu: ["All email(8003)", "Starred (70)", "Spam (106)"],
-  },
+
   {
     icon: Send,
     label: "Sent",
     hasSubmenu: true,
-    submenu: ["All sent email", "Draft", "Schedule sent"],
+    submenu: [
+      { label: "All sent email", path: "/sent" },
+      { label: "Draft", path: "/" },
+      { label: "Schedule sent", path: "/" },
+    ],
   },
   {
     icon: Trash,
     label: "Trash",
+    path: "/trash",
     hasSubmenu: false,
   },
 ];
