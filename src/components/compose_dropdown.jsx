@@ -1,4 +1,5 @@
-import React, { useState, useRef, useEffect } from "react";
+import { useState, useRef, useEffect } from "react";
+import { getAccountColor } from "@/lib/utils";
 
 function ComposeDropdown({ options, selectedOption, onOptionChange }) {
   const [isOpen, setIsOpen] = useState(false);
@@ -50,24 +51,33 @@ function ComposeDropdown({ options, selectedOption, onOptionChange }) {
             </svg>
           </div>
           <span
-            className="flex-grow text-left font-st2 px-3 "
+            className="flex gap-2 items-center flex-grow text-left font-st2 px-3 "
             onClick={() => setIsOpen(!isOpen)}
           >
-            {selectedOption}
+            <div
+              className={`${getAccountColor(selectedOption.type)} items-center rounded-full w-2 h-2`}
+            ></div>
+            {selectedOption.email}
           </span>
         </button>
         {isOpen && (
           <div className="absolute z-10 w-full mt-1 rounded-lg border bg-gray-fa border-secondary-dark">
             <ul className="py-1 max-h-48 overflow-y-auto">
-              {options.map((option) => (
-                <li
-                  key={option}
-                  onClick={() => handleOptionClick(option)}
-                  className="px-4 py-2 text-sm text-gray-26 hover:bg-gray-100 cursor-pointer"
-                >
-                  {option}
-                </li>
-              ))}
+              {options.map((option) => {
+                const accountColor = getAccountColor(option.type);
+                return (
+                  <li
+                    key={option.email}
+                    onClick={() => handleOptionClick(option)}
+                    className="px-4 py-2 text-sm text-gray-26 hover:bg-gray-100 cursor-pointer flex gap-2 items-center"
+                  >
+                    <div
+                      className={`${accountColor} rounded-full w-2 h-2 `}
+                    ></div>
+                    {option.email}
+                  </li>
+                );
+              })}
             </ul>
           </div>
         )}

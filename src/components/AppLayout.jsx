@@ -130,7 +130,7 @@ const AppLayout = ({ children, selectedAccounts, setSelectedAccounts }) => {
         </nav>
       </aside>
 
-      <div className="relative col-start-2 row-start-2 flex justify-center min-w-0 min-h-0">
+      <div className="@container relative col-start-2 row-start-2 flex justify-center min-w-0 min-h-0">
         <div className="w-full h-full flex flex-col">
           {children}
 
