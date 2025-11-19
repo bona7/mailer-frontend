@@ -1,20 +1,22 @@
 import React from "react";
 import Dropdown from "./Dropdown";
-import { accountEmails } from "@/data/sidebar_MainPage";
 import { getAccountColor } from "@/lib/utils";
+import { useAccounts } from "@/api/hooks/useAccounts";
 
 function AccountDropdown({ selectedOption, onOptionChange }) {
-  const optionsWithColor = accountEmails.map((account) => ({
+  const { data: accounts = [] } = useAccounts();
+
+  const optionsWithColor = accounts.map((account) => ({
     label: (
       <div className="flex items-center gap-2">
         <div
-          className={`w-2 h-2 rounded-full ${getAccountColor(account.type)}`}
+          className={`w-2 h-2 rounded-full ${getAccountColor(account.address)}`}
         />
-        <span>{account.email}</span>
+        <span>{account.address}</span>
       </div>
     ),
-    value: account.email,
-    type: account.type,
+    value: account.address,
+    type: account.address,
   }));
 
   const currentSelectedOption = optionsWithColor.find(

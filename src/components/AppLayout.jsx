@@ -3,55 +3,48 @@ import { Avatar, AvatarFallback } from "@/components/ui/avatar";
 import { Button } from "@/components/ui/button";
 import { Card, CardContent, CardHeader, CardTitle } from "@/components/ui/card";
 import { Input } from "@/components/ui/input";
-import { Plus, X } from "lucide-react";
-import { logo, Contact } from "@/assets";
+import { Plus } from "lucide-react";
+import { logo, X, Contact } from "@/assets";
 import { useNavigate } from "react-router-dom";
 import { useClerk, useUser } from "@clerk/clerk-react";
-import { useAccounts, useDeleteAccount } from "@/api/hooks/useAccounts"; // useAccounts 훅 임포트
+import { useAccounts, useDeleteAccount } from "@/api/hooks/useAccounts";
 
 import {
   sidebarItems,
-  accountEmails,
   contacts,
   aiSummaries,
 } from "@/data/sidebar_MainPage.jsx";
 import { getAccountColor } from "@/lib/utils";
-import MailComposeModal from "@/components/modals/MailComposeModal"; // MailComposeModal 임포트
+import MailComposeModal from "@/components/modals/MailComposeModal";
 
 const AppLayout = ({ children, selectedAccounts, setSelectedAccounts }) => {
   const navigate = useNavigate();
   const { signOut } = useClerk();
   const { user } = useUser();
 
-  const { data: accounts, isLoading, isError } = useAccounts(); // useAccounts 훅 사용
+  const { data: accounts = [], isLoading, isError } = useAccounts();
   const deleteAccountMutation = useDeleteAccount();
 
-  const handleAccountClick = (accountAddress) => {
+  const handleAccountClick = (accountType) => {
     setSelectedAccounts((prev) =>
-      prev.includes(accountAddress)
-        ? prev.filter((t) => t !== accountAddress)
-        : [...prev, accountAddress],
+      prev.includes(accountType)
+        ? prev.filter((t) => t !== accountType)
+        : [...prev, accountType],
     );
   };
-
-  const handleDeleteAccount = async (accountId) => {
-    if (window.confirm("정말로 이 계정을 삭제하시겠습니까?")) {
-      await deleteAccountMutation.mutateAsync(accountId);
-    }
-  };
-
   const [isComposeModalOpen, setIsComposeModalOpen] = useState(false);
 
-  const handleSignOut = async () => {
-    await signOut();
-    navigate("/signin");
-  };
+  //페이지 이동 함수
+  const handleSubmenuClick = (subItem) => {
+    const routeMap = {
+      "View Templates": "/viewtemplate",
+      "My Templates": "/mytemplate",
+      "All email(8003)": "/",
+    };
 
-  const handleItemClick = (item) => {
-    if (item.action === "openComposeModal") {
-      setIsComposeModalOpen(true);
-    } else if (item.path) {
-      navigate(item.path);
+    const route = routeMap[subItem];
+    if (route) {
+      navigate(route);
     }
   };
 
@@ -78,16 +71,19 @@ const AppLayout = ({ children, selectedAccounts, setSelectedAccounts }) => {
         <div className="col-start-3 flex items-center gap-2 justify-self-end pr-2">
           <Avatar className="w-7 h-7">
             <AvatarFallback className="text-xs text-white bg-gray-400">
-              {user?.firstName?.charAt(0) || "U"}
-              {user?.lastName?.charAt(0) || ""}
+              {user?.firstName?.[0] ||
+                user?.emailAddresses?.[0]?.emailAddress?.[0]?.toUpperCase() ||
+                "U"}
             </AvatarFallback>
           </Avatar>
           <span className="font-h7 text-black whitespace-nowrap">
-            {user?.fullName || "User"}
+            {user?.firstName ||
+              user?.emailAddresses?.[0]?.emailAddress ||
+              "User"}
           </span>
           <Button
-            onClick={handleSignOut}
-            className="px-0 bg-transparent text-primary font-button hover:bg-transparent hover:text-primary-light "
+            onClick={() => signOut(() => navigate("/signin"))}
+            className="px-0 bg-transparent text-primary font-button hover:bg-transparent hover:text-primary-light"
           >
             sign out
           </Button>
@@ -102,7 +98,17 @@ const AppLayout = ({ children, selectedAccounts, setSelectedAccounts }) => {
               <Button
                 variant="ghost"
                 className="justify-start h-auto gap-1 p-0 font-st1 text-primary-dark hover:text-primary hover:bg-transparent"
-                onClick={() => handleItemClick(item)}
+                onClick={() => {
+                  if (item.label === "Compose") {
+                    setIsComposeModalOpen(true);
+                  }
+                  if (item.label === "Inbox") {
+                    navigate("/");
+                  }
+                  if (item.label === "Trash") {
+                    navigate("/trash");
+                  }
+                }}
               >
                 <item.icon />
                 {item.label}
@@ -113,7 +119,7 @@ const AppLayout = ({ children, selectedAccounts, setSelectedAccounts }) => {
                     <div
                       key={subIndex}
                       className="font-b2 text-primary-dark cursor-pointer hover:text-primary"
-                      onClick={() => handleItemClick(subItem)}
+                      onClick={() => handleSubmenuClick(subItem)}
                     >
                       {subItem.label}
                     </div>
@@ -125,7 +131,7 @@ const AppLayout = ({ children, selectedAccounts, setSelectedAccounts }) => {
         </nav>
       </aside>
 
-      <div className="@container relative col-start-2 row-start-2 flex justify-center min-w-0 min-h-0">
+      <div className="relative col-start-2 row-start-2 flex justify-center min-w-0 min-h-0">
         <div className="w-full h-full flex flex-col">
           {children}
 
@@ -147,42 +153,32 @@ const AppLayout = ({ children, selectedAccounts, setSelectedAccounts }) => {
             </CardTitle>
           </CardHeader>
           <CardContent className="px-3 pb-3 space-y-1.5">
-            {isLoading && <p>Loading accounts...</p>}
-            {isError && <p>Error loading accounts.</p>}
-            {accounts?.map((account) => {
-              const isSelected = selectedAccounts.includes(account.address);
-              return (
-                <button
-                  key={account.id}
-                  onClick={() => handleAccountClick(account.address)}
-                  className={`flex items-center gap-1 py-1 w-full rounded-md ${isSelected ? "bg-primary border-transparent" : "border border-gray-bf"}`}
-                >
-                  <div
-                    className={`w-2 h-2 ${getAccountColor(account.address)} rounded ml-1.5`}
-                  />
-                  <div className="flex items-center justify-between flex-1">
-                    <span
-                      className={`font-b2 ${isSelected ? "text-gray-f5" : "text-gray-700"}`}
-                    >
-                      {account.address}
-                    </span>
-                    <span
-                      className="pr-2"
-                      onClick={(e) => {
-                        e.stopPropagation(); // Prevent account selection when deleting
-                        handleDeleteAccount(account.id);
-                      }}
-                    >
-                      <X className="!size-3" />
-                    </span>
-                  </div>
-                </button>
-              );
-            })}
-            <Button
-              className="!mt-3 w-full h-7 text-primary rounded-md bg-transparent hover:bg-transparent hover:text-primary-light"
-              onClick={() => navigate("/add-account")}
-            >
+            {accounts &&
+              accounts.map((account, index) => {
+                const isSelected = selectedAccounts.includes(account.address);
+                return (
+                  <button
+                    key={index}
+                    onClick={() => handleAccountClick(account.address)}
+                    className={`flex items-center gap-1 py-1 w-full rounded-md ${isSelected ? "bg-primary border-transparent" : "border border-gray-bf"}`}
+                  >
+                    <div
+                      className={`w-2 h-2 ${getAccountColor(account.address)} rounded ml-1.5`}
+                    />
+                    <div className="flex items-center justify-between flex-1">
+                      <span
+                        className={`font-b2 ${isSelected ? "text-gray-f5" : "text-gray-700"}`}
+                      >
+                        {account.address}
+                      </span>
+                      <span className="pr-2">
+                        <X className="!size-3" />
+                      </span>
+                    </div>
+                  </button>
+                );
+              })}
+            <Button className="!mt-3 w-full h-7 text-primary rounded-md bg-transparent hover:bg-transparent hover:text-primary-light">
               <Plus className="w-4 h-4" />
             </Button>
           </CardContent>
