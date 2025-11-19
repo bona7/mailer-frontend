@@ -7,6 +7,7 @@ import MailerLogoHeader from "../assets/mailer-logo-header.svg";
 function SignUp() {
   const navigate = useNavigate();
   const { signUp, setActive, isLoaded } = useSignUp();
+  const [username, setUsername] = useState("");
   const [emailPrefix, setEmailPrefix] = useState("");
   const [selectedDomain, setSelectedDomain] = useState("gmail.com");
   const [isDirectInput, setIsDirectInput] = useState(false);
@@ -85,6 +86,7 @@ function SignUp() {
       await signUp.create({
         emailAddress: fullEmail,
         password,
+        firstName: username, // firstName으로 저장
       });
 
       console.log("회원가입 성공, 인증 코드 전송 중...");
@@ -132,7 +134,7 @@ function SignUp() {
         alt="Mailer Header Logo"
         className="absolute top-8 left-8 w-28 h-6"
       />
-      <div className="w-[540px] p-8 sm:p-12 rounded-2xl shadow-lg bg-white">
+      <div className="w-[540px] min-h-[630px] p-8 sm:p-12 rounded-2xl shadow-lg bg-white">
         <div className="flex justify-center mt-8 mb-6 sm:mb-8">
           <img src={MailerLogo} alt="Mailer Logo" className="w-34 p-4" />
         </div>
@@ -155,6 +157,15 @@ function SignUp() {
               {error}
             </div>
           )}
+          <input
+            type="text"
+            placeholder="Username"
+            value={username}
+            onChange={(e) => setUsername(e.target.value)}
+            required
+            className="w-[444px] h-10 px-2 border rounded-lg placeholder-gray-500 border-primary-dark text-sm focus:outline-none"
+            disabled={isCodeSent}
+          />
           <div className="flex items-center gap-0 w-[444px]">
             <input
               type="text"
@@ -327,7 +338,7 @@ function SignUp() {
           <button
             type="submit"
             disabled={!isLoaded}
-            className="w-[444px] h-8 mt-2 sm:mt-2 flex items-center justify-center rounded-xl text-white font-b2 bg-primary-dark disabled:opacity-50"
+            className="w-[444px] h-8 mt-2 sm:mt-2 mb-8 flex items-center justify-center rounded-xl text-white font-b2 bg-primary-dark disabled:opacity-50"
           >
             {isCodeSent ? "Verify and Sign In" : "Sign Up"}
           </button>

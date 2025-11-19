@@ -71,7 +71,7 @@ const AppLayout = ({ children, selectedAccounts, setSelectedAccounts }) => {
         <div className="col-start-3 flex items-center gap-2 justify-self-end pr-2">
           <Avatar className="w-7 h-7">
             <AvatarFallback className="text-xs text-white bg-gray-400">
-              {user?.firstName?.[0] ||
+              {user?.firstName?.[0]?.toUpperCase() ||
                 user?.emailAddresses?.[0]?.emailAddress?.[0]?.toUpperCase() ||
                 "U"}
             </AvatarFallback>

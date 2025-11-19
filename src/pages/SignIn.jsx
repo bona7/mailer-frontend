@@ -207,7 +207,7 @@ function SignIn() {
             disabled={!isLoaded}
             className="w-[444px] h-8 mt-2 sm:mt-2 flex items-center justify-center rounded-xl text-white font-b2 bg-primary-dark disabled:opacity-50"
           >
-            sign in
+            Sign In
           </button>
         </form>
       </div>
