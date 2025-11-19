@@ -1,19 +1,22 @@
-import { useState } from "react";
+import { useState, useEffect } from "react";
 import { Button } from "@/components/ui/button";
 import { Input } from "@/components/ui/input";
 import ComposeDropdown from "@/components/compose_dropdown";
 import attachment from "@/assets/attachment.svg";
-import { accountEmails } from "@/data/sidebar_MainPage";
 import { X } from "lucide-react";
-import { useAddAccount, useAccounts } from "@/api/hooks/useAccounts"; // useAddAccount 훅 임포트
+import { useAddAccount, useAccounts } from "@/api/hooks/useAccounts";
 
 function MailComposeModal({ isOpen, onClose, isAddAccountMode = false }) {
-  const { data: accounts } = useAccounts(); // 계정 목록 가져오기
+  const { data: accounts = [] } = useAccounts();
   const addAccountMutation = useAddAccount();
 
-  const [selectedFromEmail, setSelectedFromEmail] = useState(
-    accounts && accounts.length > 0 ? accounts[0].address : "", // 실제 계정 데이터로 초기값 설정
-  );
+  const [selectedFromEmail, setSelectedFromEmail] = useState("");
+
+  useEffect(() => {
+    if (accounts && accounts.length > 0 && !selectedFromEmail) {
+      setSelectedFromEmail(accounts[0].address);
+    }
+  }, [accounts, selectedFromEmail]);
   const [attachedFiles, setAttachedFiles] = useState([]);
 
   // 계정 추가 모드 상태
@@ -64,7 +67,7 @@ function MailComposeModal({ isOpen, onClose, isAddAccountMode = false }) {
         </button>
         <div className="flex items-center border-b border-secondary-dark">
           <ComposeDropdown
-            options={accountEmails.map((account) => account.email)}
+            options={accounts.map((account) => account.address)}
             selectedOption={selectedFromEmail}
             onOptionChange={setSelectedFromEmail}
           />

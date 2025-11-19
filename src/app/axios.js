@@ -32,12 +32,24 @@ instance.interceptors.request.use(
 instance.interceptors.response.use(
   (response) => response,
   (error) => {
-    console.error("API Error:", {
+    const errorDetails = {
       url: error.config?.url,
       method: error.config?.method,
+      baseURL: error.config?.baseURL,
       status: error.response?.status,
+      statusText: error.response?.statusText,
       data: error.response?.data,
-    });
+      message: error.message,
+      code: error.code,
+    };
+
+    console.error("API Error:", errorDetails);
+
+    // Network error (CORS, server down, etc.)
+    if (!error.response) {
+      console.error("Network Error - Server might be down or CORS issue");
+      console.error("Full URL:", error.config?.baseURL + error.config?.url);
+    }
 
     if (error.response?.status === 401) {
       console.error("Unauthorized - redirecting to login");

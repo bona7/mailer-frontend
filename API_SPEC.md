@@ -190,7 +190,7 @@ DELETE /api/account/{account_id}/
 
 A. figma에 요거 반영하는 용도
 
-![image.png](image.png)
+![image.png](attachment:5a495ac6-f6ff-4c0b-94b9-20a30085e1e2:image.png)
 
 ```jsx
 PATCH /api/account/{account_id}/profile/
@@ -201,9 +201,9 @@ PATCH /api/account/{account_id}/profile/
     
     ```jsx
     {
-      "job": "데이터 분석가"
+    	"job": "데이터 분석가"
       "usage": "학교용"
-      "interests": ["금융", "부동산"], (리스트 형태)
+    	"interests": ["금융", "부동산"], (리스트 형태)
       
     }
     ```
@@ -214,9 +214,9 @@ PATCH /api/account/{account_id}/profile/
         
         ```jsx
         {
-          "job": "데이터 분석가"
+        	"job": "데이터 분석가"
           "usage": "학교용"
-          "interests": ["금융", "부동산"], (리스트 형태)
+        	"interests": ["금융", "부동산"], (리스트 형태)
         }
         ```
         
@@ -632,7 +632,7 @@ GET /api/templates/viewtemplate/
     ```
     
 
-![image.png](image%201.png)
+![image.png](attachment:88055b3d-8542-4ca1-b352-76e386f36bb6:image.png)
 
 프론트에 질문: 여기서 About에 들어가는게 Topic인지 아니면 template_content인지? template 설명을 위한 topic 필드가 꼭 필요한지, 아니면 다른 필드로 대체가능할지에 대한 질문입니당
 
@@ -669,7 +669,7 @@ POST /api/templates/viewtemplate/{template_id}/
     
     ```jsx
     {
-      "user_id": 1,
+    	"user_id": 1,
       "email_account_ids": [1, 2, ...] (list)
     }
     ```
@@ -840,12 +840,3 @@ DELETE /api/template/mytemplate/{template_id}/
 - `403 Forbidden`:  요청한 계정이 내 소유가 아닐 때.
 - `404 Not Found`:  해당 템플릿을 찾을 수 없을 때.
 
-## 질문 및 제안
-
-메일 보내도록 하는 api도 필요함 ← 임시로 추가함. request field 어떻게 해야할지는 잘 몰루..
-
-메일 받아서 스팸 처리까지 돌리는건 다 백그라운드인거지? — YES.
-
-메일들을 불러올 때, 첨부파일을 프론트로 다시 보내주는 방법도 생각해봐야할듯. ← 일단 확인. 아직 명세서에 반영은 안함. 프론트에 파일의 s3서버 URL을 전달하는 방식 생각중.
-
-고생하셨습니다~~~~!!
