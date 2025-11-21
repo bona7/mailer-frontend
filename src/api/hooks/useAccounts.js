@@ -1,5 +1,11 @@
 import { useQuery, useMutation, useQueryClient } from "@tanstack/react-query";
-import { getAccounts, addAccount, deleteAccount } from "../account";
+import {
+  getAccounts,
+  addAccount,
+  deleteAccount,
+  syncAccount,
+  updateAccountProfile,
+} from "../account";
 
 export const useAccounts = () => {
   return useQuery({
@@ -13,6 +19,7 @@ export const useAddAccount = () => {
   return useMutation({
     mutationFn: addAccount,
     onSuccess: () => {
+      // 계정 목록 새로고침
       queryClient.invalidateQueries({ queryKey: ["accounts"] });
       queryClient.invalidateQueries({ queryKey: ["emails"] });
     },
@@ -26,6 +33,28 @@ export const useDeleteAccount = () => {
     onSuccess: () => {
       queryClient.invalidateQueries({ queryKey: ["accounts"] });
       queryClient.invalidateQueries({ queryKey: ["emails"] });
+    },
+  });
+};
+
+export const useSyncAccount = () => {
+  const queryClient = useQueryClient();
+  return useMutation({
+    mutationFn: syncAccount,
+    onSuccess: () => {
+      queryClient.invalidateQueries({ queryKey: ["accounts"] });
+      queryClient.invalidateQueries({ queryKey: ["emails"] });
+    },
+  });
+};
+
+export const useUpdateAccountProfile = () => {
+  const queryClient = useQueryClient();
+  return useMutation({
+    mutationFn: ({ accountId, profileData }) =>
+      updateAccountProfile(accountId, profileData),
+    onSuccess: () => {
+      queryClient.invalidateQueries({ queryKey: ["accounts"] });
     },
   });
 };

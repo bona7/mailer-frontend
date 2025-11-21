@@ -5,12 +5,18 @@ import { MailList, AppLayout } from "@/components";
 import { useNavigate } from "react-router-dom";
 import { ChevronLeft, ChevronRight } from "lucide-react";
 import { useEmails } from "@/api/hooks/useEmails";
+import { useSyncAccount } from "@/api/hooks/useAccounts";
+import { useAccounts } from "@/api/hooks/useAccounts";
 
 const MainPage = () => {
   const [selectedAccounts, setSelectedAccounts] = useState([]);
   const [currentPage, setCurrentPage] = useState(1);
+  const [isSyncing, setIsSyncing] = useState(false);
   const navigate = useNavigate();
   const ITEMS_PER_PAGE = 20;
+
+  const { data: accounts = [] } = useAccounts();
+  const syncAccountMutation = useSyncAccount();
 
   // API로부터 메일 목록 가져오기
   const accountsParam =
@@ -70,8 +76,41 @@ const MainPage = () => {
   };
 
   // 새로고침 핸들러
-  const handleRefresh = () => {
-    refetch();
+  const handleRefresh = async () => {
+    if (selectedAccounts.length === 0) {
+      // 선택된 계정이 없으면 단순 refetch
+      refetch();
+      return;
+    }
+
+    setIsSyncing(true);
+    console.log("수동 동기화 시작 - 선택된 계정:", selectedAccounts);
+
+    try {
+      // 선택된 계정들의 ID 찾기
+      const selectedAccountIds = accounts
+        .filter((account) => selectedAccounts.includes(account.address))
+        .map((account) => account.id);
+
+      console.log("동기화할 계정 IDs:", selectedAccountIds);
+
+      // 각 계정을 순차적으로 동기화
+      for (const accountId of selectedAccountIds) {
+        console.log(`계정 ${accountId} 동기화 중...`);
+        await syncAccountMutation.mutateAsync(accountId);
+        console.log(`계정 ${accountId} 동기화 완료`);
+      }
+
+      console.log("모든 계정 동기화 완료");
+
+      // 동기화 완료 후 이메일 목록 새로고침
+      await refetch();
+    } catch (error) {
+      console.error("동기화 실패:", error);
+      console.error("에러 상세:", error.response?.data);
+    } finally {
+      setIsSyncing(false);
+    }
   };
 
   return (
@@ -85,10 +124,15 @@ const MainPage = () => {
             <h2 className="font-h7 text-primary-dark">In box</h2>
             <button
               onClick={handleRefresh}
-              disabled={isLoading}
+              disabled={isLoading || isSyncing}
               className="p-0 bg-transparent border-none cursor-pointer disabled:opacity-50"
+              title={
+                selectedAccounts.length > 0 ? "선택된 계정 동기화" : "새로고침"
+              }
             >
-              <Refresh className="w-4 h-4" />
+              <Refresh
+                className={`w-4 h-4 ${isSyncing ? "animate-spin" : ""}`}
+              />
             </button>
           </div>
           {totalPages > 1 && (
