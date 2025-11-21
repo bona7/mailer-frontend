@@ -1,7 +1,11 @@
 import React, { useState } from "react";
 import { useNavigate } from "react-router-dom";
 import MailerLogoHeader from "../assets/mailer-logo-header.svg";
-import { useAddAccount } from "@/api/hooks/useAccounts";
+import {
+  useAddAccount,
+  useUpdateAccountProfile,
+  useSyncAccount,
+} from "@/api/hooks/useAccounts";
 import Dropdown from "@/components/Dropdown";
 
 function AddAccountPage() {
@@ -15,6 +19,8 @@ function AddAccountPage() {
   const [showOnboarding, setShowOnboarding] = useState(false);
 
   const addAccountMutation = useAddAccount();
+  const updateProfileMutation = useUpdateAccountProfile();
+  const syncAccountMutation = useSyncAccount();
 
   const jobOptions = [
     "중/고등학생",
@@ -84,12 +90,44 @@ function AddAccountPage() {
     }
 
     try {
-      await addAccountMutation.mutateAsync({
+      // 1단계: 계정 생성 (email, password만 전송)
+      const accountData = {
         address: email,
         password: password,
+      };
+
+      console.log("계정 추가 요청:", accountData);
+      const createdAccount = await addAccountMutation.mutateAsync(accountData);
+      console.log("계정 생성 완료:", createdAccount);
+
+      // 2단계: 프로필 업데이트 (job, usage, interests)
+      const profileData = {
+        job: selectedJob,
+        usage: selectedPurpose,
+      };
+
+      // 관심사가 선택되었다면 추가 (배열로 전달)
+      if (selectedInterest) {
+        profileData.interests = [selectedInterest];
+      }
+
+      console.log("프로필 업데이트 요청 - 계정 ID:", createdAccount.id);
+      console.log("프로필 데이터:", profileData);
+      await updateProfileMutation.mutateAsync({
+        accountId: createdAccount.id,
+        profileData: profileData,
       });
+      console.log("프로필 업데이트 완료");
+
+      // 3단계: 메일 동기화
+      console.log("메일 동기화 시작 - 계정 ID:", createdAccount.id);
+      await syncAccountMutation.mutateAsync(createdAccount.id);
+      console.log("메일 동기화 완료");
+
+      // 완료 후 이동
       navigate("/accountadded");
     } catch (err) {
+      console.error("계정 연동 에러:", err);
       if (err.response?.status === 400) {
         setError(
           "입력 정보를 확인해주세요. 이메일 또는 비밀번호가 올바르지 않습니다.",

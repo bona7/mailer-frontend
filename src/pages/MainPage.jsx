@@ -6,12 +6,17 @@ import { ChevronLeft, ChevronRight } from "lucide-react";
 import { useEmails } from "@/api/hooks/useEmails";
 import { useSyncAccount } from "@/api/hooks/useAccounts";
 
+
 const MainPage = () => {
   const [selectedAccounts, setSelectedAccounts] = useState([]);
   console.log("selected Accounts (mainPage):", selectedAccounts);
   const [currentPage, setCurrentPage] = useState(1);
+  const [isSyncing, setIsSyncing] = useState(false);
   const navigate = useNavigate();
   const ITEMS_PER_PAGE = 20;
+
+  const { data: accounts = [] } = useAccounts();
+  const syncAccountMutation = useSyncAccount();
 
   // API로부터 메일 목록 가져오기
   const accountsParam =
@@ -102,8 +107,13 @@ const MainPage = () => {
               onClick={handleRefresh}
               disabled={isMailLoading}
               className="p-0 bg-transparent border-none cursor-pointer disabled:opacity-50"
+              title={
+                selectedAccounts.length > 0 ? "선택된 계정 동기화" : "새로고침"
+              }
             >
-              <Refresh className="w-4 h-4" />
+              <Refresh
+                className={`w-4 h-4 ${isSyncing ? "animate-spin" : ""}`}
+              />
             </button>
           </div>
           {totalPages > 1 && (

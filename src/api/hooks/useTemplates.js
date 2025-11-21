@@ -1,0 +1,47 @@
+import { useQuery, useMutation, useQueryClient } from "@tanstack/react-query";
+import {
+  getViewTemplates,
+  getViewTemplateById,
+  getMyTemplates,
+  addTemplateToMyTemplates,
+} from "../template";
+
+export const useViewTemplates = () => {
+  return useQuery({
+    queryKey: ["viewTemplates"],
+    queryFn: getViewTemplates,
+  });
+};
+
+export const useViewTemplateById = (id) => {
+  return useQuery({
+    queryKey: ["viewTemplate", id],
+    queryFn: () => getViewTemplateById(id),
+    enabled: !!id,
+  });
+};
+
+export const useMyTemplates = (userId) => {
+  return useQuery({
+    queryKey: ["myTemplates", userId],
+    queryFn: () => getMyTemplates(userId),
+    enabled: !!userId,
+  });
+};
+
+export const useAddTemplateToMyTemplates = () => {
+  const queryClient = useQueryClient();
+  return useMutation({
+    mutationFn: ({ templateId, userId, accountIds }) =>
+      addTemplateToMyTemplates(templateId, {
+        user_id: userId,
+        email_account_ids: accountIds,
+      }),
+    onSuccess: (data, variables) => {
+      // 내 템플릿 목록 새로고침
+      queryClient.invalidateQueries({
+        queryKey: ["myTemplates", variables.userId],
+      });
+    },
+  });
+};

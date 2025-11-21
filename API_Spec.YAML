@@ -1,0 +1,1488 @@
+openapi: 3.0.3
+info:
+  title: Mailer API
+  version: 1.0.0
+  description: Mailer project
+paths:
+  /api/account/:
+    get:
+      operationId: account_list
+      description: 현재 로그인된 사용자가 연동한 모든 이메일 계정 목록을 조회합니다.
+      summary: 연동된 메일 계정 목록 조회
+      tags:
+      - account
+      security:
+      - test_auth: []
+      responses:
+        '200':
+          content:
+            application/json:
+              schema:
+                type: array
+                items:
+                  $ref: '#/components/schemas/EmailAccount'
+              examples:
+                조회성공:
+                  value:
+                  - - id: 1
+                      address: user1@example.com
+                      domain: example.com
+                      is_valid: true
+                      last_synced: '2025-10-28T10:00:00Z'
+                  summary: 조회 성공
+          description: ''
+    post:
+      operationId: account_create
+      description: 새로운 이메일 계정을 연동합니다. 비밀번호는 암호화되어 저장됩니다.
+      summary: 메일 계정 연동
+      tags:
+      - account
+      requestBody:
+        content:
+          application/json:
+            schema:
+              $ref: '#/components/schemas/EmailAccountCreate'
+          application/x-www-form-urlencoded:
+            schema:
+              $ref: '#/components/schemas/EmailAccountCreate'
+          multipart/form-data:
+            schema:
+              $ref: '#/components/schemas/EmailAccountCreate'
+        required: true
+      security:
+      - test_auth: []
+      responses:
+        '201':
+          content:
+            application/json:
+              schema:
+                $ref: '#/components/schemas/EmailAccount'
+              examples:
+                생성성공:
+                  value:
+                    id: 2
+                    address: new_user@gmail.com
+                    domain: gmail
+                    is_valid: true
+                    last_synced: null
+                  summary: 생성 성공
+          description: ''
+        '400':
+          content:
+            application/json:
+              schema:
+                type: object
+                additionalProperties: {}
+              examples:
+                유효성검사실패:
+                  value:
+                    address:
+                    - Enter a valid email address.
+                  summary: 유효성 검사 실패
+                이미등록된계정:
+                  value:
+                    detail: This email account is already registered.
+                  summary: 이미 등록된 계정
+          description: ''
+        '409':
+          content:
+            application/json:
+              schema:
+                type: object
+                additionalProperties: {}
+          description: ''
+  /api/account/{account_id}/:
+    delete:
+      operationId: account_destroy
+      description: 지정된 ID의 이메일 계정 연동을 삭제합니다.
+      summary: 연동된 메일 계정 삭제
+      parameters:
+      - in: path
+        name: account_id
+        schema:
+          type: integer
+        required: true
+      tags:
+      - account
+      security:
+      - test_auth: []
+      responses:
+        '204':
+          description: No response body
+        '404':
+          content:
+            application/json:
+              schema:
+                type: object
+                additionalProperties: {}
+              examples:
+                찾을수없음/권한없음:
+                  value:
+                    detail: Not found.
+                  summary: 찾을 수 없음 / 권한 없음
+          description: ''
+  /api/account/{account_id}/profile/:
+    patch:
+      operationId: account_profile_partial_update
+      description: 지정된 이메일 계정의 프로필을 설정하거나 수정합니다. `PATCH` 메서드이므로, **변경하려는 필드만** 요청
+        바디에 담아 보낼 수 있습니다. 해당 프로필은 이후 스팸 필터링에 사용됩니다.
+      summary: 메일 계정 프로필 설정/수정
+      parameters:
+      - in: path
+        name: account_id
+        schema:
+          type: integer
+        required: true
+      tags:
+      - account
+      requestBody:
+        content:
+          application/json:
+            schema:
+              $ref: '#/components/schemas/PatchedEmailAccountProfile'
+          application/x-www-form-urlencoded:
+            schema:
+              $ref: '#/components/schemas/PatchedEmailAccountProfile'
+          multipart/form-data:
+            schema:
+              $ref: '#/components/schemas/PatchedEmailAccountProfile'
+      security:
+      - test_auth: []
+      responses:
+        '200':
+          content:
+            application/json:
+              schema:
+                $ref: '#/components/schemas/EmailAccountProfile'
+              examples:
+                수정성공:
+                  value:
+                    job: 데이터 분석가
+                    usage: 학교용
+                    interests:
+                    - 금융
+                    - 부동산
+                  summary: 수정 성공
+          description: ''
+        '400':
+          content:
+            application/json:
+              schema:
+                type: object
+                additionalProperties: {}
+              examples:
+                유효성검사실패:
+                  value:
+                    interests:
+                    - This field must be a list.
+                  summary: 유효성 검사 실패
+          description: ''
+  /api/account/{id}/sync/:
+    post:
+      operationId: account_sync_create
+      description: 특정 이메일 계정의 메일을 수동으로 동기화합니다.
+      summary: 이메일 수동 동기화
+      parameters:
+      - in: path
+        name: id
+        schema:
+          type: integer
+        required: true
+      tags:
+      - account
+      security:
+      - test_auth: []
+      responses:
+        '200':
+          content:
+            application/json:
+              schema:
+                type: object
+                additionalProperties: {}
+              examples:
+                동기화성공:
+                  value:
+                    message: user@example.com의 동기화가 완료되었습니다.
+                  summary: 동기화 성공
+          description: ''
+        '400':
+          content:
+            application/json:
+              schema:
+                type: object
+                additionalProperties: {}
+          description: ''
+        '404':
+          content:
+            application/json:
+              schema:
+                type: object
+                additionalProperties: {}
+              examples:
+                계정없음:
+                  value:
+                    error: 계정을 찾을 수 없거나 권한이 없습니다.
+                  summary: 계정 없음
+          description: ''
+        '500':
+          content:
+            application/json:
+              schema:
+                type: object
+                additionalProperties: {}
+              examples:
+                IMAP동기화실패:
+                  value:
+                    error: 'IMAP 동기화 실패: [Errno 111] Connection refused'
+                  summary: IMAP 동기화 실패
+          description: ''
+  /api/contact/{account_id}/:
+    get:
+      operationId: contact_list
+      description: 특정 이메일 계정(`account_id`)에 등록된 즐겨찾기 주소 목록을 조회합니다.
+      summary: 즐겨찾기 주소록 목록 조회
+      parameters:
+      - in: path
+        name: account_id
+        schema:
+          type: integer
+        required: true
+      tags:
+      - contact
+      security:
+      - test_auth: []
+      responses:
+        '200':
+          content:
+            application/json:
+              schema:
+                type: array
+                items:
+                  $ref: '#/components/schemas/Contact'
+              examples:
+                조회성공:
+                  value:
+                  - - id: 1
+                      address: friend@example.com
+                  summary: 조회 성공
+          description: ''
+    post:
+      operationId: contact_create
+      description: 특정 이메일 계정(`account_id`)에 새로운 주소를 즐겨찾기로 추가합니다.
+      summary: 즐겨찾기 주소 추가
+      parameters:
+      - in: path
+        name: account_id
+        schema:
+          type: integer
+        required: true
+      tags:
+      - contact
+      requestBody:
+        content:
+          application/json:
+            schema:
+              $ref: '#/components/schemas/Contact'
+          application/x-www-form-urlencoded:
+            schema:
+              $ref: '#/components/schemas/Contact'
+          multipart/form-data:
+            schema:
+              $ref: '#/components/schemas/Contact'
+        required: true
+      security:
+      - test_auth: []
+      responses:
+        '201':
+          content:
+            application/json:
+              schema:
+                $ref: '#/components/schemas/Contact'
+              examples:
+                추가성공:
+                  value:
+                    id: 3
+                    address: new_friend@example.com
+                  summary: 추가 성공
+          description: ''
+        '400':
+          content:
+            application/json:
+              schema:
+                type: object
+                additionalProperties: {}
+          description: ''
+        '409':
+          content:
+            application/json:
+              schema:
+                type: object
+                additionalProperties: {}
+              examples:
+                중복추가시도:
+                  value:
+                    detail: This address is already in the contact list.
+                  summary: 중복 추가 시도
+          description: ''
+  /api/contact/{contact_id}/:
+    patch:
+      operationId: contact_partial_update
+      description: 특정 연락처(`contact_id`)의 주소를 수정합니다.
+      summary: 즐겨찾기 주소 수정
+      parameters:
+      - in: path
+        name: contact_id
+        schema:
+          type: integer
+        required: true
+      tags:
+      - contact
+      requestBody:
+        content:
+          application/json:
+            schema:
+              $ref: '#/components/schemas/PatchedContact'
+          application/x-www-form-urlencoded:
+            schema:
+              $ref: '#/components/schemas/PatchedContact'
+          multipart/form-data:
+            schema:
+              $ref: '#/components/schemas/PatchedContact'
+      security:
+      - test_auth: []
+      responses:
+        '200':
+          content:
+            application/json:
+              schema:
+                $ref: '#/components/schemas/Contact'
+              examples:
+                수정성공:
+                  value:
+                    id: 3
+                    address: re_friend@example.com
+                  summary: 수정 성공
+          description: ''
+        '404':
+          content:
+            application/json:
+              schema:
+                type: object
+                additionalProperties: {}
+          description: ''
+    delete:
+      operationId: contact_destroy
+      description: 특정 연락처(`contact_id`)를 즐겨찾기에서 삭제합니다.
+      summary: 즐겨찾기 주소 삭제
+      parameters:
+      - in: path
+        name: contact_id
+        schema:
+          type: integer
+        required: true
+      tags:
+      - contact
+      security:
+      - test_auth: []
+      responses:
+        '204':
+          description: No response body
+        '404':
+          content:
+            application/json:
+              schema:
+                type: object
+                additionalProperties: {}
+          description: ''
+  /api/email/:
+    get:
+      operationId: email_list
+      description: |2-
+
+                메일 통합 조회를 위핸 API View입니다. 해당 API로 가능한 것:
+                1. 이메일 계정 별 이메일 조회. (생략 시 전체 조회)
+                2. 폴더 별 이메일 조회. 받은(inbox), 보낸(sent), 별표(starred), 스팸(spam), 휴지통(trash). (생략 시 전체 폴더)
+                3. 검색어로 이메일 필터링. (제목, 보낸사람, 내용, 수신자 대상)
+      parameters:
+      - in: query
+        name: accounts
+        schema:
+          type: string
+        description: 콤마(,)로 구분된 이메일 주소 목록으로 필터링합니다. 생략 시 모든 계정을 포함합니다.
+      - in: query
+        name: folder
+        schema:
+          type: string
+          enum:
+          - inbox
+          - sent
+          - spam
+          - starred
+          - trash
+        description: 폴더 이름으로 필터링합니다.
+      - in: query
+        name: query
+        schema:
+          type: string
+        description: 검색어로 필터링합니다. 보낸사람, 제목, 내용, 수신자 필드를 대상으로 검색합니다.
+      - in: query
+        name: user_id
+        schema:
+          type: integer
+        description: (임시 테스트용) 로그인 기능 구현 전, 테스트할 사용자의 ID를 직접 입력합니다.
+      tags:
+      - email
+      security:
+      - test_auth: []
+      responses:
+        '200':
+          content:
+            application/json:
+              schema:
+                type: array
+                items:
+                  $ref: '#/components/schemas/EmailMetadataList'
+          description: ''
+        '400':
+          content:
+            application/json:
+              schema:
+                type: object
+                additionalProperties: {}
+          description: ''
+        '401':
+          content:
+            application/json:
+              schema:
+                type: object
+                additionalProperties: {}
+          description: ''
+  /api/email/{id}/:
+    get:
+      operationId: email_retrieve
+      description: "개별 이메일에 대한 거의 모든 작업을 할 수 있습니다.\n특정 ID를 가진 이메일 하나에 대한 작업을 수행합니다.\n\
+        1. GET: 이메일의 상세 정보를 조회합니다. (조회 시 자동으로 '읽음' 상태로 변경됨.)\n2. PATCH: 이메일의 상태(폴더\
+        \ 바꾸기(inbox, sent, starred, spam, trash, 읽음 여부 설정 등)를 부분적으로 수정합니다.\n3. DELETE:\n\
+        \    - 휴지통에 있지 않은 경우: 휴지통으로 이동시키고, 수정된 이메일 정보를 반환합니다. (상태 코드 200)\n    - 휴지통에\
+        \ 있는 경우: 영구 삭제(소프트 딜리트)하고, 내용 없는 응답을 반환합니다. (상태 코드 204)\n    "
+      summary: 개별 이메일의 조회, 설정, 삭제
+      parameters:
+      - in: path
+        name: id
+        schema:
+          type: integer
+        required: true
+      tags:
+      - email
+      security:
+      - test_auth: []
+      responses:
+        '200':
+          content:
+            application/json:
+              schema:
+                $ref: '#/components/schemas/EmailDetail'
+          description: ''
+        '204':
+          description: No response body
+        '400':
+          content:
+            application/json:
+              schema:
+                type: object
+                additionalProperties: {}
+          description: ''
+        '401':
+          content:
+            application/json:
+              schema:
+                type: object
+                additionalProperties: {}
+          description: ''
+        '404':
+          content:
+            application/json:
+              schema:
+                type: object
+                additionalProperties: {}
+          description: ''
+    patch:
+      operationId: email_partial_update
+      description: "개별 이메일에 대한 거의 모든 작업을 할 수 있습니다.\n특정 ID를 가진 이메일 하나에 대한 작업을 수행합니다.\n\
+        1. GET: 이메일의 상세 정보를 조회합니다. (조회 시 자동으로 '읽음' 상태로 변경됨.)\n2. PATCH: 이메일의 상태(폴더\
+        \ 바꾸기(inbox, sent, starred, spam, trash, 읽음 여부 설정 등)를 부분적으로 수정합니다.\n3. DELETE:\n\
+        \    - 휴지통에 있지 않은 경우: 휴지통으로 이동시키고, 수정된 이메일 정보를 반환합니다. (상태 코드 200)\n    - 휴지통에\
+        \ 있는 경우: 영구 삭제(소프트 딜리트)하고, 내용 없는 응답을 반환합니다. (상태 코드 204)\n    "
+      summary: 개별 이메일의 조회, 설정, 삭제
+      parameters:
+      - in: path
+        name: id
+        schema:
+          type: integer
+        required: true
+      tags:
+      - email
+      requestBody:
+        content:
+          application/json:
+            schema:
+              $ref: '#/components/schemas/PatchedEmailUpdate'
+          application/x-www-form-urlencoded:
+            schema:
+              $ref: '#/components/schemas/PatchedEmailUpdate'
+          multipart/form-data:
+            schema:
+              $ref: '#/components/schemas/PatchedEmailUpdate'
+      security:
+      - test_auth: []
+      responses:
+        '200':
+          content:
+            application/json:
+              schema:
+                $ref: '#/components/schemas/EmailDetail'
+          description: ''
+        '204':
+          description: No response body
+        '400':
+          content:
+            application/json:
+              schema:
+                type: object
+                additionalProperties: {}
+          description: ''
+        '401':
+          content:
+            application/json:
+              schema:
+                type: object
+                additionalProperties: {}
+          description: ''
+        '404':
+          content:
+            application/json:
+              schema:
+                type: object
+                additionalProperties: {}
+          description: ''
+    delete:
+      operationId: email_destroy
+      description: "개별 이메일에 대한 거의 모든 작업을 할 수 있습니다.\n특정 ID를 가진 이메일 하나에 대한 작업을 수행합니다.\n\
+        1. GET: 이메일의 상세 정보를 조회합니다. (조회 시 자동으로 '읽음' 상태로 변경됨.)\n2. PATCH: 이메일의 상태(폴더\
+        \ 바꾸기(inbox, sent, starred, spam, trash, 읽음 여부 설정 등)를 부분적으로 수정합니다.\n3. DELETE:\n\
+        \    - 휴지통에 있지 않은 경우: 휴지통으로 이동시키고, 수정된 이메일 정보를 반환합니다. (상태 코드 200)\n    - 휴지통에\
+        \ 있는 경우: 영구 삭제(소프트 딜리트)하고, 내용 없는 응답을 반환합니다. (상태 코드 204)\n    "
+      summary: 개별 이메일의 조회, 설정, 삭제
+      parameters:
+      - in: path
+        name: id
+        schema:
+          type: integer
+        required: true
+      tags:
+      - email
+      security:
+      - test_auth: []
+      responses:
+        '200':
+          content:
+            application/json:
+              schema:
+                $ref: '#/components/schemas/EmailDetail'
+          description: ''
+        '204':
+          description: No response body
+        '400':
+          content:
+            application/json:
+              schema:
+                type: object
+                additionalProperties: {}
+          description: ''
+        '401':
+          content:
+            application/json:
+              schema:
+                type: object
+                additionalProperties: {}
+          description: ''
+        '404':
+          content:
+            application/json:
+              schema:
+                type: object
+                additionalProperties: {}
+          description: ''
+  /api/email/{id}/resummarize/:
+    post:
+      operationId: email_resummarize_create
+      description: |-
+        특정 메일(`email_metadata_id`)의 요약을 LLM에 요청하고 결과를 받아 DB에 저장한 후, 프론트엔드로 리턴합니다.
+                기본적으로 `is_summarized` 필드를 확인하여, `False`일 경우에만 LLM을 호출합니다. `True`라면 DB에 저장된 기존 요약본을 즉시 반환합니다.
+                `/resummarize/` 엔드포인트로 요청 시, `is_summarized` 필드와 관계없이 항상 LLM을 새로 호출하여 기존 `summarized_content`를 덮어씁니다.
+      summary: 메일 요약 요청 / 재생성 요청
+      parameters:
+      - in: path
+        name: id
+        schema:
+          type: integer
+        required: true
+      tags:
+      - email
+      security:
+      - test_auth: []
+      responses:
+        '200':
+          content:
+            application/json:
+              schema:
+                $ref: '#/components/schemas/EmailSummary'
+              examples:
+                요약성공(기존또는신규):
+                  value:
+                    id: 123
+                    summarized_content: 이것은 LLM이 요약한 내용입니다...
+                    is_summarized: true
+                  summary: 요약 성공 (기존 또는 신규)
+          description: ''
+        '400':
+          content:
+            application/json:
+              schema:
+                type: object
+                additionalProperties: {}
+          description: ''
+        '401':
+          content:
+            application/json:
+              schema:
+                type: object
+                additionalProperties: {}
+          description: ''
+        '404':
+          content:
+            application/json:
+              schema:
+                type: object
+                additionalProperties: {}
+          description: ''
+        '503':
+          content:
+            application/json:
+              schema:
+                type: object
+                additionalProperties: {}
+              examples:
+                LLM서비스오류:
+                  value:
+                    detail: The summarization service got error. try again.
+                  summary: LLM 서비스 오류
+          description: ''
+  /api/email/{id}/summarize/:
+    post:
+      operationId: email_summarize_create
+      description: |-
+        특정 메일(`email_metadata_id`)의 요약을 LLM에 요청하고 결과를 받아 DB에 저장한 후, 프론트엔드로 리턴합니다.
+                기본적으로 `is_summarized` 필드를 확인하여, `False`일 경우에만 LLM을 호출합니다. `True`라면 DB에 저장된 기존 요약본을 즉시 반환합니다.
+                `/resummarize/` 엔드포인트로 요청 시, `is_summarized` 필드와 관계없이 항상 LLM을 새로 호출하여 기존 `summarized_content`를 덮어씁니다.
+      summary: 메일 요약 요청 / 재생성 요청
+      parameters:
+      - in: path
+        name: id
+        schema:
+          type: integer
+        required: true
+      tags:
+      - email
+      security:
+      - test_auth: []
+      responses:
+        '200':
+          content:
+            application/json:
+              schema:
+                $ref: '#/components/schemas/EmailSummary'
+              examples:
+                요약성공(기존또는신규):
+                  value:
+                    id: 123
+                    summarized_content: 이것은 LLM이 요약한 내용입니다...
+                    is_summarized: true
+                  summary: 요약 성공 (기존 또는 신규)
+          description: ''
+        '400':
+          content:
+            application/json:
+              schema:
+                type: object
+                additionalProperties: {}
+          description: ''
+        '401':
+          content:
+            application/json:
+              schema:
+                type: object
+                additionalProperties: {}
+          description: ''
+        '404':
+          content:
+            application/json:
+              schema:
+                type: object
+                additionalProperties: {}
+          description: ''
+        '503':
+          content:
+            application/json:
+              schema:
+                type: object
+                additionalProperties: {}
+              examples:
+                LLM서비스오류:
+                  value:
+                    detail: The summarization service got error. try again.
+                  summary: LLM 서비스 오류
+          description: ''
+  /api/template/mytemplate/{id}/:
+    get:
+      operationId: template_mytemplate_retrieve
+      description: ID로 내가 소유한 특정 템플릿의 상세 내용을 조회합니다.
+      summary: 내 템플릿 상세 조회
+      parameters:
+      - in: path
+        name: id
+        schema:
+          type: integer
+        required: true
+      tags:
+      - template
+      security:
+      - test_auth: []
+      - {}
+      responses:
+        '200':
+          content:
+            application/json:
+              schema:
+                $ref: '#/components/schemas/MyTemplate'
+          description: ''
+    put:
+      operationId: template_mytemplate_update
+      description: ID로 내가 소유한 특정 템플릿의 내용을 수정합니다.
+      summary: 내 템플릿 수정
+      parameters:
+      - in: path
+        name: id
+        schema:
+          type: integer
+        required: true
+      tags:
+      - template
+      requestBody:
+        content:
+          application/json:
+            schema:
+              $ref: '#/components/schemas/MyTemplateUpdateRequest'
+          application/x-www-form-urlencoded:
+            schema:
+              $ref: '#/components/schemas/MyTemplateUpdateRequest'
+          multipart/form-data:
+            schema:
+              $ref: '#/components/schemas/MyTemplateUpdateRequest'
+      security:
+      - test_auth: []
+      - {}
+      responses:
+        '200':
+          description: No response body
+    delete:
+      operationId: template_mytemplate_destroy
+      description: ID로 내가 소유한 특정 템플릿을 삭제합니다.
+      summary: 내 템플릿 삭제
+      parameters:
+      - in: path
+        name: id
+        schema:
+          type: integer
+        required: true
+      tags:
+      - template
+      security:
+      - test_auth: []
+      - {}
+      responses:
+        '204':
+          description: No response body
+  /api/template/mytemplate/create/:
+    post:
+      operationId: template_mytemplate_create_create
+      description: 새로운 개인 템플릿을 생성합니다.
+      summary: 내 템플릿 생성
+      tags:
+      - template
+      requestBody:
+        content:
+          application/json:
+            schema:
+              $ref: '#/components/schemas/MyTemplateCreateRequest'
+          application/x-www-form-urlencoded:
+            schema:
+              $ref: '#/components/schemas/MyTemplateCreateRequest'
+          multipart/form-data:
+            schema:
+              $ref: '#/components/schemas/MyTemplateCreateRequest'
+      security:
+      - test_auth: []
+      - {}
+      responses:
+        '201':
+          content:
+            application/json:
+              schema:
+                $ref: '#/components/schemas/MyTemplate'
+          description: ''
+  /api/template/mytemplate/list/{user_id}/:
+    get:
+      operationId: template_mytemplate_list_list
+      description: 특정 사용자가 소유한 모든 템플릿 목록을 조회합니다.
+      summary: 내 템플릿 목록 조회
+      parameters:
+      - in: path
+        name: user_id
+        schema:
+          type: integer
+        required: true
+      tags:
+      - template
+      security:
+      - test_auth: []
+      - {}
+      responses:
+        '200':
+          content:
+            application/json:
+              schema:
+                type: array
+                items:
+                  $ref: '#/components/schemas/MyTemplate'
+          description: ''
+  /api/template/viewtemplate/:
+    get:
+      operationId: view_template_list
+      description: 관리자(user_id='common_template_admin')가 생성한 모든 템플릿의 목록을 조회합니다.
+      summary: 관리자 제공 템플릿 목록 조회
+      tags:
+      - template
+      security:
+      - test_auth: []
+      - {}
+      responses:
+        '200':
+          content:
+            application/json:
+              schema:
+                type: array
+                items:
+                  $ref: '#/components/schemas/ViewTemplate'
+          description: ''
+  /api/template/viewtemplate/{id}/:
+    get:
+      operationId: view_template_retrieve
+      description: ID로 특정 템플릿의 상세 내용을 조회합니다.
+      summary: 특정 템플릿 상세 조회
+      parameters:
+      - in: path
+        name: id
+        schema:
+          type: integer
+        required: true
+      tags:
+      - template
+      security:
+      - test_auth: []
+      - {}
+      responses:
+        '200':
+          content:
+            application/json:
+              schema:
+                $ref: '#/components/schemas/ViewTemplate'
+          description: ''
+    post:
+      operationId: template_viewtemplate_create
+      description: 특정 템플릿을 지정된 사용자의 이메일 계정들로 복사하여 '내 템플릿'으로 저장합니다.
+      summary: 내 템플릿으로 가져오기
+      parameters:
+      - in: path
+        name: id
+        schema:
+          type: integer
+        required: true
+      tags:
+      - template
+      requestBody:
+        content:
+          application/json:
+            schema:
+              example:
+                user_id: 1
+                email_account_ids:
+                - 1
+                - 2
+      security:
+      - test_auth: []
+      - {}
+      responses:
+        '201':
+          content:
+            application/json:
+              schema:
+                type: array
+                items:
+                  $ref: '#/components/schemas/MyTemplate'
+          description: ''
+    delete:
+      operationId: template_viewtemplate_destroy
+      description: 특정 템플릿을 영구적으로 삭제합니다.
+      summary: 템플릿 삭제 (관리자용)
+      parameters:
+      - in: path
+        name: id
+        schema:
+          type: integer
+        required: true
+      tags:
+      - template
+      security:
+      - test_auth: []
+      - {}
+      responses:
+        '204':
+          description: No response body
+  /api/user/health/:
+    get:
+      operationId: user_health_retrieve
+      description: 서버의 정상 동작 여부를 확인합니다.
+      summary: 서버 헬스 체크
+      tags:
+      - user
+      security:
+      - test_auth: []
+      - {}
+      responses:
+        '200':
+          content:
+            application/json:
+              schema:
+                type: object
+                additionalProperties: {}
+              examples:
+                정상응답:
+                  value:
+                    ok: true
+                  summary: 정상 응답
+          description: ''
+  /api/user/me/:
+    get:
+      operationId: user_me_retrieve
+      description: 로그인된 사용자의 정보를 반환합니다.
+      summary: 내 정보 조회
+      tags:
+      - user
+      security:
+      - test_auth: []
+      responses:
+        '200':
+          content:
+            application/json:
+              schema:
+                type: object
+                additionalProperties: {}
+              examples:
+                정상응답:
+                  value:
+                    user_id: user_xxxxxxxxxxxx
+                  summary: 정상 응답
+          description: ''
+  /api/user/signout/:
+    post:
+      operationId: user_signout_create
+      description: 보안상 필요시 서버에서 강제로 사용자의 세션을 만료시킵니다.
+      summary: 강제 로그아웃
+      tags:
+      - user
+      security:
+      - test_auth: []
+      responses:
+        '200':
+          content:
+            application/json:
+              schema:
+                type: object
+                additionalProperties: {}
+              examples:
+                정상응답:
+                  value:
+                    ok: true
+                  summary: 정상 응답
+          description: ''
+        '400':
+          content:
+            application/json:
+              schema:
+                type: object
+                additionalProperties: {}
+              examples:
+                세션ID없음:
+                  value:
+                    error: No session id in token
+                  summary: 세션 ID 없음
+          description: ''
+        '500':
+          content:
+            application/json:
+              schema:
+                type: object
+                additionalProperties: {}
+          description: ''
+components:
+  schemas:
+    Contact:
+      type: object
+      description: |-
+        Contact 모델을 위한 Serializer
+        - 목록 조회, 생성, 수정에 사용됩니다.
+      properties:
+        id:
+          type: integer
+          readOnly: true
+        address:
+          type: string
+          maxLength: 255
+      required:
+      - address
+      - id
+    EmailAccount:
+      type: object
+      description: EmailAccount 모델의 목록 조회를 위한 Serializer
+      properties:
+        id:
+          type: integer
+          readOnly: true
+        address:
+          type: string
+          format: email
+          maxLength: 254
+        domain:
+          type: string
+          maxLength: 255
+        is_valid:
+          type: boolean
+        last_synced:
+          type: string
+          format: date-time
+          nullable: true
+        job:
+          type: string
+          nullable: true
+          description: 사용자의 직업
+          maxLength: 100
+        usage:
+          type: string
+          nullable: true
+          description: '계정의 용도 (예: 개인용, 업무용)'
+          maxLength: 100
+        interests:
+          nullable: true
+          description: '사용자 관심사 목록 (예: [''기술'', ''스포츠''])'
+      required:
+      - address
+      - domain
+      - id
+    EmailAccountCreate:
+      type: object
+      description: EmailAccount 생성을 위한 Serializer
+      properties:
+        address:
+          type: string
+          format: email
+          maxLength: 254
+        password:
+          type: string
+          writeOnly: true
+      required:
+      - address
+      - password
+    EmailAccountInfo:
+      type: object
+      properties:
+        id:
+          type: integer
+          readOnly: true
+        address:
+          type: string
+          format: email
+          maxLength: 254
+      required:
+      - address
+      - id
+    EmailAccountProfile:
+      type: object
+      description: EmailAccount 프로필 수정을 위한 Serializer
+      properties:
+        job:
+          type: string
+          nullable: true
+          description: 사용자의 직업
+          maxLength: 100
+        usage:
+          type: string
+          nullable: true
+          description: '계정의 용도 (예: 개인용, 업무용)'
+          maxLength: 100
+        interests:
+          nullable: true
+          description: '사용자 관심사 목록 (예: [''기술'', ''스포츠''])'
+    EmailContent:
+      type: object
+      properties:
+        subject:
+          type: string
+          nullable: true
+          maxLength: 255
+        from_header:
+          type: string
+          nullable: true
+        to_header:
+          nullable: true
+        cc_header:
+          nullable: true
+        bcc_header:
+          nullable: true
+        text_body:
+          type: string
+          nullable: true
+        html_body:
+          type: string
+          nullable: true
+        date:
+          type: string
+          format: date-time
+          nullable: true
+    EmailDetail:
+      type: object
+      properties:
+        id:
+          type: integer
+          readOnly: true
+        account_address:
+          type: string
+          readOnly: true
+        folder:
+          allOf:
+          - $ref: '#/components/schemas/FolderEnum'
+          description: |-
+            폴더 지정: inbox(받은 편지함), sent(보낸 편지함), spam(스팸 메일함), starred(별표 편지함), trash(휴지통)
+
+            * `inbox` - 받은 편지함
+            * `sent` - 보낸 편지함
+            * `spam` - 스팸 편지함
+            * `starred` - 별표 편지함
+            * `trash` - 휴지통
+        is_read:
+          type: boolean
+          description: 읽음 상태 여부
+        is_important:
+          type: boolean
+          description: 중요 메일 표시 여부
+        is_pinned:
+          type: boolean
+          description: 상단 고정 여부
+        received_at:
+          type: string
+          format: date-time
+        email:
+          allOf:
+          - $ref: '#/components/schemas/EmailContent'
+          readOnly: true
+      required:
+      - account_address
+      - email
+      - id
+      - received_at
+    EmailMetadataList:
+      type: object
+      properties:
+        id:
+          type: integer
+          readOnly: true
+        account_address:
+          type: string
+          readOnly: true
+        folder:
+          allOf:
+          - $ref: '#/components/schemas/FolderEnum'
+          description: |-
+            폴더 지정: inbox(받은 편지함), sent(보낸 편지함), spam(스팸 메일함), starred(별표 편지함), trash(휴지통)
+
+            * `inbox` - 받은 편지함
+            * `sent` - 보낸 편지함
+            * `spam` - 스팸 편지함
+            * `starred` - 별표 편지함
+            * `trash` - 휴지통
+        is_read:
+          type: boolean
+          description: 읽음 상태 여부
+        is_important:
+          type: boolean
+          description: 중요 메일 표시 여부
+        is_pinned:
+          type: boolean
+          description: 상단 고정 여부
+        received_at:
+          type: string
+          format: date-time
+        email:
+          allOf:
+          - $ref: '#/components/schemas/EmailPreview'
+          readOnly: true
+      required:
+      - account_address
+      - email
+      - id
+      - received_at
+    EmailPreview:
+      type: object
+      properties:
+        subject:
+          type: string
+          description: RFC 2047 형식으로 인코딩된 이메일 제목을 디코딩하여 반환합니다.
+          readOnly: true
+        from_header:
+          type: string
+          nullable: true
+        date:
+          type: string
+          format: date-time
+          nullable: true
+        preview:
+          type: string
+          description: |-
+            본문 내용의 미리보기를 생성합니다.
+            text_body가 있으면 사용하고, 없으면 html_body에서 불필요한 부분을 제거하여 사용합니다.
+          readOnly: true
+      required:
+      - preview
+      - subject
+    EmailSummary:
+      type: object
+      properties:
+        id:
+          type: integer
+          readOnly: true
+        summarized_content:
+          type: string
+          readOnly: true
+          nullable: true
+        is_summarized:
+          type: boolean
+          readOnly: true
+          description: 요약 여부
+      required:
+      - id
+      - is_summarized
+      - summarized_content
+    FolderEnum:
+      enum:
+      - inbox
+      - sent
+      - spam
+      - starred
+      - trash
+      type: string
+      description: |-
+        * `inbox` - 받은 편지함
+        * `sent` - 보낸 편지함
+        * `spam` - 스팸 편지함
+        * `starred` - 별표 편지함
+        * `trash` - 휴지통
+    MyTemplate:
+      type: object
+      description: Template model serializer
+      properties:
+        id:
+          type: integer
+          readOnly: true
+        main_category:
+          type: string
+          nullable: true
+          maxLength: 100
+        sub_category:
+          type: string
+          nullable: true
+          maxLength: 100
+        topic:
+          type: string
+          nullable: true
+          maxLength: 100
+        template_title:
+          type: string
+          nullable: true
+          maxLength: 255
+        template_content:
+          type: string
+          nullable: true
+          maxLength: 1000
+        email_account:
+          $ref: '#/components/schemas/EmailAccountInfo'
+        created_at:
+          type: string
+          format: date-time
+          readOnly: true
+      required:
+      - created_at
+      - email_account
+      - id
+    MyTemplateCreateRequest:
+      type: object
+      properties:
+        template_content:
+          type: string
+          nullable: true
+          maxLength: 1000
+        template_title:
+          type: string
+          nullable: true
+          maxLength: 255
+        sub_category:
+          type: string
+          nullable: true
+          maxLength: 100
+        topic:
+          type: string
+          nullable: true
+          maxLength: 100
+    MyTemplateUpdateRequest:
+      type: object
+      properties:
+        sub_category:
+          type: string
+          nullable: true
+          maxLength: 100
+        topic:
+          type: string
+          nullable: true
+          maxLength: 100
+        template_title:
+          type: string
+          nullable: true
+          maxLength: 255
+        template_content:
+          type: string
+          nullable: true
+          maxLength: 1000
+    PatchedContact:
+      type: object
+      description: |-
+        Contact 모델을 위한 Serializer
+        - 목록 조회, 생성, 수정에 사용됩니다.
+      properties:
+        id:
+          type: integer
+          readOnly: true
+        address:
+          type: string
+          maxLength: 255
+    PatchedEmailAccountProfile:
+      type: object
+      description: EmailAccount 프로필 수정을 위한 Serializer
+      properties:
+        job:
+          type: string
+          nullable: true
+          description: 사용자의 직업
+          maxLength: 100
+        usage:
+          type: string
+          nullable: true
+          description: '계정의 용도 (예: 개인용, 업무용)'
+          maxLength: 100
+        interests:
+          nullable: true
+          description: '사용자 관심사 목록 (예: [''기술'', ''스포츠''])'
+    PatchedEmailUpdate:
+      type: object
+      properties:
+        folder:
+          allOf:
+          - $ref: '#/components/schemas/FolderEnum'
+          description: |-
+            폴더 지정: inbox(받은 편지함), sent(보낸 편지함), spam(스팸 메일함), starred(별표 편지함), trash(휴지통)
+
+            * `inbox` - 받은 편지함
+            * `sent` - 보낸 편지함
+            * `spam` - 스팸 편지함
+            * `starred` - 별표 편지함
+            * `trash` - 휴지통
+        is_read:
+          type: boolean
+          description: 읽음 상태 여부
+        is_important:
+          type: boolean
+          description: 중요 메일 표시 여부
+        is_pinned:
+          type: boolean
+          description: 상단 고정 여부
+    ViewTemplate:
+      type: object
+      description: Template model serializer for viewing templates
+      properties:
+        id:
+          type: integer
+          readOnly: true
+        main_category:
+          type: string
+          nullable: true
+          maxLength: 100
+        sub_category:
+          type: string
+          nullable: true
+          maxLength: 100
+        topic:
+          type: string
+          nullable: true
+          maxLength: 100
+        template_title:
+          type: string
+          nullable: true
+          maxLength: 255
+        template_content:
+          type: string
+          nullable: true
+          maxLength: 1000
+        created_at:
+          type: string
+          format: date-time
+          readOnly: true
+      required:
+      - created_at
+      - id
+  securitySchemes:
+    test_auth:
+      type: apiKey
+      in: query
+      name: user_id
+      description: 테스트용 인증을 위해 쿼리 파라미터에 user_id를 전달합니다.
+tags:
+- name: user
+  description: 사용자 인증 및 정보 관련 API
+- name: account
+  description: 이메일 계정 연동 및 관리 API
+- name: email
+  description: 통합 메일 조회, 관리 및 요약 API
+- name: contact
+  description: 주소록(즐겨찾기) 관리 API
+- name: template
+  description: 메일 템플릿 관련 API
+- name: attachment
+  description: 첨부파일 관련 API

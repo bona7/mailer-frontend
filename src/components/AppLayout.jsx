@@ -38,9 +38,20 @@ const AppLayout = ({ children, selectedAccounts, setSelectedAccounts }) => {
 
   const handleDeleteAccount = async (e, accountId) => {
     e.stopPropagation(); // 계정 선택 이벤트 방지
+
+    // 삭제할 계정의 주소 찾기
+    const accountToDelete = accounts.find((acc) => acc.id === accountId);
+
     if (window.confirm("정말로 이 계정을 삭제하시겠습니까?")) {
       try {
         await deleteAccountMutation.mutateAsync(accountId);
+
+        // selectedAccounts에서도 제거
+        if (accountToDelete) {
+          setSelectedAccounts((prev) =>
+            prev.filter((address) => address !== accountToDelete.address),
+          );
+        }
       } catch (error) {
         console.error("계정 삭제 실패:", error);
         alert("계정 삭제에 실패했습니다.");

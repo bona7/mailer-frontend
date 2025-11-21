@@ -2,22 +2,54 @@ import { useState } from "react";
 import { Button } from "@/components/ui/button";
 import { Heart, X } from "lucide-react";
 import CollectionDropdown from "../CollectionDropdown";
+import { useAddTemplateToMyTemplates } from "@/api/hooks/useTemplates";
+import { useUser } from "@clerk/clerk-react";
 
 const TemplateDetail = ({ template, onClose }) => {
-  const title = template.title;
+  const title = template.template_title || template.title;
   const templateName = template.topic;
-  const aboutText = template.subCategory;
-  const bodyText = template.body;
+  const aboutText = template.sub_category || template.subCategory;
+  const bodyText = template.template_content || template.body;
   const [isDropdownOpen, setIsDropdownOpen] = useState(false);
   const [isHeartFilled, setIsHeartFilled] = useState(false);
+
+  const { user } = useUser();
+  const addTemplateToMyTemplates = useAddTemplateToMyTemplates();
 
   const toggleDropdown = () => {
     setIsDropdownOpen((prev) => !prev);
   };
 
-  const handleAddCollection = (selectedIds) => {
-    setIsHeartFilled(selectedIds.length > 0);
-    setIsDropdownOpen(false);
+  const handleAddCollection = async (selectedAccountIds) => {
+    if (selectedAccountIds.length === 0) {
+      setIsDropdownOpen(false);
+      return;
+    }
+
+    try {
+      console.log("템플릿 추가 요청:", {
+        templateId: template.id,
+        userId: user?.id,
+        userObject: user,
+        accountIds: selectedAccountIds,
+      });
+
+      await addTemplateToMyTemplates.mutateAsync({
+        templateId: template.id,
+        userId: user?.id,
+        accountIds: selectedAccountIds,
+      });
+
+      console.log("템플릿이 내 템플릿에 추가되었습니다");
+      setIsHeartFilled(true);
+      setIsDropdownOpen(false);
+    } catch (error) {
+      console.error("템플릿 추가 실패:", error);
+      console.error("에러 응답:", error.response?.data);
+      console.error("에러 상태:", error.response?.status);
+      console.error("요청 URL:", error.config?.url);
+      alert("템플릿 추가에 실패했습니다. 다시 시도해주세요.");
+    }
   };
 
   return (

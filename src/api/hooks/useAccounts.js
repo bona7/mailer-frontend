@@ -18,6 +18,7 @@ export const useAddAccount = () => {
   return useMutation({
     mutationFn: addAccount,
     onSuccess: () => {
+      // 계정 목록 새로고침
       queryClient.invalidateQueries({ queryKey: ["accounts"] });
       queryClient.invalidateQueries({ queryKey: ["emails"] });
     },

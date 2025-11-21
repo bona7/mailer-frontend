@@ -5,11 +5,11 @@ import AccountAddedSuccess from "./AccountAddedSuccess";
 import MainPage from "./MainPage";
 import MailDetail from "./MailDetail";
 import Trash from "./Trash";
+import Spam from "./Spam";
 import ViewTemplate from "./ViewTemplate";
 import MyTemplate from "./MyTemplate";
 import AddAccountPage from "./AccountAdd"; // This is the form component
 import AccountListPage from "./AccountListPage";
-import Spam from "./Spam";
 
 export {
   SignUp,
@@ -21,7 +21,7 @@ export {
   MyTemplate,
   MailDetail,
   Trash,
+  Spam,
   AddAccountPage,
   AccountListPage,
-  Spam,
 };
