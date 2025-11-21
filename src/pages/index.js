@@ -1,6 +1,5 @@
 import SignUp from "./SignUp";
 import SignIn from "./SignIn";
-import Verify from "./Verify";
 import MainVerify from "./Main_Verify";
 import AccountAddedSuccess from "./AccountAddedSuccess";
 import MainPage from "./MainPage";
@@ -14,7 +13,6 @@ import AccountListPage from "./AccountListPage";
 export {
   SignUp,
   SignIn,
-  Verify,
   MainVerify,
   AccountAddedSuccess,
   MainPage,

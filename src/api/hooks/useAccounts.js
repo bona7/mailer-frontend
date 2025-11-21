@@ -14,6 +14,7 @@ export const useAddAccount = () => {
     mutationFn: addAccount,
     onSuccess: () => {
       queryClient.invalidateQueries({ queryKey: ["accounts"] });
+      queryClient.invalidateQueries({ queryKey: ["emails"] });
     },
   });
 };
@@ -24,6 +25,7 @@ export const useDeleteAccount = () => {
     mutationFn: deleteAccount,
     onSuccess: () => {
       queryClient.invalidateQueries({ queryKey: ["accounts"] });
+      queryClient.invalidateQueries({ queryKey: ["emails"] });
     },
   });
 };
