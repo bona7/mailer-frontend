@@ -19,11 +19,3 @@ export const syncAccount = async (accountId) => {
   const response = await api.post(`/account/${accountId}/sync/`);
   return response.data;
 };
-
-export const updateAccountProfile = async (accountId, profileData) => {
-  const response = await api.patch(
-    `/account/${accountId}/profile/`,
-    profileData,
-  );
-  return response.data;
-};
