@@ -11,7 +11,6 @@ import { useAccounts, useDeleteAccount } from "@/api/hooks/useAccounts"; // useA
 
 import {
   sidebarItems,
-  accountEmails,
   contacts,
   aiSummaries,
 } from "@/data/sidebar_MainPage.jsx";

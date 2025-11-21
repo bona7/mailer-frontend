@@ -3,7 +3,6 @@ import { Button } from "@/components/ui/button";
 import { Input } from "@/components/ui/input";
 import ComposeDropdown from "@/components/compose_dropdown";
 import attachment from "@/assets/attachment.svg";
-import { accountEmails } from "@/data/sidebar_MainPage";
 import { X } from "lucide-react";
 import { useAddAccount, useAccounts } from "@/api/hooks/useAccounts"; // useAddAccount 훅 임포트
 
@@ -52,6 +51,10 @@ function MailComposeModal({ isOpen, onClose, isAddAccountMode = false }) {
   };
 
   if (!isOpen) return null;
+  console.log(
+    "MailComposeModal rendered with isAddAccountMode:",
+    isAddAccountMode,
+  );
 
   return (
     <div className="absolute bottom-0 right-0 z-50">
@@ -64,7 +67,7 @@ function MailComposeModal({ isOpen, onClose, isAddAccountMode = false }) {
         </button>
         <div className="flex items-center border-b border-secondary-dark">
           <ComposeDropdown
-            options={accountEmails.map((account) => account.email)}
+            options={accounts.map((account) => account.email)}
             selectedOption={selectedFromEmail}
             onOptionChange={setSelectedFromEmail}
           />
