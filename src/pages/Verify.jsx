@@ -3,16 +3,20 @@ import { useNavigate, useLocation } from "react-router-dom";
 import MailerLogoHeader from "../assets/mailer-logo-header.svg";
 import DomainDropdown from "../components/domain_dropdown";
 import Dropdown from "@/components/Dropdown";
+import { useAddAccount } from "@/api/hooks/useAccounts";
 
 function Verify() {
   const navigate = useNavigate();
   const location = useLocation();
+  const addAccountMutation = useAddAccount();
   const [selectedDomain, setSelectedDomain] = useState("gmail.com");
   const [isDirectInput, setIsDirectInput] = useState(false);
   const [emailPrefix, setEmailPrefix] = useState("");
+  const [password, setPassword] = useState("");
   const [selectedJob, setSelectedJob] = useState("");
   const [selectedPurpose, setSelectedPurpose] = useState("");
   const [selectedInterest, setSelectedInterest] = useState("");
+  const [error, setError] = useState("");
   const jobOptions = [
     "중/고등학생",
     "대학(학부)생",
@@ -56,11 +60,14 @@ function Verify() {
   ];
 
   useEffect(() => {
-    // SignUp 페이지에서 전달받은 이메일 정보로 초기화
+    // AccountAdd 페이지에서 전달받은 이메일과 비밀번호로 초기화
     if (location.state?.email) {
       const [prefix, domain] = location.state.email.split("@");
       setEmailPrefix(prefix);
       setSelectedDomain(domain);
+    }
+    if (location.state?.password) {
+      setPassword(location.state.password);
     }
   }, [location]);
 
@@ -81,9 +88,34 @@ function Verify() {
     setEmailPrefix(prefix);
   };
 
-  // 계정 인증 완료되어야지 넘어가도록 수정
-  const handleAccountAdd = () => {
-    navigate("/accountadded");
+  // 계정 추가 API 호출 후 완료 페이지로 이동
+  const handleAccountAdd = async () => {
+    setError("");
+
+    const fullEmail = `${emailPrefix}@${selectedDomain}`;
+
+    try {
+      // 계정 추가 API 호출
+      await addAccountMutation.mutateAsync({
+        address: fullEmail,
+        password: password,
+      });
+
+      // 성공 시 완료 페이지로 이동
+      navigate("/accountadded");
+    } catch (err) {
+      if (err.response?.status === 400) {
+        setError(
+          "입력 정보를 확인해주세요. 이메일 또는 비밀번호가 올바르지 않습니다.",
+        );
+      } else if (err.response?.status === 409) {
+        setError("이미 연동된 계정입니다.");
+      } else {
+        setError(
+          "계정 연동 중 오류가 발생했습니다. 잠시 후 다시 시도해주세요.",
+        );
+      }
+    }
   };
 
   // 필수 항목이 모두 선택되었는지 확인
@@ -178,17 +210,23 @@ function Verify() {
           />
         </div>
 
+        {error && (
+          <div className="mt-4 p-3 text-sm text-red-600 bg-red-50 rounded-lg">
+            {error}
+          </div>
+        )}
+
         <div className="flex justify-end mt-6">
           <button
             onClick={handleAccountAdd}
-            disabled={!isFormValid}
+            disabled={!isFormValid || addAccountMutation.isPending}
             className={`py-1.5 px-6 rounded-xl text-gray-fa font-b1 ${
-              isFormValid
+              isFormValid && !addAccountMutation.isPending
                 ? "bg-primary-dark hover:bg-primary cursor-pointer"
                 : "bg-gray-400 cursor-not-allowed"
             }`}
           >
-            완료
+            {addAccountMutation.isPending ? "연동 중..." : "완료"}
           </button>
         </div>
       </div>
