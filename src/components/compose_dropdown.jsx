@@ -2,6 +2,7 @@ import { useState, useRef, useEffect } from "react";
 import { getAccountColor } from "@/lib/utils";
 
 function ComposeDropdown({ options, selectedOption, onOptionChange }) {
+  // console.log("ComposeDropdown - options:", options);
   const [isOpen, setIsOpen] = useState(false);
   const dropdownRef = useRef(null);
 
@@ -57,7 +58,7 @@ function ComposeDropdown({ options, selectedOption, onOptionChange }) {
             <div
               className={`${getAccountColor(selectedOption.type)} items-center rounded-full w-2 h-2`}
             ></div>
-            {selectedOption.email}
+            {selectedOption.address}
           </span>
         </button>
         {isOpen && (
@@ -67,14 +68,14 @@ function ComposeDropdown({ options, selectedOption, onOptionChange }) {
                 const accountColor = getAccountColor(option.type);
                 return (
                   <li
-                    key={option.email}
+                    key={option.address}
                     onClick={() => handleOptionClick(option)}
                     className="px-4 py-2 text-sm text-gray-26 hover:bg-gray-100 cursor-pointer flex gap-2 items-center"
                   >
                     <div
                       className={`${accountColor} rounded-full w-2 h-2 `}
                     ></div>
-                    {option.email}
+                    {option.address}
                   </li>
                 );
               })}

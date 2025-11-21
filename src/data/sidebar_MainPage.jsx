@@ -15,7 +15,7 @@ const sidebarItems = [
     submenu: [
       { label: "All email(8003)", path: "/" },
       { label: "Starred (70)", path: "/" },
-      { label: "Spam (106)", path: "/" },
+      { label: "Spam (106)", path: "/spam" },
     ],
   },
   {
