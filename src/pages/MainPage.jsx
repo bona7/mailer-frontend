@@ -1,36 +1,48 @@
 import { useState, useMemo } from "react";
-import { Separator } from "@/components/ui/separator";
 import { Refresh } from "@/assets";
 import { MailList, AppLayout } from "@/components";
 import { useNavigate } from "react-router-dom";
 import { ChevronLeft, ChevronRight } from "lucide-react";
 import { useEmails } from "@/api/hooks/useEmails";
+import { useSyncAccount } from "@/api/hooks/useAccounts";
 
 const MainPage = () => {
   const [selectedAccounts, setSelectedAccounts] = useState([]);
+  console.log("selected Accounts (mainPage):", selectedAccounts);
   const [currentPage, setCurrentPage] = useState(1);
   const navigate = useNavigate();
   const ITEMS_PER_PAGE = 20;
 
   // API로부터 메일 목록 가져오기
   const accountsParam =
-    selectedAccounts.length > 0 ? selectedAccounts.join(",") : undefined;
+    selectedAccounts.length > 0
+      ? selectedAccounts
+          .map((selectedAccount) => selectedAccount.address)
+          .join(",")
+      : "";
+
+  console.log("MainPage - accountsParam:", accountsParam);
   const {
     data: emails = [],
-    isLoading,
-    isError,
-    error,
+    isLoading: isMailLoading,
+    isError: isMailError,
+    error: mailError,
     refetch,
   } = useEmails({
     folder: "inbox",
     accounts: accountsParam,
   });
 
+  const {
+    mutateAsync: syncAccountMutate,
+    isLoading: isSyncLoading,
+    isError: isSyncError,
+    error: syncError,
+  } = useSyncAccount();
+
   // 디버깅용 로그
   console.log("MainPage - emails:", emails);
-  console.log("MainPage - isLoading:", isLoading);
-  console.log("MainPage - isError:", isError);
-  console.log("MainPage - error:", error);
+  // console.log("MainPage - error:", error);
 
   // 페이지네이션 계산
   const totalPages = Math.ceil(emails.length / ITEMS_PER_PAGE);
@@ -54,8 +66,16 @@ const MainPage = () => {
   };
 
   // 새로고침 핸들러
-  const handleRefresh = () => {
-    refetch();
+  const handleRefresh = async () => {
+    try {
+      selectedAccounts.forEach(async (account) => {
+        await syncAccountMutate(account.id);
+        console.log("syncAccountMutate called for account ID:", account.id);
+      });
+      await refetch();
+    } catch (err) {
+      console.error("Error syncing accounts:", err);
+    }
   };
 
   return (
@@ -69,7 +89,7 @@ const MainPage = () => {
             <h2 className="font-h7 text-primary-dark">In box</h2>
             <button
               onClick={handleRefresh}
-              disabled={isLoading}
+              disabled={isMailLoading}
               className="p-0 bg-transparent border-none cursor-pointer disabled:opacity-50"
             >
               <Refresh className="w-4 h-4" />
@@ -98,19 +118,26 @@ const MainPage = () => {
             </div>
           )}
         </div>
-        <Separator className="bg-gray-bf" />
+        <hr className="border-gray-bf" />
         <div className="flex flex-col overflow-y-auto min-h-0">
-          {isLoading && (
+          {isMailLoading && (
             <div className="flex items-center justify-center p-8 text-gray-8c">
               로딩 중...
             </div>
           )}
-          {isError && (
+          {isSyncLoading && (
+            <div className="flex items-center justify-center p-8 text-gray-8c">
+              동기화 중...
+            </div>
+          )}
+          {isMailError && (
             <div className="flex flex-col items-center justify-center p-8 text-red-600">
               <p>메일을 불러오는 중 오류가 발생했습니다.</p>
               <pre className="mt-2 text-xs text-left bg-red-50 p-2 rounded">
                 {JSON.stringify(
-                  error?.response?.data || error?.message || "Unknown error",
+                  mailError?.response?.data ||
+                    mailError?.message ||
+                    "Unknown error",
                   null,
                   2,
                 )}
@@ -123,27 +150,36 @@ const MainPage = () => {
               </button>
             </div>
           )}
-          {!isLoading && !isError && currentEmails.length === 0 && (
+          {!isMailLoading && !isMailError && currentEmails.length === 0 && (
             <div className="flex items-center justify-center p-8 text-gray-8c">
               메일이 없습니다.
             </div>
           )}
-          {!isLoading &&
-            !isError &&
-            currentEmails.map((email) => (
+          {!isMailLoading &&
+            !isSyncError &&
+            !isSyncLoading &&
+            !isMailError &&
+            currentEmails.map((mailObject) => (
               <MailList
-                key={email.id}
-                sender={email.email.from_header}
-                time={new Date(email.received_at).toLocaleString("ko-KR", {
+                key={mailObject.id}
+                sender={
+                  mailObject.email.from_header.indexOf("<") !== -1
+                    ? mailObject.email.from_header.substring(
+                        0,
+                        mailObject.email.from_header.indexOf("<"),
+                      )
+                    : mailObject.email.from_header
+                }
+                time={new Date(mailObject.received_at).toLocaleString("ko-KR", {
                   month: "numeric",
                   day: "numeric",
                   hour: "2-digit",
                   minute: "2-digit",
                 })}
-                title={email.email.subject}
-                content={email.email.preview}
-                account={email.account_address}
-                onClick={() => navigate(`/mail/${email.id}`)}
+                title={mailObject.email.subject}
+                content={mailObject.email.preview}
+                account={mailObject.account_address}
+                onClick={() => navigate(`/mail/${mailObject.id}`)}
               />
             ))}
         </div>

@@ -18,14 +18,17 @@ import { getAccountColor } from "@/lib/utils";
 import MailComposeModal from "@/components/modals/MailComposeModal";
 
 const AppLayout = ({ children, selectedAccounts, setSelectedAccounts }) => {
+  console.log("AppLayout - selectedAccounts:", selectedAccounts);
   const navigate = useNavigate();
   const { signOut } = useClerk();
   const { user } = useUser();
 
   const { data: accounts = [], isLoading, isError } = useAccounts();
+  console.log("AppLayout - accounts:", accounts);
   const deleteAccountMutation = useDeleteAccount();
 
   const handleAccountClick = (accountType) => {
+    console.log("Clicked account:", accountType);
     setSelectedAccounts((prev) =>
       prev.includes(accountType)
         ? prev.filter((t) => t !== accountType)
@@ -137,11 +140,11 @@ const AppLayout = ({ children, selectedAccounts, setSelectedAccounts }) => {
           <CardContent className="px-3 pb-3 space-y-1.5">
             {accounts &&
               accounts.map((account, index) => {
-                const isSelected = selectedAccounts.includes(account.address);
+                const isSelected = selectedAccounts.includes(account);
                 return (
                   <button
                     key={index}
-                    onClick={() => handleAccountClick(account.address)}
+                    onClick={() => handleAccountClick(account)}
                     className={`flex items-center gap-1 py-1 w-full rounded-md ${isSelected ? "bg-primary border-transparent" : "border border-gray-bf"}`}
                   >
                     <div

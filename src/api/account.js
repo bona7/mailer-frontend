@@ -14,3 +14,8 @@ export const deleteAccount = async (accountId) => {
   const response = await api.delete(`/account/${accountId}/`);
   return response.data;
 };
+
+export const syncAccount = async (accountId) => {
+  const response = await api.post(`/account/${accountId}/sync/`);
+  return response.data;
+};
