@@ -44,6 +44,17 @@ const MainPage = () => {
   console.log("MainPage - emails:", emails);
   // console.log("MainPage - error:", error);
 
+  if (
+    emails.length === 0 &&
+    !isMailLoading &&
+    !isMailError &&
+    selectedAccounts.length > 0
+  ) {
+    console.warn(
+      "⚠️ 선택된 계정에 메일이 없습니다. 백엔드에서 메일을 동기화했는지 확인하세요.",
+    );
+  }
+
   // 페이지네이션 계산
   const totalPages = Math.ceil(emails.length / ITEMS_PER_PAGE);
   const startIndex = (currentPage - 1) * ITEMS_PER_PAGE;

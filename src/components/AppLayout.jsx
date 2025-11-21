@@ -35,6 +35,19 @@ const AppLayout = ({ children, selectedAccounts, setSelectedAccounts }) => {
         : [...prev, accountType],
     );
   };
+
+  const handleDeleteAccount = async (e, accountId) => {
+    e.stopPropagation(); // 계정 선택 이벤트 방지
+    if (window.confirm("정말로 이 계정을 삭제하시겠습니까?")) {
+      try {
+        await deleteAccountMutation.mutateAsync(accountId);
+      } catch (error) {
+        console.error("계정 삭제 실패:", error);
+        alert("계정 삭제에 실패했습니다.");
+      }
+    }
+  };
+
   const [isComposeModalOpen, setIsComposeModalOpen] = useState(false);
 
   return (
@@ -156,7 +169,10 @@ const AppLayout = ({ children, selectedAccounts, setSelectedAccounts }) => {
                       >
                         {account.address}
                       </span>
-                      <span className="pr-2">
+                      <span
+                        onClick={(e) => handleDeleteAccount(e, account.id)}
+                        className="pr-2 hover:opacity-70 cursor-pointer"
+                      >
                         <X className="!size-3" />
                       </span>
                     </div>

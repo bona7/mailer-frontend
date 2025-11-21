@@ -3,7 +3,6 @@ import ProtectedRoute from "@/components/ProtectedRoute";
 import {
   SignUp,
   SignIn,
-  Verify,
   MainVerify,
   AccountAddedSuccess,
   MainPage,
@@ -30,14 +29,6 @@ function Router() {
             </ProtectedRoute>
           }
         />
-        <Route
-          path="/verify"
-          element={
-            <ProtectedRoute>
-              <Verify />
-            </ProtectedRoute>
-          }
-        />
         <Route path="/mainverify" element={<MainVerify />} />
         <Route
           path="/accountadded"
@@ -49,6 +40,14 @@ function Router() {
         />
         <Route
           path="/add-account"
+          element={
+            <ProtectedRoute>
+              <AddAccountPage />
+            </ProtectedRoute>
+          }
+        />
+        <Route
+          path="/accountadd"
           element={
             <ProtectedRoute>
               <AddAccountPage />
