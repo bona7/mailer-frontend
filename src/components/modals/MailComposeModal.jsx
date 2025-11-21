@@ -67,7 +67,7 @@ function MailComposeModal({ isOpen, onClose, isAddAccountMode = false }) {
         </button>
         <div className="flex items-center border-b border-secondary-dark">
           <ComposeDropdown
-            options={accounts.map((account) => account.address)}
+            options={accounts}
             selectedOption={selectedFromEmail}
             onOptionChange={setSelectedFromEmail}
           />

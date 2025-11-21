@@ -34,20 +34,6 @@ const AppLayout = ({ children, selectedAccounts, setSelectedAccounts }) => {
   };
   const [isComposeModalOpen, setIsComposeModalOpen] = useState(false);
 
-  //페이지 이동 함수
-  const handleSubmenuClick = (subItem) => {
-    const routeMap = {
-      "View Templates": "/viewtemplate",
-      "My Templates": "/mytemplate",
-      "All email(8003)": "/",
-    };
-
-    const route = routeMap[subItem];
-    if (route) {
-      navigate(route);
-    }
-  };
-
   return (
     <div className="relative grid grid-cols-[10rem_1fr_14rem] grid-rows-[auto_1fr] w-full h-dvh gap-x-4 pb-10 md:px-10 lg:px-16 overflow-hidden">
       {/* Header */}
@@ -101,12 +87,8 @@ const AppLayout = ({ children, selectedAccounts, setSelectedAccounts }) => {
                 onClick={() => {
                   if (item.label === "Compose") {
                     setIsComposeModalOpen(true);
-                  }
-                  if (item.label === "Inbox") {
-                    navigate("/");
-                  }
-                  if (item.label === "Trash") {
-                    navigate("/trash");
+                  } else {
+                    navigate(item.path);
                   }
                 }}
               >
@@ -119,7 +101,7 @@ const AppLayout = ({ children, selectedAccounts, setSelectedAccounts }) => {
                     <div
                       key={subIndex}
                       className="font-b2 text-primary-dark cursor-pointer hover:text-primary"
-                      onClick={() => handleSubmenuClick(subItem)}
+                      onClick={() => navigate(subItem.path)}
                     >
                       {subItem.label}
                     </div>
@@ -178,7 +160,10 @@ const AppLayout = ({ children, selectedAccounts, setSelectedAccounts }) => {
                   </button>
                 );
               })}
-            <Button className="!mt-3 w-full h-7 text-primary rounded-md bg-transparent hover:bg-transparent hover:text-primary-light">
+            <Button
+              className="!mt-3 w-full h-7 text-primary rounded-md bg-transparent hover:bg-transparent hover:text-primary-light"
+              onClick={() => navigate("/add-account")}
+            >
               <Plus className="w-4 h-4" />
             </Button>
           </CardContent>
