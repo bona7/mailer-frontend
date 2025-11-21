@@ -15,6 +15,10 @@ const MainPage = () => {
   // API로부터 메일 목록 가져오기
   const accountsParam =
     selectedAccounts.length > 0 ? selectedAccounts.join(",") : undefined;
+
+  console.log("MainPage - selectedAccounts:", selectedAccounts);
+  console.log("MainPage - accountsParam:", accountsParam);
+
   const {
     data: emails = [],
     isLoading,
@@ -28,9 +32,21 @@ const MainPage = () => {
 
   // 디버깅용 로그
   console.log("MainPage - emails:", emails);
+  console.log("MainPage - emails.length:", emails.length);
   console.log("MainPage - isLoading:", isLoading);
   console.log("MainPage - isError:", isError);
   console.log("MainPage - error:", error);
+
+  if (
+    emails.length === 0 &&
+    !isLoading &&
+    !isError &&
+    selectedAccounts.length > 0
+  ) {
+    console.warn(
+      "⚠️ 선택된 계정에 메일이 없습니다. 백엔드에서 메일을 동기화했는지 확인하세요.",
+    );
+  }
 
   // 페이지네이션 계산
   const totalPages = Math.ceil(emails.length / ITEMS_PER_PAGE);
