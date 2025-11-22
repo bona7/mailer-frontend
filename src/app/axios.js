@@ -21,18 +21,6 @@ instance.interceptors.request.use(
     } catch (error) {
       console.error("Error getting Clerk token:", error);
     }
-
-    // 요청 URL 로깅
-    const fullUrl = `${config.baseURL}${config.url}`;
-    const paramsString = config.params
-      ? `?${new URLSearchParams(config.params).toString()}`
-      : "";
-    console.log(
-      `API 요청: ${config.method?.toUpperCase()} ${fullUrl}${paramsString}`,
-    );
-    console.log("요청 params:", config.params);
-    console.log("요청 data:", config.data);
-
     return config;
   },
   (error) => {

@@ -2,54 +2,31 @@ import { useState } from "react";
 import { Button } from "@/components/ui/button";
 import { Heart, X } from "lucide-react";
 import CollectionDropdown from "../CollectionDropdown";
-import { useAddTemplateToMyTemplates } from "@/api/hooks/useTemplates";
-import { useUser } from "@clerk/clerk-react";
 
 const TemplateDetail = ({ template, onClose }) => {
-  const title = template.template_title || template.title;
-  const templateName = template.topic;
-  const aboutText = template.sub_category || template.subCategory;
-  const bodyText = template.template_content || template.body;
+  console.log("TemplateDetail - template:", template);
+
+  const title = template.title || template.topic || "";
+  const templateName = template.topic || template.name || "";
+  const aboutText =
+    template.sub_category || template.subCategory || template.about || "";
+  const bodyText = template.template_content || template.body || "";
+
+  console.log("TemplateDetail - title:", title);
+  console.log("TemplateDetail - templateName:", templateName);
+  console.log("TemplateDetail - aboutText:", aboutText);
+  console.log("TemplateDetail - bodyText:", bodyText);
+
   const [isDropdownOpen, setIsDropdownOpen] = useState(false);
   const [isHeartFilled, setIsHeartFilled] = useState(false);
-
-  const { user } = useUser();
-  const addTemplateToMyTemplates = useAddTemplateToMyTemplates();
 
   const toggleDropdown = () => {
     setIsDropdownOpen((prev) => !prev);
   };
 
-  const handleAddCollection = async (selectedAccountIds) => {
-    if (selectedAccountIds.length === 0) {
-      setIsDropdownOpen(false);
-      return;
-    }
-
-    try {
-      console.log("템플릿 추가 요청:", {
-        templateId: template.id,
-        userId: user?.id,
-        userObject: user,
-        accountIds: selectedAccountIds,
-      });
-
-      await addTemplateToMyTemplates.mutateAsync({
-        templateId: template.id,
-        userId: user?.id,
-        accountIds: selectedAccountIds,
-      });
-
-      console.log("템플릿이 내 템플릿에 추가되었습니다");
-      setIsHeartFilled(true);
-      setIsDropdownOpen(false);
-    } catch (error) {
-      console.error("템플릿 추가 실패:", error);
-      console.error("에러 응답:", error.response?.data);
-      console.error("에러 상태:", error.response?.status);
-      console.error("요청 URL:", error.config?.url);
-      alert("템플릿 추가에 실패했습니다. 다시 시도해주세요.");
-    }
+  const handleAddCollection = (selectedIds) => {
+    setIsHeartFilled(selectedIds.length > 0);
+    setIsDropdownOpen(false);
   };
 
   return (

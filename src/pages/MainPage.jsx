@@ -4,8 +4,7 @@ import { MailList, AppLayout } from "@/components";
 import { useNavigate } from "react-router-dom";
 import { ChevronLeft, ChevronRight } from "lucide-react";
 import { useEmails } from "@/api/hooks/useEmails";
-import { useSyncAccount } from "@/api/hooks/useAccounts";
-
+import { useSyncAccount, useAccounts } from "@/api/hooks/useAccounts";
 
 const MainPage = () => {
   const [selectedAccounts, setSelectedAccounts] = useState([]);
@@ -83,14 +82,31 @@ const MainPage = () => {
 
   // 새로고침 핸들러
   const handleRefresh = async () => {
+    setIsSyncing(true);
+
+    // 동기화할 계정 결정: 선택된 계정이 있으면 선택된 계정만, 없으면 모든 계정
+    const accountsToSync =
+      selectedAccounts.length > 0 ? selectedAccounts : accounts;
+
+    console.log("수동 동기화 시작 - 대상 계정:", accountsToSync);
+
     try {
-      selectedAccounts.forEach(async (account) => {
+      // 계정들을 순차적으로 동기화
+      for (const account of accountsToSync) {
+        console.log(`계정 ${account.id} 동기화 중...`);
         await syncAccountMutate(account.id);
-        console.log("syncAccountMutate called for account ID:", account.id);
-      });
+        console.log(`계정 ${account.id} 동기화 완료`);
+      }
+
+      console.log("모든 계정 동기화 완료");
+
+      // 동기화 완료 후 이메일 목록 새로고침
       await refetch();
     } catch (err) {
-      console.error("Error syncing accounts:", err);
+      console.error("동기화 실패:", err);
+      console.error("에러 상세:", err.response?.data);
+    } finally {
+      setIsSyncing(false);
     }
   };
 
@@ -105,7 +121,7 @@ const MainPage = () => {
             <h2 className="font-h7 text-primary-dark">In box</h2>
             <button
               onClick={handleRefresh}
-              disabled={isMailLoading}
+              disabled={isMailLoading || isSyncing}
               className="p-0 bg-transparent border-none cursor-pointer disabled:opacity-50"
               title={
                 selectedAccounts.length > 0 ? "선택된 계정 동기화" : "새로고침"

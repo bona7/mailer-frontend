@@ -67,7 +67,7 @@ const MailDetail = () => {
     >
       <section className="h-full bg-gray-f5/40 rounded-lg border border-primary p-4 flex flex-col gap-4">
         <div>
-          <div className="flex items-center justify-between pl-1">
+          <div className="flex items-center justify-between pl-1 pb-2">
             <h2 className="font-h7 text-primary-dark">
               {mailObject.email.subject}
             </h2>

@@ -25,6 +25,9 @@ const AppLayout = ({ children, selectedAccounts, setSelectedAccounts }) => {
 
   const { data: accounts = [], isLoading, isError } = useAccounts();
   console.log("AppLayout - accounts:", accounts);
+  console.log("AppLayout - accounts 타입:", typeof accounts);
+  console.log("AppLayout - accounts.length:", accounts?.length);
+  console.log("AppLayout - Array.isArray(accounts):", Array.isArray(accounts));
   const deleteAccountMutation = useDeleteAccount();
 
   const handleAccountClick = (accountType) => {
@@ -39,21 +42,25 @@ const AppLayout = ({ children, selectedAccounts, setSelectedAccounts }) => {
   const handleDeleteAccount = async (e, accountId) => {
     e.stopPropagation(); // 계정 선택 이벤트 방지
 
-    // 삭제할 계정의 주소 찾기
+    // 삭제할 계정 찾기
     const accountToDelete = accounts.find((acc) => acc.id === accountId);
 
     if (window.confirm("정말로 이 계정을 삭제하시겠습니까?")) {
       try {
+        console.log("계정 삭제 요청 - ID:", accountId);
         await deleteAccountMutation.mutateAsync(accountId);
+        console.log("계정 삭제 완료 - ID:", accountId);
 
-        // selectedAccounts에서도 제거
+        // selectedAccounts에서도 제거 (객체 배열인 경우)
         if (accountToDelete) {
           setSelectedAccounts((prev) =>
-            prev.filter((address) => address !== accountToDelete.address),
+            prev.filter((selectedAccount) => selectedAccount.id !== accountId),
           );
+          console.log("selectedAccounts에서 제거 완료");
         }
       } catch (error) {
         console.error("계정 삭제 실패:", error);
+        console.error("에러 응답:", error.response?.data);
         alert("계정 삭제에 실패했습니다.");
       }
     }
@@ -162,7 +169,17 @@ const AppLayout = ({ children, selectedAccounts, setSelectedAccounts }) => {
             </CardTitle>
           </CardHeader>
           <CardContent className="px-3 pb-3 space-y-1.5">
-            {accounts &&
+            {!Array.isArray(accounts) && (
+              <div className="text-sm text-red-500 p-2">
+                에러: accounts가 배열이 아닙니다. 타입: {typeof accounts}
+              </div>
+            )}
+            {Array.isArray(accounts) && accounts.length === 0 && (
+              <div className="text-sm text-gray-bf p-2">
+                등록된 계정이 없습니다.
+              </div>
+            )}
+            {Array.isArray(accounts) &&
               accounts.map((account, index) => {
                 const isSelected = selectedAccounts.includes(account);
                 return (
