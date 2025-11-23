@@ -401,7 +401,7 @@ paths:
 
                 메일 통합 조회를 위핸 API View입니다. 해당 API로 가능한 것:
                 1. 이메일 계정 별 이메일 조회. (생략 시 전체 조회)
-                2. 폴더 별 이메일 조회. 받은(inbox), 보낸(sent), 별표(starred), 스팸(spam), 휴지통(trash). (생략 시 전체 폴더)
+                2. 폴더 별 이메일 조회. 받은(inbox), 보낸(sent), 별표(important), 스팸(spam), 휴지통(trash). (생략 시 전체 폴더)
                 3. 검색어로 이메일 필터링. (제목, 보낸사람, 내용, 수신자 대상)
       parameters:
       - in: query

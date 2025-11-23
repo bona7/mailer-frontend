@@ -20,6 +20,7 @@ function AddAccountPage() {
   const [selectedInterest, setSelectedInterest] = useState("");
   const [error, setError] = useState("");
   const [showOnboarding, setShowOnboarding] = useState(false);
+  const [isConnecting, setIsConnecting] = useState(false);
 
   const addAccountMutation = useAddAccount();
   const updateProfileMutation = useUpdateAccountProfile();
@@ -81,14 +82,17 @@ function AddAccountPage() {
 
   const handleConnect = async () => {
     setError("");
+    setIsConnecting(true);
 
     if (!email || !password) {
       setError("이메일과 비밀번호를 입력해주세요.");
+      setIsConnecting(false);
       return;
     }
 
     if (!selectedJob || !selectedPurpose) {
       setError("직업과 계정 목적을 선택해주세요.");
+      setIsConnecting(false);
       return;
     }
 
@@ -195,6 +199,8 @@ function AddAccountPage() {
           "계정 연동 중 오류가 발생했습니다. 잠시 후 다시 시도해주세요.",
         );
       }
+    } finally {
+      setIsConnecting(false);
     }
   };
 
@@ -309,20 +315,28 @@ function AddAccountPage() {
           <div className="flex justify-center gap-4 mt-8">
             <button
               onClick={handleCancel}
-              className="py-2 px-8 rounded-xl text-primary-dark font-b1 bg-gray-200 hover:bg-gray-300"
+              disabled={isConnecting}
+              className={`py-2 px-8 rounded-xl font-b1 ${
+                isConnecting
+                  ? "bg-gray-300 text-gray-500 cursor-not-allowed"
+                  : "bg-gray-200 text-primary-dark hover:bg-gray-300"
+              }`}
             >
               취소
             </button>
             <button
               onClick={handleConnect}
-              disabled={!isFormValid || addAccountMutation.isPending}
-              className={`py-2 px-8 rounded-xl text-gray-fa font-b1 ${
-                isFormValid && !addAccountMutation.isPending
+              disabled={!isFormValid || isConnecting}
+              className={`py-2 px-8 rounded-xl text-gray-fa font-b1 flex items-center gap-2 ${
+                isFormValid && !isConnecting
                   ? "bg-primary-dark hover:bg-primary cursor-pointer"
                   : "bg-gray-400 cursor-not-allowed"
               }`}
             >
-              {addAccountMutation.isPending ? "연동 중..." : "연동하기"}
+              {isConnecting && (
+                <div className="animate-spin rounded-full h-4 w-4 border-b-2 border-white"></div>
+              )}
+              {isConnecting ? "연동 중..." : "연동하기"}
             </button>
           </div>
         )}

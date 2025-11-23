@@ -3,6 +3,7 @@ import { useNavigate } from "react-router-dom";
 import { useSignUp } from "@clerk/clerk-react";
 import MailerLogo from "../assets/mailer-logo.svg";
 import MailerLogoHeader from "../assets/mailer-logo-header.svg";
+import api from "../app/axios";
 
 function SignUp() {
   const navigate = useNavigate();
@@ -115,7 +116,26 @@ function SignUp() {
 
       if (completeSignUp.status === "complete") {
         await setActive({ session: completeSignUp.createdSessionId });
-        console.log("인증 성공, 메인 페이지로 이동...");
+        console.log("인증 성공, user_id 가져오는 중...");
+
+        // 회원가입 성공 후 user_id 가져오기
+        try {
+          console.log("📞 /api/user/me/ 호출 중...");
+          const userResponse = await api.get("/user/me/");
+          console.log("📥 /api/user/me/ 응답:", userResponse.data);
+          const userId = userResponse.data.user_id;
+
+          if (!userId) {
+            console.error("❌ user_id가 응답에 없습니다:", userResponse.data);
+          } else {
+            localStorage.setItem("user_id", userId);
+            console.log("✅ user_id 저장 완료:", userId);
+          }
+        } catch (err) {
+          console.error("❌ user_id 가져오기 실패:", err);
+          console.error("에러 상세:", err.response?.data);
+        }
+
         navigate("/"); // Navigate to main page on success
       } else {
         console.log("추가 단계 필요:", completeSignUp);

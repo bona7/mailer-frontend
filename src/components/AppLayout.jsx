@@ -102,7 +102,10 @@ const AppLayout = ({ children, selectedAccounts, setSelectedAccounts }) => {
               "User"}
           </span>
           <Button
-            onClick={() => signOut(() => navigate("/signin"))}
+            onClick={() => {
+              localStorage.removeItem("user_id");
+              signOut(() => navigate("/signin"));
+            }}
             className="px-0 bg-transparent text-primary font-button hover:bg-transparent hover:text-primary-light"
           >
             sign out
