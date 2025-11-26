@@ -10,6 +10,7 @@ import ViewTemplate from "./ViewTemplate";
 import MyTemplate from "./MyTemplate";
 import AddAccountPage from "./AccountAdd"; // This is the form component
 import AccountListPage from "./AccountListPage";
+import CreateTemplatePage from "./CreateTemplate";
 
 export {
   SignUp,
@@ -24,4 +25,5 @@ export {
   Spam,
   AddAccountPage,
   AccountListPage,
+  CreateTemplatePage,
 };

@@ -12,6 +12,7 @@ import {
   MyTemplate,
   AddAccountPage,
   AccountListPage,
+  CreateTemplatePage,
 } from "@/pages";
 
 function Router() {
@@ -90,6 +91,14 @@ function Router() {
           element={
             <ProtectedRoute>
               <MyTemplate />
+            </ProtectedRoute>
+          }
+        />
+        <Route
+          path="/createtemplate"
+          element={
+            <ProtectedRoute>
+              <CreateTemplatePage />
             </ProtectedRoute>
           }
         />

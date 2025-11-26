@@ -56,6 +56,7 @@ export default {
         "gray-bf": "#BFBFBF",
         "gray-8c": "#8C8C8C",
         "gray-59": "#595959",
+        "gray-52": "#525252",
         "gray-43": "#434343",
         "gray-26": "#262626",
         "gray-1f": "#1F1F1F",
