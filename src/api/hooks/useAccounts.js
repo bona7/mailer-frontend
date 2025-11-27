@@ -4,6 +4,7 @@ import {
   addAccount,
   deleteAccount,
   syncAccount,
+  updateAccountProfile,
 } from "../account";
 
 export const useAccounts = () => {
@@ -40,6 +41,17 @@ export const useSyncAccount = () => {
   const queryClient = useQueryClient();
   return useMutation({
     mutationFn: (accountId) => syncAccount(accountId),
+    onSuccess: () => {
+      queryClient.invalidateQueries({ queryKey: ["accounts"] });
+    },
+  });
+};
+
+export const useUpdateAccountProfile = () => {
+  const queryClient = useQueryClient();
+  return useMutation({
+    mutationFn: ({ accountId, profileData }) =>
+      updateAccountProfile(accountId, profileData),
     onSuccess: () => {
       queryClient.invalidateQueries({ queryKey: ["accounts"] });
     },

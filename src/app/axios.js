@@ -16,22 +16,26 @@ instance.interceptors.request.use(
         const token = await window.Clerk.session?.getToken();
         if (token) {
           config.headers.Authorization = `Bearer ${token}`;
+          console.log("✅ Clerk JWT 전송 (전체):");
+          console.log(token);
+        } else {
+          console.warn("⚠️ Clerk 토큰이 없습니다. 로그인 필요.");
         }
+      } else {
+        console.warn("⚠️ Clerk가 로드되지 않았습니다.");
       }
     } catch (error) {
-      console.error("Error getting Clerk token:", error);
+      console.error("❌ Clerk 토큰 가져오기 실패:", error);
     }
 
-    // 요청 URL 로깅
-    const fullUrl = `${config.baseURL}${config.url}`;
-    const paramsString = config.params
-      ? `?${new URLSearchParams(config.params).toString()}`
-      : "";
-    console.log(
-      `API 요청: ${config.method?.toUpperCase()} ${fullUrl}${paramsString}`,
-    );
-    console.log("요청 params:", config.params);
-    console.log("요청 data:", config.data);
+    // Add user_id query parameter for test_auth
+    const userId = localStorage.getItem("user_id");
+    if (userId) {
+      // URL에 이미 쿼리 파라미터가 있는지 확인
+      const separator = config.url.includes("?") ? "&" : "?";
+      config.url = `${config.url}${separator}user_id=${userId}`;
+      console.log("📤 요청 URL:", config.baseURL + config.url);
+    }
 
     return config;
   },

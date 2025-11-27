@@ -7,9 +7,12 @@ import {
   useSyncAccount,
 } from "@/api/hooks/useAccounts";
 import Dropdown from "@/components/Dropdown";
+import { useQueryClient } from "@tanstack/react-query";
+import api from "@/app/axios";
 
 function AddAccountPage() {
   const navigate = useNavigate();
+  const queryClient = useQueryClient();
   const [email, setEmail] = useState("");
   const [password, setPassword] = useState("");
   const [selectedJob, setSelectedJob] = useState("");
@@ -17,6 +20,7 @@ function AddAccountPage() {
   const [selectedInterest, setSelectedInterest] = useState("");
   const [error, setError] = useState("");
   const [showOnboarding, setShowOnboarding] = useState(false);
+  const [isConnecting, setIsConnecting] = useState(false);
 
   const addAccountMutation = useAddAccount();
   const updateProfileMutation = useUpdateAccountProfile();
@@ -78,14 +82,17 @@ function AddAccountPage() {
 
   const handleConnect = async () => {
     setError("");
+    setIsConnecting(true);
 
     if (!email || !password) {
       setError("이메일과 비밀번호를 입력해주세요.");
+      setIsConnecting(false);
       return;
     }
 
     if (!selectedJob || !selectedPurpose) {
       setError("직업과 계정 목적을 선택해주세요.");
+      setIsConnecting(false);
       return;
     }
 
@@ -99,6 +106,38 @@ function AddAccountPage() {
       console.log("계정 추가 요청:", accountData);
       const createdAccount = await addAccountMutation.mutateAsync(accountData);
       console.log("계정 생성 완료:", createdAccount);
+      console.log("createdAccount.id:", createdAccount?.id);
+
+      let accountId = createdAccount?.id;
+
+      // ID가 없으면 계정 목록을 다시 조회해서 방금 추가된 계정 찾기
+      if (!accountId) {
+        console.warn("⚠️ 응답에 ID가 없음. 계정 목록에서 검색 중...");
+
+        // React Query 캐시를 무효화하고 최신 계정 목록 가져오기
+        const { data: accounts } = await queryClient.fetchQuery({
+          queryKey: ["accounts"],
+          queryFn: async () => {
+            const response = await api.get("/account/");
+            return response;
+          },
+        });
+
+        console.log("조회된 계정 목록:", accounts);
+
+        // 방금 추가한 이메일 주소로 계정 찾기
+        const foundAccount = accounts?.find((acc) => acc.address === email);
+        console.log("찾은 계정:", foundAccount);
+
+        if (foundAccount?.id) {
+          accountId = foundAccount.id;
+          console.log("✅ 계정 ID 찾음:", accountId);
+        } else {
+          throw new Error(
+            "계정 생성에는 성공했지만 계정 ID를 받지 못했습니다. 백엔드 확인 필요.",
+          );
+        }
+      }
 
       // 2단계: 프로필 업데이트 (job, usage, interests)
       const profileData = {
@@ -111,27 +150,48 @@ function AddAccountPage() {
         profileData.interests = [selectedInterest];
       }
 
-      console.log("프로필 업데이트 요청 - 계정 ID:", createdAccount.id);
+      console.log("프로필 업데이트 요청 - 계정 ID:", accountId);
       console.log("프로필 데이터:", profileData);
       await updateProfileMutation.mutateAsync({
-        accountId: createdAccount.id,
+        accountId: accountId,
         profileData: profileData,
       });
       console.log("프로필 업데이트 완료");
 
       // 3단계: 메일 동기화
-      console.log("메일 동기화 시작 - 계정 ID:", createdAccount.id);
-      await syncAccountMutation.mutateAsync(createdAccount.id);
+      console.log("메일 동기화 시작 - 계정 ID:", accountId);
+      await syncAccountMutation.mutateAsync(accountId);
       console.log("메일 동기화 완료");
 
       // 완료 후 이동
       navigate("/accountadded");
     } catch (err) {
       console.error("계정 연동 에러:", err);
+      console.error("에러 응답 전체:", err.response);
+      console.error("에러 응답 데이터:", err.response?.data);
+      console.error("에러 상태 코드:", err.response?.status);
+
+      // address 필드 에러 확인
+      if (err.response?.data?.address) {
+        console.error("address 필드 에러:", err.response.data.address);
+      }
+
       if (err.response?.status === 400) {
-        setError(
-          "입력 정보를 확인해주세요. 이메일 또는 비밀번호가 올바르지 않습니다.",
-        );
+        // 백엔드에서 반환한 구체적인 에러 메시지 추출
+        const addressError = err.response?.data?.address?.[0];
+        const passwordError = err.response?.data?.password?.[0];
+        const errorDetail = err.response?.data?.detail;
+
+        let errorMsg = "입력 정보를 확인해주세요.";
+        if (addressError) {
+          errorMsg = `이메일: ${addressError}`;
+        } else if (passwordError) {
+          errorMsg = `비밀번호: ${passwordError}`;
+        } else if (errorDetail) {
+          errorMsg = errorDetail;
+        }
+
+        setError(errorMsg);
       } else if (err.response?.status === 409) {
         setError("이미 연동된 계정입니다.");
       } else {
@@ -139,6 +199,8 @@ function AddAccountPage() {
           "계정 연동 중 오류가 발생했습니다. 잠시 후 다시 시도해주세요.",
         );
       }
+    } finally {
+      setIsConnecting(false);
     }
   };
 
@@ -253,20 +315,28 @@ function AddAccountPage() {
           <div className="flex justify-center gap-4 mt-8">
             <button
               onClick={handleCancel}
-              className="py-2 px-8 rounded-xl text-primary-dark font-b1 bg-gray-200 hover:bg-gray-300"
+              disabled={isConnecting}
+              className={`py-2 px-8 rounded-xl font-b1 ${
+                isConnecting
+                  ? "bg-gray-300 text-gray-500 cursor-not-allowed"
+                  : "bg-gray-200 text-primary-dark hover:bg-gray-300"
+              }`}
             >
               취소
             </button>
             <button
               onClick={handleConnect}
-              disabled={!isFormValid || addAccountMutation.isPending}
-              className={`py-2 px-8 rounded-xl text-gray-fa font-b1 ${
-                isFormValid && !addAccountMutation.isPending
+              disabled={!isFormValid || isConnecting}
+              className={`py-2 px-8 rounded-xl text-gray-fa font-b1 flex items-center gap-2 ${
+                isFormValid && !isConnecting
                   ? "bg-primary-dark hover:bg-primary cursor-pointer"
                   : "bg-gray-400 cursor-not-allowed"
               }`}
             >
-              {addAccountMutation.isPending ? "연동 중..." : "연동하기"}
+              {isConnecting && (
+                <div className="animate-spin rounded-full h-4 w-4 border-b-2 border-white"></div>
+              )}
+              {isConnecting ? "연동 중..." : "연동하기"}
             </button>
           </div>
         )}

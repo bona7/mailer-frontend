@@ -4,8 +4,7 @@ import { MailList, AppLayout } from "@/components";
 import { useNavigate } from "react-router-dom";
 import { ChevronLeft, ChevronRight } from "lucide-react";
 import { useEmails } from "@/api/hooks/useEmails";
-import { useSyncAccount } from "@/api/hooks/useAccounts";
-
+import { useSyncAccount, useAccounts } from "@/api/hooks/useAccounts";
 
 const MainPage = () => {
   const [selectedAccounts, setSelectedAccounts] = useState([]);
@@ -83,14 +82,62 @@ const MainPage = () => {
 
   // 새로고침 핸들러
   const handleRefresh = async () => {
+    console.log("🔄 새로고침 시작");
+    setIsSyncing(true);
+
+    // 동기화할 계정 결정: 선택된 계정이 있으면 선택된 계정만, 없으면 모든 계정
+    const accountsToSync =
+      selectedAccounts.length > 0 ? selectedAccounts : accounts;
+
+    console.log("수동 동기화 시작 - 대상 계정:", accountsToSync);
+
     try {
-      selectedAccounts.forEach(async (account) => {
-        await syncAccountMutate(account.id);
-        console.log("syncAccountMutate called for account ID:", account.id);
-      });
-      await refetch();
+      // 계정들을 순차적으로 동기화
+      for (const account of accountsToSync) {
+        console.log(
+          `\n=== 계정 ${account.id} (${account.address}) 동기화 시작 ===`,
+        );
+        console.log("동기화 API 호출:", `/api/account/${account.id}/sync/`);
+
+        try {
+          const syncResult = await syncAccountMutate(account.id);
+          console.log(`✅ 계정 ${account.id} 동기화 API 응답:`, syncResult);
+          console.log(`📧 동기화 메시지:`, syncResult?.message);
+
+          if (syncResult?.synced_count !== undefined) {
+            console.log(`📊 동기화된 메일 수:`, syncResult.synced_count);
+          }
+        } catch (syncErr) {
+          console.error(`❌ 계정 ${account.id} 동기화 실패:`, syncErr);
+          console.error("동기화 에러 상세:", syncErr.response?.data);
+          throw syncErr;
+        }
+      }
+
+      console.log("\n✅ 모든 계정 동기화 완료");
+
+      // 동기화 완료 후 이메일 목록 새로고침
+      console.log("📧 이메일 목록 새로고침 중...");
+      const refreshResult = await refetch();
+      console.log("📧 새로고침 완료");
+      console.log("📊 가져온 메일 수:", refreshResult.data?.length || 0);
+
+      if (refreshResult.data?.length === 0) {
+        console.warn(
+          "⚠️ 동기화 후에도 메일이 0개입니다. 백엔드 로그를 확인하세요.",
+        );
+        console.warn("💡 확인 사항:");
+        console.warn("  1. 백엔드에서 IMAP 연결이 성공했는지");
+        console.warn("  2. 실제로 메일을 fetch했는지");
+        console.warn("  3. DB에 저장되었는지");
+      }
     } catch (err) {
-      console.error("Error syncing accounts:", err);
+      console.error("❌ 동기화 실패:", err);
+      console.error("에러 상세:", err.response?.data);
+      console.error("에러 스택:", err.stack);
+    } finally {
+      setIsSyncing(false);
+      console.log("🔄 동기화 프로세스 종료\n");
     }
   };
 
@@ -105,7 +152,7 @@ const MainPage = () => {
             <h2 className="font-h7 text-primary-dark">In box</h2>
             <button
               onClick={handleRefresh}
-              disabled={isMailLoading}
+              disabled={isMailLoading || isSyncing}
               className="p-0 bg-transparent border-none cursor-pointer disabled:opacity-50"
               title={
                 selectedAccounts.length > 0 ? "선택된 계정 동기화" : "새로고침"
