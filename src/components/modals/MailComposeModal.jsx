@@ -22,7 +22,8 @@ function MailComposeModal({ isOpen, onClose, isAddAccountMode = false }) {
     }
   }, [accounts, selectedFromEmail]);
   const [attachedFiles, setAttachedFiles] = useState([]);
-  const [recipients, setRecipients] = useState("");
+  const [recipients, setRecipients] = useState([]);
+  const [recipientInput, setRecipientInput] = useState("");
   const [subject, setSubject] = useState("");
   const [body, setBody] = useState("");
   const editorRef = useRef(null);
@@ -120,31 +121,50 @@ function MailComposeModal({ isOpen, onClose, isAddAccountMode = false }) {
   };
 
   const handleSend = async () => {
-    // selectedFromEmail이 객체라면 address/id 바로 사용
-    const senderAddress = selectedFromEmail?.address;
-    const accountId = selectedFromEmail?.id;
-    if (!accountId || !senderAddress) {
-      alert("발신 계정 주소가 올바르지 않습니다.");
-      return;
-    }
-    if (!recipients) {
-      alert("수신자 이메일을 입력하세요.");
-      return;
-    }
-    setSending(true);
     try {
+      const senderAddress = selectedFromEmail?.address;
+      const accountId = selectedFromEmail?.id;
+
+      if (!accountId || !senderAddress) {
+        alert("발신 계정 주소가 올바르지 않습니다.");
+        return;
+      }
+
+      // 1) 현재 recipients + 입력 중인 값으로 최종 배열 만들기
+      let finalRecipients = [...recipients];
+
+      const trimmedInput = recipientInput.trim();
+      if (trimmedInput) {
+        if (!finalRecipients.includes(trimmedInput)) {
+          finalRecipients.push(trimmedInput);
+        }
+      }
+
+      // 2) 최종 수신자 없으면 막기
+      if (finalRecipients.length === 0) {
+        alert("수신자 이메일을 입력하세요.");
+        return;
+      }
+
+      setSending(true);
+
+      // 3) 메일 전송 (HTML 본문 포함)
       await sendEmail({
         account_id: accountId,
-        to: recipients.split(/[,;\s]+/).filter(Boolean),
+        to: finalRecipients, // 배열 형태로 전달
         subject,
-        body,
-        is_html: false,
+        body, // contentEditable에서 온 HTML
+        is_html: true,
         files: attachedFiles,
       });
-      setRecipients("");
+
+      // 4) 성공 시 상태 초기화
+      setRecipients([]);
+      setRecipientInput("");
       setSubject("");
       setBody("");
       setAttachedFiles([]);
+
       showToast();
       onClose();
     } catch (error) {
@@ -157,6 +177,71 @@ function MailComposeModal({ isOpen, onClose, isAddAccountMode = false }) {
     } finally {
       setSending(false);
     }
+  };
+
+  const [isComposing, setIsComposing] = useState(false); // 한글 조합 상태 관리
+
+  const handleInput = (e) => {
+    if (!isComposing) {
+      setBody(e.currentTarget.innerHTML); // 조합이 끝난 경우에만 상태 업데이트
+    }
+  };
+
+  const handleCompositionStart = () => {
+    setIsComposing(true); // 조합 시작
+  };
+
+  const handleCompositionEnd = (e) => {
+    setIsComposing(false); // 조합 종료
+    setBody(e.currentTarget.innerHTML); // 조합 완료 후 상태 업데이트
+  };
+
+  // 현재 입력값을 이메일 태그로 추가
+  const addRecipientFromInput = () => {
+    const value = recipientInput.trim();
+    if (!value) return;
+
+    // 중복 방지 (원하면 이 부분은 빼도 됨)
+    if (!recipients.includes(value)) {
+      setRecipients((prev) => [...prev, value]);
+    }
+    setRecipientInput("");
+  };
+
+  // 태그 하나 삭제
+  const removeRecipient = (index) => {
+    setRecipients((prev) => prev.filter((_, i) => i !== index));
+  };
+
+  // 키보드 입력 처리 (엔터 / 스페이스 / 탭)
+  const handleRecipientKeyDown = (e) => {
+    if (e.key === "Enter" || e.key === " " || e.key === "Tab") {
+      e.preventDefault();
+      addRecipientFromInput();
+    }
+  };
+
+  // 포커스를 잃을 때도 자동으로 태그화 (선택 사항)
+  const handleRecipientBlur = () => {
+    addRecipientFromInput();
+  };
+
+  // 붙여넣기에서 여러 메일 한 번에 처리
+  const handleRecipientPaste = (e) => {
+    const text = e.clipboardData.getData("text");
+    const emails = text
+      .split(/[,;\s]+/)
+      .map((v) => v.trim())
+      .filter(Boolean);
+
+    if (emails.length === 0) return;
+
+    e.preventDefault();
+    setRecipients((prev) => [
+      ...prev,
+      ...emails.filter((email) => !prev.includes(email)),
+    ]);
+    setRecipientInput("");
   };
 
   if (!isOpen) return null;
@@ -177,18 +262,44 @@ function MailComposeModal({ isOpen, onClose, isAddAccountMode = false }) {
             onOptionChange={setSelectedFromEmail}
           />
         </div>
-        <div className="flex items-center border-b border-secondary-dark">
-          <label htmlFor="recipients" className="text-gray-8c font-st2">
+        <div className="flex items-start border-b border-secondary-dark py-1">
+          <label className="text-gray-8c font-st2 mt-1 mr-2 shrink-0">
             Recipients
           </label>
-          <Input
-            id="recipients"
-            type="text"
-            value={recipients}
-            onChange={(e) => setRecipients(e.target.value)}
-            placeholder="이메일 주소 여러 개는 , 또는 ; 또는 공백으로 구분"
-            className="border-none pax-5 h-8 focus-visible:ring-0 focus-visible:ring-offset-0"
-          />
+
+          <div className="flex-1 flex flex-wrap items-center gap-1 min-h-8">
+            {/* 이메일 태그들 */}
+            {recipients.map((email, index) => (
+              <div
+                key={email + index}
+                className="flex items-center bg-gray-f0 rounded-full px-2 py-0.5 text-xs text-gray-800"
+              >
+                <span className="mr-1">{email}</span>
+                <button
+                  type="button"
+                  onClick={() => removeRecipient(index)}
+                  className="text-gray-500 hover:text-red-500"
+                >
+                  ×
+                </button>
+              </div>
+            ))}
+
+            {/* 실제 입력창 */}
+            <input
+              id="recipients"
+              type="text"
+              value={recipientInput}
+              onChange={(e) => setRecipientInput(e.target.value)}
+              onKeyDown={handleRecipientKeyDown}
+              onBlur={handleRecipientBlur}
+              onPaste={handleRecipientPaste}
+              placeholder={
+                recipients.length === 0 ? "메일 주소 입력 후 Space/Enter" : ""
+              }
+              className="flex-1 bg-transparent outline-none text-sm py-1"
+            />
+          </div>
         </div>
         <div className="flex items-center border-b border-secondary-dark">
           <Input
@@ -203,13 +314,19 @@ function MailComposeModal({ isOpen, onClose, isAddAccountMode = false }) {
           {/* 실제 HTML 에디터 */}
           <div
             ref={editorRef}
-            className="w-full flex-grow bg-transparent border-none resize-none focus:outline-none p-2"
+            className="w-full flex-grow bg-transparentr resize-none focus:outline-none p-2"
             contentEditable
             suppressContentEditableWarning
             placeholder="메일 본문을 입력하세요."
-            style={{ minHeight: 120, outline: "none" }}
-            onInput={(e) => setBody(e.currentTarget.innerHTML)}
-            dangerouslySetInnerHTML={{ __html: body }}
+            style={{
+              minHeight: 120,
+              outline: "none",
+              textAlign: "left",
+              direction: "ltr",
+            }}
+            onInput={handleInput} // 입력 이벤트 처리
+            onCompositionStart={handleCompositionStart} // 한글 조합 시작
+            onCompositionEnd={handleCompositionEnd} // 한글 조합 종료
           />
         </div>
         {/* Attached files display */}

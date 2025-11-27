@@ -12,7 +12,7 @@ paths:
       tags:
       - account
       security:
-      - test_auth: []
+      - clerkAuth: []
       responses:
         '200':
           content:
@@ -50,7 +50,7 @@ paths:
               $ref: '#/components/schemas/EmailAccountCreate'
         required: true
       security:
-      - test_auth: []
+      - clerkAuth: []
       responses:
         '201':
           content:
@@ -105,7 +105,7 @@ paths:
       tags:
       - account
       security:
-      - test_auth: []
+      - clerkAuth: []
       responses:
         '204':
           description: No response body
@@ -147,7 +147,7 @@ paths:
             schema:
               $ref: '#/components/schemas/PatchedEmailAccountProfile'
       security:
-      - test_auth: []
+      - clerkAuth: []
       responses:
         '200':
           content:
@@ -191,7 +191,7 @@ paths:
       tags:
       - account
       security:
-      - test_auth: []
+      - clerkAuth: []
       responses:
         '200':
           content:
@@ -250,7 +250,7 @@ paths:
       tags:
       - contact
       security:
-      - test_auth: []
+      - clerkAuth: []
       responses:
         '200':
           content:
@@ -291,7 +291,7 @@ paths:
               $ref: '#/components/schemas/Contact'
         required: true
       security:
-      - test_auth: []
+      - clerkAuth: []
       responses:
         '201':
           content:
@@ -349,7 +349,7 @@ paths:
             schema:
               $ref: '#/components/schemas/PatchedContact'
       security:
-      - test_auth: []
+      - clerkAuth: []
       responses:
         '200':
           content:
@@ -383,7 +383,7 @@ paths:
       tags:
       - contact
       security:
-      - test_auth: []
+      - clerkAuth: []
       responses:
         '204':
           description: No response body
@@ -401,8 +401,9 @@ paths:
 
                 메일 통합 조회를 위핸 API View입니다. 해당 API로 가능한 것:
                 1. 이메일 계정 별 이메일 조회. (생략 시 전체 조회)
-                2. 폴더 별 이메일 조회. 받은(inbox), 보낸(sent), 별표(important), 스팸(spam), 휴지통(trash). (생략 시 전체 폴더)
+                2. 폴더 별 이메일 조회. 받은(inbox), 보낸(sent), 별표(starred), 스팸(spam), 휴지통(trash). (생략 시 전체 폴더)
                 3. 검색어로 이메일 필터링. (제목, 보낸사람, 내용, 수신자 대상)
+      summary: 메일 통합 조회
       parameters:
       - in: query
         name: accounts
@@ -433,7 +434,7 @@ paths:
       tags:
       - email
       security:
-      - test_auth: []
+      - clerkAuth: []
       responses:
         '200':
           content:
@@ -460,11 +461,11 @@ paths:
   /api/email/{id}/:
     get:
       operationId: email_retrieve
-      description: "개별 이메일에 대한 거의 모든 작업을 할 수 있습니다.\n특정 ID를 가진 이메일 하나에 대한 작업을 수행합니다.\n\
-        1. GET: 이메일의 상세 정보를 조회합니다. (조회 시 자동으로 '읽음' 상태로 변경됨.)\n2. PATCH: 이메일의 상태(폴더\
-        \ 바꾸기(inbox, sent, starred, spam, trash, 읽음 여부 설정 등)를 부분적으로 수정합니다.\n3. DELETE:\n\
-        \    - 휴지통에 있지 않은 경우: 휴지통으로 이동시키고, 수정된 이메일 정보를 반환합니다. (상태 코드 200)\n    - 휴지통에\
-        \ 있는 경우: 영구 삭제(소프트 딜리트)하고, 내용 없는 응답을 반환합니다. (상태 코드 204)\n    "
+      description: "개별 이메일에 대한 거의 모든 작업을 할 수 있습니다.\n특정 ID를 가진 이메일 하나에 대한 작업을 수행합니다.\n1.
+        GET: 이메일의 상세 정보를 조회합니다. (조회 시 자동으로 '읽음' 상태로 변경됨.)\n2. PATCH: 이메일의 상태(폴더 바꾸기(inbox,
+        sent, starred, spam, trash, 읽음 여부 설정 등)를 부분적으로 수정합니다.\n3. DELETE:\n    - 휴지통에
+        있지 않은 경우: 휴지통으로 이동시키고, 수정된 이메일 정보를 반환합니다. (상태 코드 200)\n    - 휴지통에 있는 경우: 영구
+        삭제(소프트 딜리트)하고, 내용 없는 응답을 반환합니다. (상태 코드 204)\n    "
       summary: 개별 이메일의 조회, 설정, 삭제
       parameters:
       - in: path
@@ -475,7 +476,7 @@ paths:
       tags:
       - email
       security:
-      - test_auth: []
+      - clerkAuth: []
       responses:
         '200':
           content:
@@ -508,11 +509,11 @@ paths:
           description: ''
     patch:
       operationId: email_partial_update
-      description: "개별 이메일에 대한 거의 모든 작업을 할 수 있습니다.\n특정 ID를 가진 이메일 하나에 대한 작업을 수행합니다.\n\
-        1. GET: 이메일의 상세 정보를 조회합니다. (조회 시 자동으로 '읽음' 상태로 변경됨.)\n2. PATCH: 이메일의 상태(폴더\
-        \ 바꾸기(inbox, sent, starred, spam, trash, 읽음 여부 설정 등)를 부분적으로 수정합니다.\n3. DELETE:\n\
-        \    - 휴지통에 있지 않은 경우: 휴지통으로 이동시키고, 수정된 이메일 정보를 반환합니다. (상태 코드 200)\n    - 휴지통에\
-        \ 있는 경우: 영구 삭제(소프트 딜리트)하고, 내용 없는 응답을 반환합니다. (상태 코드 204)\n    "
+      description: "개별 이메일에 대한 거의 모든 작업을 할 수 있습니다.\n특정 ID를 가진 이메일 하나에 대한 작업을 수행합니다.\n1.
+        GET: 이메일의 상세 정보를 조회합니다. (조회 시 자동으로 '읽음' 상태로 변경됨.)\n2. PATCH: 이메일의 상태(폴더 바꾸기(inbox,
+        sent, starred, spam, trash, 읽음 여부 설정 등)를 부분적으로 수정합니다.\n3. DELETE:\n    - 휴지통에
+        있지 않은 경우: 휴지통으로 이동시키고, 수정된 이메일 정보를 반환합니다. (상태 코드 200)\n    - 휴지통에 있는 경우: 영구
+        삭제(소프트 딜리트)하고, 내용 없는 응답을 반환합니다. (상태 코드 204)\n    "
       summary: 개별 이메일의 조회, 설정, 삭제
       parameters:
       - in: path
@@ -534,7 +535,7 @@ paths:
             schema:
               $ref: '#/components/schemas/PatchedEmailUpdate'
       security:
-      - test_auth: []
+      - clerkAuth: []
       responses:
         '200':
           content:
@@ -567,11 +568,11 @@ paths:
           description: ''
     delete:
       operationId: email_destroy
-      description: "개별 이메일에 대한 거의 모든 작업을 할 수 있습니다.\n특정 ID를 가진 이메일 하나에 대한 작업을 수행합니다.\n\
-        1. GET: 이메일의 상세 정보를 조회합니다. (조회 시 자동으로 '읽음' 상태로 변경됨.)\n2. PATCH: 이메일의 상태(폴더\
-        \ 바꾸기(inbox, sent, starred, spam, trash, 읽음 여부 설정 등)를 부분적으로 수정합니다.\n3. DELETE:\n\
-        \    - 휴지통에 있지 않은 경우: 휴지통으로 이동시키고, 수정된 이메일 정보를 반환합니다. (상태 코드 200)\n    - 휴지통에\
-        \ 있는 경우: 영구 삭제(소프트 딜리트)하고, 내용 없는 응답을 반환합니다. (상태 코드 204)\n    "
+      description: "개별 이메일에 대한 거의 모든 작업을 할 수 있습니다.\n특정 ID를 가진 이메일 하나에 대한 작업을 수행합니다.\n1.
+        GET: 이메일의 상세 정보를 조회합니다. (조회 시 자동으로 '읽음' 상태로 변경됨.)\n2. PATCH: 이메일의 상태(폴더 바꾸기(inbox,
+        sent, starred, spam, trash, 읽음 여부 설정 등)를 부분적으로 수정합니다.\n3. DELETE:\n    - 휴지통에
+        있지 않은 경우: 휴지통으로 이동시키고, 수정된 이메일 정보를 반환합니다. (상태 코드 200)\n    - 휴지통에 있는 경우: 영구
+        삭제(소프트 딜리트)하고, 내용 없는 응답을 반환합니다. (상태 코드 204)\n    "
       summary: 개별 이메일의 조회, 설정, 삭제
       parameters:
       - in: path
@@ -582,7 +583,7 @@ paths:
       tags:
       - email
       security:
-      - test_auth: []
+      - clerkAuth: []
       responses:
         '200':
           content:
@@ -630,7 +631,7 @@ paths:
       tags:
       - email
       security:
-      - test_auth: []
+      - clerkAuth: []
       responses:
         '200':
           content:
@@ -695,7 +696,7 @@ paths:
       tags:
       - email
       security:
-      - test_auth: []
+      - clerkAuth: []
       responses:
         '200':
           content:
@@ -743,6 +744,78 @@ paths:
                     detail: The summarization service got error. try again.
                   summary: LLM 서비스 오류
           description: ''
+  /api/email/send/:
+    post:
+      operationId: email_send_create
+      description: 로그인한 사용자의 이메일 계정을 통해 이메일을 발송합니다. 성공적으로 발송된 이메일은 발신자의 '보낸 편지함'에
+        저장됩니다.
+      summary: 이메일 전송
+      tags:
+      - email
+      requestBody:
+        content:
+          application/json:
+            schema:
+              $ref: '#/components/schemas/EmailSend'
+          application/x-www-form-urlencoded:
+            schema:
+              $ref: '#/components/schemas/EmailSend'
+          multipart/form-data:
+            schema:
+              $ref: '#/components/schemas/EmailSend'
+        required: true
+      security:
+      - clerkAuth: []
+      responses:
+        '200':
+          content:
+            application/json:
+              schema:
+                description: 이메일이 성공적으로 전송되었습니다.
+                example:
+                  message: 이메일이 성공적으로 전송되었습니다.
+          description: ''
+        '400':
+          content:
+            application/json:
+              schema:
+                description: 잘못된 요청 데이터
+                example:
+                  account_id:
+                  - 이 필드는 필수입니다.
+          description: ''
+        '401':
+          content:
+            application/json:
+              schema:
+                description: '인증 실패 (예: SMTP 로그인 실패)'
+                example:
+                  error: SMTP 인증에 실패했습니다. 계정 정보를 확인해주세요.
+          description: ''
+        '403':
+          content:
+            application/json:
+              schema:
+                description: '권한 없음 (예: 다른 사용자 계정으로 발송 시도)'
+                example:
+                  error: 해당 계정을 찾을 수 없거나, 접근 권한이 없습니다.
+          description: ''
+        '404':
+          content:
+            application/json:
+              schema:
+                description: 계정을 찾을 수 없음
+                example:
+                  error: 해당 계정을 찾을 수 없거나, 접근 권한이 없습니다.
+          description: ''
+        '500':
+          content:
+            application/json:
+              schema:
+                description: 서버 내부 오류
+                example:
+                  error: '이메일 전송 중 오류가 발생했습니다: 오류 메시지'
+          description: ''
   /api/template/mytemplate/{id}/:
     get:
       operationId: template_mytemplate_retrieve
@@ -757,7 +830,7 @@ paths:
       tags:
       - template
       security:
-      - test_auth: []
+      - clerkAuth: []
       - {}
       responses:
         '200':
@@ -790,7 +863,7 @@ paths:
             schema:
               $ref: '#/components/schemas/MyTemplateUpdateRequest'
       security:
-      - test_auth: []
+      - clerkAuth: []
       - {}
       responses:
         '200':
@@ -808,7 +881,7 @@ paths:
       tags:
       - template
       security:
-      - test_auth: []
+      - clerkAuth: []
       - {}
       responses:
         '204':
@@ -832,7 +905,7 @@ paths:
             schema:
               $ref: '#/components/schemas/MyTemplateCreateRequest'
       security:
-      - test_auth: []
+      - clerkAuth: []
       - {}
       responses:
         '201':
@@ -841,21 +914,21 @@ paths:
               schema:
                 $ref: '#/components/schemas/MyTemplate'
           description: ''
-  /api/template/mytemplate/list/{user_id}/:
+  /api/template/mytemplate/list/{id}/:
     get:
       operationId: template_mytemplate_list_list
       description: 특정 사용자가 소유한 모든 템플릿 목록을 조회합니다.
       summary: 내 템플릿 목록 조회
       parameters:
       - in: path
-        name: user_id
+        name: id
         schema:
           type: integer
         required: true
       tags:
       - template
       security:
-      - test_auth: []
+      - clerkAuth: []
       - {}
       responses:
         '200':
@@ -874,7 +947,7 @@ paths:
       tags:
       - template
       security:
-      - test_auth: []
+      - clerkAuth: []
       - {}
       responses:
         '200':
@@ -899,7 +972,7 @@ paths:
       tags:
       - template
       security:
-      - test_auth: []
+      - clerkAuth: []
       - {}
       responses:
         '200':
@@ -930,7 +1003,7 @@ paths:
                 - 1
                 - 2
       security:
-      - test_auth: []
+      - clerkAuth: []
       - {}
       responses:
         '201':
@@ -954,7 +1027,7 @@ paths:
       tags:
       - template
       security:
-      - test_auth: []
+      - clerkAuth: []
       - {}
       responses:
         '204':
@@ -967,7 +1040,7 @@ paths:
       tags:
       - user
       security:
-      - test_auth: []
+      - clerkAuth: []
       - {}
       responses:
         '200':
@@ -990,7 +1063,7 @@ paths:
       tags:
       - user
       security:
-      - test_auth: []
+      - clerkAuth: []
       responses:
         '200':
           content:
@@ -1012,7 +1085,7 @@ paths:
       tags:
       - user
       security:
-      - test_auth: []
+      - clerkAuth: []
       responses:
         '200':
           content:
@@ -1261,6 +1334,8 @@ components:
         from_header:
           type: string
           nullable: true
+        to_header:
+          nullable: true
         date:
           type: string
           format: date-time
@@ -1274,6 +1349,47 @@ components:
       required:
       - preview
       - subject
+    EmailSend:
+      type: object
+      description: 이메일 전송 API의 요청 본문(Request Body) 유효성 검사를 위한 Serializer
+      properties:
+        account_id:
+          type: integer
+          description: 메일을 보낼 EmailAccount의 ID
+        to:
+          type: array
+          items:
+            type: string
+            format: email
+          description: 수신자 이메일 주소 리스트
+        cc:
+          type: array
+          items:
+            type: string
+            format: email
+          description: 참조 이메일 주소 리스트
+        bcc:
+          type: array
+          items:
+            type: string
+            format: email
+          description: 숨은 참조 이메일 주소 리스트
+        subject:
+          type: string
+          description: 메일 제목
+          maxLength: 255
+        body:
+          type: string
+          description: 메일 본문
+        is_html:
+          type: boolean
+          default: false
+          description: 메일 본문이 HTML 형식인지 여부
+      required:
+      - account_id
+      - body
+      - subject
+      - to
     EmailSummary:
       type: object
       properties:
@@ -1468,11 +1584,11 @@ components:
       - created_at
       - id
   securitySchemes:
-    test_auth:
-      type: apiKey
-      in: query
-      name: user_id
-      description: 테스트용 인증을 위해 쿼리 파라미터에 user_id를 전달합니다.
+    clerkAuth:
+      type: http
+      scheme: bearer
+      bearerFormat: JWT
+      description: Clerk JWT 토큰을 사용한 인증. Authorization 헤더에 'Bearer <token>' 형식으로 전달합니다.
 tags:
 - name: user
   description: 사용자 인증 및 정보 관련 API

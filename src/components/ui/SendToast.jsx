@@ -1,6 +1,6 @@
 import React, { useEffect } from "react";
 
-function Toast({ message, open, onClose, duration = 3000 }) {
+function SendToast({ message, open, onClose, duration = 3000 }) {
   useEffect(() => {
     if (!open) return;
     const timer = setTimeout(() => {
@@ -40,4 +40,4 @@ function Toast({ message, open, onClose, duration = 3000 }) {
   );
 }
 
-export default Toast;
+export default SendToast;
