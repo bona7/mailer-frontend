@@ -2,9 +2,20 @@ import { useState } from "react";
 import { Button } from "@/components/ui/button";
 import { Heart, X } from "lucide-react";
 import CollectionDropdown from "../CollectionDropdown";
+import axios from "axios";
 
-const TemplateDetail = ({ template, onClose }) => {
-  console.log("TemplateDetail - template:", template);
+const TemplateDetail = ({ template, onClose, id }) => {
+  // userId는 반드시 int(PK)여야 합니다. string이 아닌 int로 전달되는지 확인하세요.
+  console.log(
+    "[DEBUG] TemplateDetail 렌더링, userId:",
+    id,
+    "typeof:",
+    typeof id,
+  );
+
+  const [isDropdownOpen, setIsDropdownOpen] = useState(false);
+  const [isHeartFilled, setIsHeartFilled] = useState(false);
+  const [isAdding, setIsAdding] = useState(false);
 
   const title = template.title || template.topic || "";
   const templateName = template.topic || template.name || "";
@@ -12,16 +23,30 @@ const TemplateDetail = ({ template, onClose }) => {
     template.sub_category || template.subCategory || template.about || "";
   const bodyText = template.template_content || template.body || "";
 
-  console.log("TemplateDetail - title:", title);
-  console.log("TemplateDetail - templateName:", templateName);
-  console.log("TemplateDetail - aboutText:", aboutText);
-  console.log("TemplateDetail - bodyText:", bodyText);
-
-  const [isDropdownOpen, setIsDropdownOpen] = useState(false);
-  const [isHeartFilled, setIsHeartFilled] = useState(false);
-
   const toggleDropdown = () => {
     setIsDropdownOpen((prev) => !prev);
+  };
+
+  const handleAddTemplate = async () => {
+    console.log(
+      "[DEBUG] handleAddTemplate 호출, id:",
+      id,
+      "typeof:",
+      typeof id,
+    );
+    setIsAdding(true);
+    try {
+      await axios.post(`/api/template/viewtemplate/${id}/`, {
+        template_id: template.id,
+      });
+      alert("템플릿이 성공적으로 추가되었습니다.");
+      setIsHeartFilled(true);
+    } catch (error) {
+      console.error("템플릿 추가 실패:", error);
+      alert("템플릿 추가에 실패했습니다.");
+    } finally {
+      setIsAdding(false);
+    }
   };
 
   const handleAddCollection = (selectedIds) => {
@@ -50,8 +75,12 @@ const TemplateDetail = ({ template, onClose }) => {
               {templateName || "Template Name"}
             </h1>
             <div className="flex items-center gap-1.5 mt-2">
-              <Button className="bg-secondary-dark hover:bg-secondary-light text-gray-f0 font-button px-2 py-2 h-auto">
-                Open in Compose
+              <Button
+                className="bg-secondary-dark hover:bg-secondary-light text-gray-f0 font-button px-2 py-2 h-auto"
+                onClick={handleAddTemplate}
+                disabled={isAdding}
+              >
+                {isAdding ? "Adding..." : "Add"}
               </Button>
               <div className="relative">
                 <Button

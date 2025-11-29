@@ -998,7 +998,7 @@ paths:
           application/json:
             schema:
               example:
-                user_id: 1
+                id: 1
                 email_account_ids:
                 - 1
                 - 2
@@ -1075,6 +1075,7 @@ paths:
                 정상응답:
                   value:
                     user_id: user_xxxxxxxxxxxx
+                    id: 1
                   summary: 정상 응답
           description: ''
   /api/user/signout/:

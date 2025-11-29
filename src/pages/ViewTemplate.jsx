@@ -3,11 +3,14 @@ import AppLayout from "@/components/AppLayout";
 import { TemplateCard, TemplateDetail } from "@/components";
 import { Separator } from "@/components/ui/separator";
 import { useViewTemplates } from "@/api/hooks/useTemplates";
+import MailComposeModal from "@/components/modals/MailComposeModal";
 
 const ViewTemplate = () => {
   const [selectedAccounts, setSelectedAccounts] = useState([]);
   const [isModalOpen, setIsModalOpen] = useState(false);
   const [selectedTemplate, setSelectedTemplate] = useState(null);
+  const [isComposeOpen, setIsComposeOpen] = useState(false);
+  const [composeBody, setComposeBody] = useState("");
 
   // API로부터 템플릿 데이터 가져오기
   const {
@@ -24,6 +27,7 @@ const ViewTemplate = () => {
   console.log("ViewTemplate - templates.length:", templates.length);
 
   const handleOpenModal = (template) => {
+    console.log("[DEBUG] handleOpenModal 호출, template:", template);
     setSelectedTemplate(template);
     setIsModalOpen(true);
   };
@@ -31,6 +35,16 @@ const ViewTemplate = () => {
   const handleCloseModal = () => {
     setIsModalOpen(false);
     setSelectedTemplate(null);
+  };
+
+  const handleCompose = (template) => {
+    setComposeBody(template.template_content || template.body || "");
+    setIsComposeOpen(true);
+  };
+
+  const handleCloseCompose = () => {
+    setIsComposeOpen(false);
+    setComposeBody("");
   };
 
   const groupedTemplates = templates.reduce((acc, template) => {
@@ -112,8 +126,10 @@ const ViewTemplate = () => {
                     name: template.topic,
                     about: template.sub_category,
                     body: truncate(template.template_content, 100),
+                    template_content: template.template_content,
                   }}
                   onClick={() => handleOpenModal(template)}
+                  onCompose={() => handleCompose(template)}
                 />
               ))}
             </div>
@@ -130,9 +146,18 @@ const ViewTemplate = () => {
             <TemplateDetail
               template={selectedTemplate}
               onClose={handleCloseModal}
+              // userId={userId} // 필요시 주석 해제
             />
           </div>
         </div>
+      )}
+
+      {isComposeOpen && (
+        <MailComposeModal
+          open={isComposeOpen}
+          onClose={handleCloseCompose}
+          initialBody={composeBody}
+        />
       )}
     </AppLayout>
   );
