@@ -2,38 +2,37 @@ import { useState } from "react";
 import AppLayout from "@/components/AppLayout";
 import { TemplateCard, TemplateDetail } from "@/components";
 import { Separator } from "@/components/ui/separator";
-import { useViewTemplates } from "@/api/hooks/useTemplates";
+import {
+  useViewTemplates,
+  useViewTemplateById,
+} from "@/api/hooks/useTemplates";
 import MailComposeModal from "@/components/modals/MailComposeModal";
 
 const ViewTemplate = () => {
   const [selectedAccounts, setSelectedAccounts] = useState([]);
   const [isModalOpen, setIsModalOpen] = useState(false);
-  const [selectedTemplate, setSelectedTemplate] = useState(null);
+  const [selectedTemplateId, setSelectedTemplateId] = useState(null);
   const [isComposeOpen, setIsComposeOpen] = useState(false);
   const [composeBody, setComposeBody] = useState("");
 
-  // API로부터 템플릿 데이터 가져오기
   const {
     data: templates = [],
-    isLoading,
+    isLoading: isLoadingList,
     isError,
     error,
   } = useViewTemplates();
 
-  console.log("ViewTemplate - isLoading:", isLoading);
-  console.log("ViewTemplate - isError:", isError);
-  console.log("ViewTemplate - error:", error);
-  console.log("ViewTemplate - templates:", templates);
-  console.log("ViewTemplate - templates.length:", templates.length);
+  const { data: selectedTemplate, isLoading: isLoadingDetail } =
+    useViewTemplateById(selectedTemplateId);
 
   const handleOpenModal = (template) => {
-    setSelectedTemplate(template);
+    setSelectedTemplateId(template.id);
     setIsModalOpen(true);
   };
 
   const handleCloseModal = () => {
     setIsModalOpen(false);
-    setSelectedTemplate(null);
+    setSelectedTemplateId(null);
   };
 
   const handleCompose = (template) => {
@@ -59,7 +58,7 @@ const ViewTemplate = () => {
     return str?.length > n ? str.substr(0, n - 1) + "..." : str;
   };
 
-  if (isLoading) {
+  if (isLoadingList) {
     return (
       <AppLayout
         selectedAccounts={selectedAccounts}
@@ -122,6 +121,7 @@ const ViewTemplate = () => {
                 <TemplateCard
                   key={template.id}
                   template={{
+                    id: template.id, // ID를 전달해야 handleOpenModal에서 사용 가능
                     name: template.topic,
                     about: template.sub_category,
                     body: truncate(template.template_content, 100),
@@ -136,17 +136,19 @@ const ViewTemplate = () => {
         ))}
       </main>
 
-      {isModalOpen && selectedTemplate && (
+      {isModalOpen && (
         <div
           className="fixed inset-0 z-50 flex items-center justify-center bg-gray-26/30"
           onClick={handleCloseModal}
         >
           <div onClick={(e) => e.stopPropagation()}>
-            <TemplateDetail
-              template={selectedTemplate}
-              onClose={handleCloseModal}
-              // userId={userId} // 필요시 주석 해제
-            />
+            {isLoadingDetail && <p>Loading details...</p>}
+            {selectedTemplate && (
+              <TemplateDetail
+                template={selectedTemplate}
+                onClose={handleCloseModal}
+              />
+            )}
           </div>
         </div>
       )}
