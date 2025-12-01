@@ -1,21 +1,14 @@
-import { useState } from "react";
+import { useState, useEffect } from "react";
 import { Button } from "@/components/ui/button";
 import { Heart, X } from "lucide-react";
 import CollectionDropdown from "../CollectionDropdown";
-import axios from "axios";
+import instance from "@/app/axios";
 
-const TemplateDetail = ({ template, onClose, id }) => {
-  // userId는 반드시 int(PK)여야 합니다. string이 아닌 int로 전달되는지 확인하세요.
-  console.log(
-    "[DEBUG] TemplateDetail 렌더링, userId:",
-    id,
-    "typeof:",
-    typeof id,
-  );
-
+const TemplateDetail = ({ template, onClose, onAddSuccess }) => {
   const [isDropdownOpen, setIsDropdownOpen] = useState(false);
   const [isHeartFilled, setIsHeartFilled] = useState(false);
   const [isAdding, setIsAdding] = useState(false);
+  const [selectedAccountsForAdd, setSelectedAccountsForAdd] = useState([]);
 
   const title = template.title || template.topic || "";
   const templateName = template.topic || template.name || "";
@@ -28,19 +21,24 @@ const TemplateDetail = ({ template, onClose, id }) => {
   };
 
   const handleAddTemplate = async () => {
-    console.log(
-      "[DEBUG] handleAddTemplate 호출, id:",
-      id,
-      "typeof:",
-      typeof id,
-    );
+    if (!selectedAccountsForAdd || selectedAccountsForAdd.length === 0) {
+      alert("템플릿을 추가할 계정을 선택해주세요.");
+      return;
+    }
+
     setIsAdding(true);
     try {
-      await axios.post(`/api/template/viewtemplate/${id}/`, {
-        template_id: template.id,
+      await instance.post(`/template/viewtemplate/${template.id}/`, {
+        email_account_ids: selectedAccountsForAdd,
+        id: 4,
       });
       alert("템플릿이 성공적으로 추가되었습니다.");
       setIsHeartFilled(true);
+      if (onAddSuccess) {
+        onAddSuccess();
+      } else {
+        onClose();
+      }
     } catch (error) {
       console.error("템플릿 추가 실패:", error);
       alert("템플릿 추가에 실패했습니다.");
@@ -49,8 +47,12 @@ const TemplateDetail = ({ template, onClose, id }) => {
     }
   };
 
-  const handleAddCollection = (selectedIds) => {
+  const handleCollectionChange = (selectedIds) => {
+    setSelectedAccountsForAdd(selectedIds);
     setIsHeartFilled(selectedIds.length > 0);
+  };
+
+  const handleCollectionDone = () => {
     setIsDropdownOpen(false);
   };
 
@@ -97,7 +99,11 @@ const TemplateDetail = ({ template, onClose, id }) => {
                   />
                 </Button>
                 {isDropdownOpen && (
-                  <CollectionDropdown onAdd={handleAddCollection} />
+                  <CollectionDropdown
+                    onDone={handleCollectionDone}
+                    onSelectionChange={handleCollectionChange}
+                    initialSelection={selectedAccountsForAdd}
+                  />
                 )}
               </div>
             </div>

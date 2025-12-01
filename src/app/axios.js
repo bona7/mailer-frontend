@@ -28,15 +28,6 @@ instance.interceptors.request.use(
       console.error("❌ Clerk 토큰 가져오기 실패:", error);
     }
 
-    // Add user_id query parameter for test_auth
-    const userId = localStorage.getItem("user_id");
-    if (userId) {
-      // URL에 이미 쿼리 파라미터가 있는지 확인
-      const separator = config.url.includes("?") ? "&" : "?";
-      config.url = `${config.url}${separator}user_id=${userId}`;
-      console.log("📤 요청 URL:", config.baseURL + config.url);
-    }
-
     return config;
   },
   (error) => {

@@ -32,9 +32,9 @@ export const useMyTemplates = (userId) => {
 export const useAddTemplateToMyTemplates = () => {
   const queryClient = useQueryClient();
   return useMutation({
-    mutationFn: ({ templateId, userId, accountIds }) =>
-      addTemplateToMyTemplates(templateId, {
-        user_id: userId,
+    mutationFn: ({ userId, templateId, accountIds }) =>
+      addTemplateToMyTemplates(userId, {
+        template_id: templateId,
         email_account_ids: accountIds,
       }),
     onSuccess: (data, variables) => {

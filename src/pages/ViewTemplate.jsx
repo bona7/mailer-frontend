@@ -27,7 +27,6 @@ const ViewTemplate = () => {
   console.log("ViewTemplate - templates.length:", templates.length);
 
   const handleOpenModal = (template) => {
-    console.log("[DEBUG] handleOpenModal 호출, template:", template);
     setSelectedTemplate(template);
     setIsModalOpen(true);
   };

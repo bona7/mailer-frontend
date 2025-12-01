@@ -15,27 +15,20 @@ export const getMyTemplates = async (userId) => {
   return response.data;
 };
 
-export const addTemplateToMyTemplates = async (templateId, data) => {
+export const addTemplateToMyTemplates = async (data) => {
+  const userId =
+    typeof window !== "undefined" ? localStorage.getItem("user_id") : null;
+  if (!userId) {
+    throw new Error("user_id(pk)가 localStorage에 없습니다.");
+  }
+
   console.log("addTemplateToMyTemplates 호출:", {
-    templateId,
+    userId,
     data,
     requestBody: data,
-    queryParams: { user_id: data.user_id },
   });
 
-  const config = {
-    params: {
-      user_id: data.user_id,
-    },
-  };
-
-  console.log("axios config:", config);
-
-  const response = await api.post(
-    `/template/viewtemplate/${templateId}/`,
-    data,
-    config,
-  );
+  const response = await api.post(`/template/viewtemplate/${userId}/`, data);
   console.log("addTemplateToMyTemplates 응답:", response.data);
   return response.data;
 };

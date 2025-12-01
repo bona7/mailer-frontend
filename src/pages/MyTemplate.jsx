@@ -1,13 +1,15 @@
-import { useState, useMemo } from "react";
 import AppLayout from "@/components/AppLayout";
-import { TemplateCard, TemplateDetail } from "@/components";
+import TemplateCard from "@/components/TemplateCard";
+import TemplateDetail from "@/components/modals/TemplateDetail";
 import { Separator } from "@/components/ui/separator";
 import CategoryButton from "@/components/CategoryButton";
 import CreateTemplateButton from "@/components/CreateTemplateButton";
 import CreateTemplateModal from "@/components/modals/CreateTemplateModal";
 import { useAccounts } from "@/api/hooks/useAccounts";
 import { useMyTemplates } from "@/api/hooks/useTemplates";
+import { useState, useMemo } from "react";
 import { useUser } from "@clerk/clerk-react";
+import { useQueryClient } from "@tanstack/react-query";
 
 const MyTemplate = () => {
   const [selectedAccounts, setSelectedAccounts] = useState([]);
@@ -21,8 +23,12 @@ const MyTemplate = () => {
 
   const { user } = useUser();
   const { data: accounts = [], isLoading: accountsLoading } = useAccounts();
+  // localStorage에서 user_id(pk, int) 가져오기
+  const userPk =
+    typeof window !== "undefined" ? localStorage.getItem("user_id") : null;
   const { data: myTemplates = [], isLoading: templatesLoading } =
-    useMyTemplates(user?.id);
+    useMyTemplates(userPk);
+  const queryClient = useQueryClient();
 
   // 계정별로 템플릿 그룹화
   const templatesByAccount = useMemo(() => {
@@ -48,6 +54,11 @@ const MyTemplate = () => {
   const handleCloseModal = () => {
     setIsModalOpen(false);
     setSelectedTemplate(null);
+  };
+
+  const handleAddSuccess = () => {
+    queryClient.invalidateQueries(["myTemplates", userPk]);
+    handleCloseModal();
   };
 
   if (accountsLoading || templatesLoading) {
@@ -133,6 +144,7 @@ const MyTemplate = () => {
             <TemplateDetail
               template={selectedTemplate}
               onClose={handleCloseModal}
+              onAddSuccess={handleAddSuccess}
             />
           </div>
         </div>

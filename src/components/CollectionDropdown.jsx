@@ -1,19 +1,37 @@
-import { useState } from "react";
+import { useState, useEffect } from "react";
 import { Button } from "@/components/ui/button";
 import { useAccounts } from "@/api/hooks/useAccounts";
 
-const CollectionDropdown = ({ onAdd }) => {
-  const [selectedCollections, setSelectedCollections] = useState([]);
+const CollectionDropdown = ({
+  onDone,
+  onSelectionChange,
+  initialSelection = [],
+}) => {
+  const [selectedCollections, setSelectedCollections] =
+    useState(initialSelection);
   const { data: accounts = [], isLoading } = useAccounts();
 
+  useEffect(() => {
+    // Notify parent of initial selection
+    if (onSelectionChange) {
+      onSelectionChange(selectedCollections);
+    }
+  }, []);
+
   const handleSelect = (id) => {
-    setSelectedCollections((prev) =>
-      prev.includes(id) ? prev.filter((item) => item !== id) : [...prev, id],
-    );
+    const newSelection = selectedCollections.includes(id)
+      ? selectedCollections.filter((item) => item !== id)
+      : [...selectedCollections, id];
+    setSelectedCollections(newSelection);
+    if (onSelectionChange) {
+      onSelectionChange(newSelection);
+    }
   };
 
-  const handleAdd = () => {
-    onAdd(selectedCollections);
+  const handleDone = () => {
+    if (onDone) {
+      onDone();
+    }
   };
 
   return (
@@ -48,10 +66,10 @@ const CollectionDropdown = ({ onAdd }) => {
             </div>
             <div className="mt-1 mr-2 mb-2 flex justify-end">
               <Button
-                onClick={handleAdd}
+                onClick={handleDone}
                 className="bg-secondary-dark hover:bg-secondary-light text-gray-f0 font-button px-2 py-2 h-auto"
               >
-                Add
+                Done
               </Button>
             </div>
           </>
