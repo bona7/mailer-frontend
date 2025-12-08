@@ -104,8 +104,10 @@ const ViewTemplate = () => {
       setSelectedAccounts={setSelectedAccounts}
     >
       <main className="col-start-2 row-start-2 p-6 space-y-4 bg-gray-f5/40 rounded-lg border border-primary overflow-y-auto">
-        <h1 className="font-h7 text-primary-dark">View Templates</h1>
-        <Separator className="bg-gray-bf my-1.5" />
+        <div className="sticky top-0 z-10 bg-gray-f5/40 pb-4">
+          <h1 className="font-h7 text-primary-dark">View Templates</h1>
+          <Separator className="bg-gray-bf my-1.5" />
+        </div>
 
         {templates.length === 0 && (
           <div className="flex items-center justify-center p-8">

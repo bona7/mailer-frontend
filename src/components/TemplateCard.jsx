@@ -3,7 +3,12 @@ import { Button } from "@/components/ui/button";
 import { Heart } from "lucide-react";
 import MailComposeModal from "@/components/modals/MailComposeModal";
 
-const TemplateCard = ({ template, onClick }) => {
+const TemplateCard = ({
+  template,
+  onClick,
+  isFavorited = false,
+  onHeartClick,
+}) => {
   const [isComposeOpen, setIsComposeOpen] = useState(false);
   const [mailBody, setMailBody] = useState("");
 
@@ -15,6 +20,13 @@ const TemplateCard = ({ template, onClick }) => {
     );
     setMailBody(template.template_content || template.body || "");
     setIsComposeOpen(true);
+  };
+
+  const handleHeartClick = (e) => {
+    e.stopPropagation();
+    if (onHeartClick) {
+      onHeartClick();
+    }
   };
 
   const handleCloseCompose = () => {
@@ -30,10 +42,11 @@ const TemplateCard = ({ template, onClick }) => {
         <div className="h-[188px] bg-gray-200 rounded-md"></div>
         <div className="flex justify-between items-center px-1 pt-1">
           <h3 className="font-b1 text-gray-59 truncate">{template.name}</h3>
-          <div className="flex items-center gap-1">
+          <div className="flex items-center gap-2">
             <Heart
-              className="size-3.5 text-secondary-dark hover:fill-secondary-light cursor-pointer"
-              onClick={(e) => e.stopPropagation()}
+              className="size-4 text-secondary-dark cursor-pointer"
+              fill={isFavorited ? "currentColor" : "none"}
+              onClick={handleHeartClick}
             />
             <Button
               size="sm"

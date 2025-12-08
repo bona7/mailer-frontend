@@ -15,20 +15,28 @@ export const getMyTemplates = async (userId) => {
   return response.data;
 };
 
-export const addTemplateToMyTemplates = async (data) => {
-  const userId =
-    typeof window !== "undefined" ? localStorage.getItem("user_id") : null;
-  if (!userId) {
-    throw new Error("user_id(pk)가 localStorage에 없습니다.");
+export const addTemplateToMyTemplates = async (templateId, data) => {
+  if (!templateId) {
+    throw new Error("templateId가 제공되지 않았습니다.");
   }
 
   console.log("addTemplateToMyTemplates 호출:", {
-    userId,
-    data,
+    templateId,
     requestBody: data,
   });
 
-  const response = await api.post(`/template/viewtemplate/${userId}/`, data);
+  const response = await api.post(
+    `/template/viewtemplate/${templateId}/`,
+    data,
+  );
   console.log("addTemplateToMyTemplates 응답:", response.data);
+  return response.data;
+};
+
+export const deleteMyTemplate = async (templateId) => {
+  if (!templateId) {
+    throw new Error("templateId가 제공되지 않았습니다.");
+  }
+  const response = await api.delete(`/template/mytemplate/${templateId}/`);
   return response.data;
 };

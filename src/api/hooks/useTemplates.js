@@ -4,6 +4,7 @@ import {
   getViewTemplateById,
   getMyTemplates,
   addTemplateToMyTemplates,
+  deleteMyTemplate,
 } from "../template";
 
 export const useViewTemplates = () => {
@@ -42,6 +43,17 @@ export const useAddTemplateToMyTemplates = () => {
       queryClient.invalidateQueries({
         queryKey: ["myTemplates", variables.userId],
       });
+    },
+  });
+};
+
+export const useDeleteMyTemplate = () => {
+  const queryClient = useQueryClient();
+  return useMutation({
+    mutationFn: deleteMyTemplate, // templateId를 직접 받음
+    onSuccess: (data, templateId) => {
+      // 'myTemplates' 관련 모든 쿼리를 무효화하여 전체 목록을 새로고침
+      queryClient.invalidateQueries({ queryKey: ["myTemplates"] });
     },
   });
 };

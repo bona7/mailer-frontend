@@ -1,10 +1,14 @@
-import { useState, useEffect } from "react";
+import { useState } from "react";
+import { useUser } from "@clerk/clerk-react";
 import { Button } from "@/components/ui/button";
 import { Heart, X } from "lucide-react";
 import CollectionDropdown from "../CollectionDropdown";
 import instance from "@/app/axios";
 
+import { addTemplateToMyTemplates } from "@/api/template";
+
 const TemplateDetail = ({ template, onClose, onAddSuccess }) => {
+  const { user } = useUser();
   const [isDropdownOpen, setIsDropdownOpen] = useState(false);
   const [isHeartFilled, setIsHeartFilled] = useState(false);
   const [isAdding, setIsAdding] = useState(false);
@@ -21,6 +25,10 @@ const TemplateDetail = ({ template, onClose, onAddSuccess }) => {
   };
 
   const handleAddTemplate = async () => {
+    if (!user) {
+      alert("사용자 정보를 가져올 수 없습니다. 다시 로그인해주세요.");
+      return;
+    }
     if (!selectedAccountsForAdd || selectedAccountsForAdd.length === 0) {
       alert("템플릿을 추가할 계정을 선택해주세요.");
       return;
@@ -28,9 +36,8 @@ const TemplateDetail = ({ template, onClose, onAddSuccess }) => {
 
     setIsAdding(true);
     try {
-      await instance.post(`/template/viewtemplate/${template.id}/`, {
+      await addTemplateToMyTemplates(template.id, {
         email_account_ids: selectedAccountsForAdd,
-        id: 4,
       });
       alert("템플릿이 성공적으로 추가되었습니다.");
       setIsHeartFilled(true);
