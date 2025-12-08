@@ -2,35 +2,47 @@ import { useState } from "react";
 import AppLayout from "@/components/AppLayout";
 import { TemplateCard, TemplateDetail } from "@/components";
 import { Separator } from "@/components/ui/separator";
-import { useViewTemplates } from "@/api/hooks/useTemplates";
+import {
+  useViewTemplates,
+  useViewTemplateById,
+} from "@/api/hooks/useTemplates";
+import MailComposeModal from "@/components/modals/MailComposeModal";
 
 const ViewTemplate = () => {
   const [selectedAccounts, setSelectedAccounts] = useState([]);
   const [isModalOpen, setIsModalOpen] = useState(false);
-  const [selectedTemplate, setSelectedTemplate] = useState(null);
+  const [selectedTemplateId, setSelectedTemplateId] = useState(null);
+  const [isComposeOpen, setIsComposeOpen] = useState(false);
+  const [composeBody, setComposeBody] = useState("");
 
-  // API로부터 템플릿 데이터 가져오기
   const {
     data: templates = [],
-    isLoading,
+    isLoading: isLoadingList,
     isError,
     error,
   } = useViewTemplates();
 
-  console.log("ViewTemplate - isLoading:", isLoading);
-  console.log("ViewTemplate - isError:", isError);
-  console.log("ViewTemplate - error:", error);
-  console.log("ViewTemplate - templates:", templates);
-  console.log("ViewTemplate - templates.length:", templates.length);
+  const { data: selectedTemplate, isLoading: isLoadingDetail } =
+    useViewTemplateById(selectedTemplateId);
 
   const handleOpenModal = (template) => {
-    setSelectedTemplate(template);
+    setSelectedTemplateId(template.id);
     setIsModalOpen(true);
   };
 
   const handleCloseModal = () => {
     setIsModalOpen(false);
-    setSelectedTemplate(null);
+    setSelectedTemplateId(null);
+  };
+
+  const handleCompose = (template) => {
+    setComposeBody(template.template_content || template.body || "");
+    setIsComposeOpen(true);
+  };
+
+  const handleCloseCompose = () => {
+    setIsComposeOpen(false);
+    setComposeBody("");
   };
 
   const groupedTemplates = templates.reduce((acc, template) => {
@@ -46,7 +58,7 @@ const ViewTemplate = () => {
     return str?.length > n ? str.substr(0, n - 1) + "..." : str;
   };
 
-  if (isLoading) {
+  if (isLoadingList) {
     return (
       <AppLayout
         selectedAccounts={selectedAccounts}
@@ -92,8 +104,10 @@ const ViewTemplate = () => {
       setSelectedAccounts={setSelectedAccounts}
     >
       <main className="col-start-2 row-start-2 p-6 space-y-4 bg-gray-f5/40 rounded-lg border border-primary overflow-y-auto">
-        <h1 className="font-h7 text-primary-dark">View Templates</h1>
-        <Separator className="bg-gray-bf my-1.5" />
+        <div className="sticky top-0 z-10 bg-gray-f5/40 pb-4">
+          <h1 className="font-h7 text-primary-dark">View Templates</h1>
+          <Separator className="bg-gray-bf my-1.5" />
+        </div>
 
         {templates.length === 0 && (
           <div className="flex items-center justify-center p-8">
@@ -109,11 +123,14 @@ const ViewTemplate = () => {
                 <TemplateCard
                   key={template.id}
                   template={{
+                    id: template.id, // ID를 전달해야 handleOpenModal에서 사용 가능
                     name: template.topic,
                     about: template.sub_category,
                     body: truncate(template.template_content, 100),
+                    template_content: template.template_content,
                   }}
                   onClick={() => handleOpenModal(template)}
+                  onCompose={() => handleCompose(template)}
                 />
               ))}
             </div>
@@ -121,18 +138,29 @@ const ViewTemplate = () => {
         ))}
       </main>
 
-      {isModalOpen && selectedTemplate && (
+      {isModalOpen && (
         <div
           className="fixed inset-0 z-50 flex items-center justify-center bg-gray-26/30"
           onClick={handleCloseModal}
         >
           <div onClick={(e) => e.stopPropagation()}>
-            <TemplateDetail
-              template={selectedTemplate}
-              onClose={handleCloseModal}
-            />
+            {isLoadingDetail && <p>Loading details...</p>}
+            {selectedTemplate && (
+              <TemplateDetail
+                template={selectedTemplate}
+                onClose={handleCloseModal}
+              />
+            )}
           </div>
         </div>
+      )}
+
+      {isComposeOpen && (
+        <MailComposeModal
+          open={isComposeOpen}
+          onClose={handleCloseCompose}
+          initialBody={composeBody}
+        />
       )}
     </AppLayout>
   );

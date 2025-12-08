@@ -16,26 +16,27 @@ export const getMyTemplates = async (userId) => {
 };
 
 export const addTemplateToMyTemplates = async (templateId, data) => {
+  if (!templateId) {
+    throw new Error("templateId가 제공되지 않았습니다.");
+  }
+
   console.log("addTemplateToMyTemplates 호출:", {
     templateId,
-    data,
     requestBody: data,
-    queryParams: { user_id: data.user_id },
   });
-
-  const config = {
-    params: {
-      user_id: data.user_id,
-    },
-  };
-
-  console.log("axios config:", config);
 
   const response = await api.post(
     `/template/viewtemplate/${templateId}/`,
     data,
-    config,
   );
   console.log("addTemplateToMyTemplates 응답:", response.data);
+  return response.data;
+};
+
+export const deleteMyTemplate = async (templateId) => {
+  if (!templateId) {
+    throw new Error("templateId가 제공되지 않았습니다.");
+  }
+  const response = await api.delete(`/template/mytemplate/${templateId}/`);
   return response.data;
 };

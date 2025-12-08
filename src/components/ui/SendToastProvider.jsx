@@ -8,18 +8,18 @@ export function useSendToast() {
 }
 
 export function ToastProvider({ children }) {
-  const [toast, setToast] = useState({ open: false, duration: 10000 });
+  const [toast, setToast] = useState({ open: false });
 
   const showToast = useCallback((options = {}) => {
     setToast({
       open: true,
-      duration: options.duration || 10000,
+      duration: options.duration || 5000, // 기본 지속 시간을 5초로 변경
       ...options,
     });
   }, []);
 
   const closeToast = useCallback(() => {
-    setToast((prev) => ({ ...prev, open: false }));
+    setToast((prev) => ({ ...prev, open: false })); // 닫기 버튼으로 Toast 닫기
   }, []);
 
   return (
@@ -28,7 +28,7 @@ export function ToastProvider({ children }) {
       <SendToast
         open={toast.open}
         onClose={closeToast}
-        duration={toast.duration}
+        duration={toast.duration} // 지속 시간 전달
       />
     </ToastContext.Provider>
   );

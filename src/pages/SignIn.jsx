@@ -75,13 +75,12 @@ function SignIn() {
           console.log("📞 /api/user/me/ 호출 중...");
           const userResponse = await api.get("/user/me/");
           console.log("📥 /api/user/me/ 응답:", userResponse.data);
-          const userId = userResponse.data.user_id;
-
-          if (!userId) {
-            console.error("❌ user_id가 응답에 없습니다:", userResponse.data);
+          const userPk = userResponse.data.id;
+          if (!userPk) {
+            console.error("❌ id(pk)가 응답에 없습니다:", userResponse.data);
           } else {
-            localStorage.setItem("user_id", userId);
-            console.log("✅ user_id 저장 완료:", userId);
+            localStorage.setItem("user_id", userPk);
+            console.log("✅ user_id(pk) 저장 완료:", userPk);
           }
         } catch (err) {
           console.error("❌ user_id 가져오기 실패:", err);

@@ -1,10 +1,18 @@
 import { useState } from "react";
+import { useUser } from "@clerk/clerk-react";
 import { Button } from "@/components/ui/button";
 import { Heart, X } from "lucide-react";
 import CollectionDropdown from "../CollectionDropdown";
+import instance from "@/app/axios";
 
-const TemplateDetail = ({ template, onClose }) => {
-  console.log("TemplateDetail - template:", template);
+import { addTemplateToMyTemplates } from "@/api/template";
+
+const TemplateDetail = ({ template, onClose, onAddSuccess }) => {
+  const { user } = useUser();
+  const [isDropdownOpen, setIsDropdownOpen] = useState(false);
+  const [isHeartFilled, setIsHeartFilled] = useState(false);
+  const [isAdding, setIsAdding] = useState(false);
+  const [selectedAccountsForAdd, setSelectedAccountsForAdd] = useState([]);
 
   const title = template.title || template.topic || "";
   const templateName = template.topic || template.name || "";
@@ -12,20 +20,46 @@ const TemplateDetail = ({ template, onClose }) => {
     template.sub_category || template.subCategory || template.about || "";
   const bodyText = template.template_content || template.body || "";
 
-  console.log("TemplateDetail - title:", title);
-  console.log("TemplateDetail - templateName:", templateName);
-  console.log("TemplateDetail - aboutText:", aboutText);
-  console.log("TemplateDetail - bodyText:", bodyText);
-
-  const [isDropdownOpen, setIsDropdownOpen] = useState(false);
-  const [isHeartFilled, setIsHeartFilled] = useState(false);
-
   const toggleDropdown = () => {
     setIsDropdownOpen((prev) => !prev);
   };
 
-  const handleAddCollection = (selectedIds) => {
+  const handleAddTemplate = async () => {
+    if (!user) {
+      alert("사용자 정보를 가져올 수 없습니다. 다시 로그인해주세요.");
+      return;
+    }
+    if (!selectedAccountsForAdd || selectedAccountsForAdd.length === 0) {
+      alert("템플릿을 추가할 계정을 선택해주세요.");
+      return;
+    }
+
+    setIsAdding(true);
+    try {
+      await addTemplateToMyTemplates(template.id, {
+        email_account_ids: selectedAccountsForAdd,
+      });
+      alert("템플릿이 성공적으로 추가되었습니다.");
+      setIsHeartFilled(true);
+      if (onAddSuccess) {
+        onAddSuccess();
+      } else {
+        onClose();
+      }
+    } catch (error) {
+      console.error("템플릿 추가 실패:", error);
+      alert("템플릿 추가에 실패했습니다.");
+    } finally {
+      setIsAdding(false);
+    }
+  };
+
+  const handleCollectionChange = (selectedIds) => {
+    setSelectedAccountsForAdd(selectedIds);
     setIsHeartFilled(selectedIds.length > 0);
+  };
+
+  const handleCollectionDone = () => {
     setIsDropdownOpen(false);
   };
 
@@ -50,8 +84,12 @@ const TemplateDetail = ({ template, onClose }) => {
               {templateName || "Template Name"}
             </h1>
             <div className="flex items-center gap-1.5 mt-2">
-              <Button className="bg-secondary-dark hover:bg-secondary-light text-gray-f0 font-button px-2 py-2 h-auto">
-                Open in Compose
+              <Button
+                className="bg-secondary-dark hover:bg-secondary-light text-gray-f0 font-button px-2 py-2 h-auto"
+                onClick={handleAddTemplate}
+                disabled={isAdding}
+              >
+                {isAdding ? "Adding..." : "Add"}
               </Button>
               <div className="relative">
                 <Button
@@ -68,7 +106,11 @@ const TemplateDetail = ({ template, onClose }) => {
                   />
                 </Button>
                 {isDropdownOpen && (
-                  <CollectionDropdown onAdd={handleAddCollection} />
+                  <CollectionDropdown
+                    onDone={handleCollectionDone}
+                    onSelectionChange={handleCollectionChange}
+                    initialSelection={selectedAccountsForAdd}
+                  />
                 )}
               </div>
             </div>

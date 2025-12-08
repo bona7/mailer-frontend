@@ -9,7 +9,14 @@ import { useAddAccount, useAccounts } from "@/api/hooks/useAccounts";
 import { sendEmail } from "@/api/sendEmail";
 import { useSendToast } from "@/components/ui/SendToastProvider";
 
-function MailComposeModal({ isOpen, onClose, isAddAccountMode = false }) {
+function MailComposeModal({
+  isOpen,
+  open,
+  onClose,
+  isAddAccountMode = false,
+  initialBody = "",
+}) {
+  const modalOpen = typeof open === "boolean" ? open : isOpen;
   const { data: accounts = [] } = useAccounts();
   const addAccountMutation = useAddAccount();
 
@@ -25,7 +32,7 @@ function MailComposeModal({ isOpen, onClose, isAddAccountMode = false }) {
   const [recipients, setRecipients] = useState([]);
   const [recipientInput, setRecipientInput] = useState("");
   const [subject, setSubject] = useState("");
-  const [body, setBody] = useState("");
+  const [body, setBody] = useState(initialBody);
   const editorRef = useRef(null);
   const [colorPickerOpen, setColorPickerOpen] = useState(false);
   const [colorAnchor, setColorAnchor] = useState(null);
@@ -244,11 +251,20 @@ function MailComposeModal({ isOpen, onClose, isAddAccountMode = false }) {
     setRecipientInput("");
   };
 
-  if (!isOpen) return null;
+  useEffect(() => {
+    setBody(initialBody);
+    if (editorRef.current) {
+      // 줄바꿈(\n)을 <br>로 변환하여 HTML로 반영
+      const htmlBody = initialBody.replace(/\n/g, "<br>");
+      editorRef.current.innerHTML = htmlBody;
+    }
+  }, [initialBody]);
+
+  if (!modalOpen) return null;
 
   return (
     <div className="absolute bottom-0 right-0 z-50">
-      <div className="relative w-[min(90cqw,640px)] h-[32.5rem] bg-gray-fa rounded-lg border border-secondary-dark p-5 flex flex-col">
+      <div className="relative w-[min(90cqw,640px)] h-[36.5rem] bg-gray-fa rounded-lg border border-secondary-dark p-5 flex flex-col">
         <button
           onClick={onClose}
           className="absolute top-3 right-3 text-gray-8c hover:text-gray-1f"
@@ -310,7 +326,7 @@ function MailComposeModal({ isOpen, onClose, isAddAccountMode = false }) {
             className="p-0 h-8 border-none focus-visible:ring-0 focus-visible:ring-offset-0 placeholder:font-st2 placeholder:text-gray-8c"
           />
         </div>
-        <div className="flex-grow py-4 flex flex-col">
+        <div className="flex-grow pt-4 flex flex-col">
           {/* 실제 HTML 에디터 */}
           <div
             ref={editorRef}
@@ -320,13 +336,16 @@ function MailComposeModal({ isOpen, onClose, isAddAccountMode = false }) {
             placeholder="메일 본문을 입력하세요."
             style={{
               minHeight: 120,
+              maxHeight: attachedFiles.length > 0 ? 288 : 358,
               outline: "none",
               textAlign: "left",
               direction: "ltr",
+              overflowY: "auto",
             }}
             onInput={handleInput} // 입력 이벤트 처리
             onCompositionStart={handleCompositionStart} // 한글 조합 시작
             onCompositionEnd={handleCompositionEnd} // 한글 조합 종료
+            // 초기값 세팅은 useEffect에서 처리
           />
         </div>
         {/* Attached files display */}

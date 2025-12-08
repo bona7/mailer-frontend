@@ -16,7 +16,15 @@ export const deleteAccount = async (accountId) => {
 };
 
 export const syncAccount = async (accountId) => {
-  const response = await api.post(`/account/${accountId}/sync/`);
+  const userId =
+    typeof window !== "undefined" ? localStorage.getItem("user_id") : null;
+  if (!userId) {
+    throw new Error("user_id(pk)가 localStorage에 없습니다.");
+  }
+
+  const response = await api.post(`/account/${accountId}/sync/`, {
+    user_id: userId,
+  });
   return response.data;
 };
 

@@ -831,7 +831,6 @@ paths:
       - template
       security:
       - clerkAuth: []
-      - {}
       responses:
         '200':
           content:
@@ -864,7 +863,6 @@ paths:
               $ref: '#/components/schemas/MyTemplateUpdateRequest'
       security:
       - clerkAuth: []
-      - {}
       responses:
         '200':
           description: No response body
@@ -882,37 +880,39 @@ paths:
       - template
       security:
       - clerkAuth: []
-      - {}
       responses:
         '204':
           description: No response body
   /api/template/mytemplate/create/:
     post:
       operationId: template_mytemplate_create_create
-      description: 새로운 개인 템플릿을 생성합니다.
-      summary: 내 템플릿 생성
+      description: 하나 이상의 이메일 계정에 대한 새 개인 템플릿을 생성합니다. 요청 본문에는 `email_account_ids`
+        리스트와 템플릿 내용을 담아야 합니다. 템플릿 소유자는 현재 인증된 사용자로 자동 설정됩니다.
+      summary: 내 템플릿 생성 (다중 계정)
       tags:
       - template
       requestBody:
         content:
           application/json:
             schema:
-              $ref: '#/components/schemas/MyTemplateCreateRequest'
-          application/x-www-form-urlencoded:
-            schema:
-              $ref: '#/components/schemas/MyTemplateCreateRequest'
-          multipart/form-data:
-            schema:
-              $ref: '#/components/schemas/MyTemplateCreateRequest'
+              example:
+                email_account_ids:
+                - 1
+                - 2
+                template_title: 새로운 템플릿 제목
+                template_content: 템플릿 내용입니다.
+                sub_category: 업무
+                topic: 주간 보고
       security:
       - clerkAuth: []
-      - {}
       responses:
         '201':
           content:
             application/json:
               schema:
-                $ref: '#/components/schemas/MyTemplate'
+                type: array
+                items:
+                  $ref: '#/components/schemas/MyTemplate'
           description: ''
   /api/template/mytemplate/list/{id}/:
     get:
@@ -929,7 +929,6 @@ paths:
       - template
       security:
       - clerkAuth: []
-      - {}
       responses:
         '200':
           content:
@@ -973,7 +972,6 @@ paths:
       - template
       security:
       - clerkAuth: []
-      - {}
       responses:
         '200':
           content:
@@ -983,7 +981,8 @@ paths:
           description: ''
     post:
       operationId: template_viewtemplate_create
-      description: 특정 템플릿을 지정된 사용자의 이메일 계정들로 복사하여 '내 템플릿'으로 저장합니다.
+      description: 특정 템플릿을 인증된 사용자의 여러 이메일 계정으로 복사하여 '내 템플릿'으로 저장합니다. 요청 본문에 `email_account_ids`
+        리스트를 포함해야 합니다.
       summary: 내 템플릿으로 가져오기
       parameters:
       - in: path
@@ -998,13 +997,11 @@ paths:
           application/json:
             schema:
               example:
-                user_id: 1
                 email_account_ids:
                 - 1
                 - 2
       security:
       - clerkAuth: []
-      - {}
       responses:
         '201':
           content:
@@ -1028,7 +1025,6 @@ paths:
       - template
       security:
       - clerkAuth: []
-      - {}
       responses:
         '204':
           description: No response body
@@ -1075,6 +1071,7 @@ paths:
                 정상응답:
                   value:
                     user_id: user_xxxxxxxxxxxx
+                    id: 1
                   summary: 정상 응답
           description: ''
   /api/user/signout/:
@@ -1459,25 +1456,6 @@ components:
       - created_at
       - email_account
       - id
-    MyTemplateCreateRequest:
-      type: object
-      properties:
-        template_content:
-          type: string
-          nullable: true
-          maxLength: 1000
-        template_title:
-          type: string
-          nullable: true
-          maxLength: 255
-        sub_category:
-          type: string
-          nullable: true
-          maxLength: 100
-        topic:
-          type: string
-          nullable: true
-          maxLength: 100
     MyTemplateUpdateRequest:
       type: object
       properties:

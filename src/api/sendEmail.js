@@ -38,6 +38,14 @@ export const sendEmail = async ({
       formData.append("files", file);
     });
   }
+  const userId =
+    typeof window !== "undefined" ? localStorage.getItem("user_id") : null;
+  if (!userId) {
+    throw new Error("user_id(pk)가 localStorage에 없습니다.");
+  }
+
+  formData.append("user_id", userId);
+
   const response = await api.post("/email/send/", formData, {
     headers: {
       "Content-Type": "multipart/form-data",
