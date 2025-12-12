@@ -24,10 +24,10 @@ const AppLayout = ({ children, selectedAccounts, setSelectedAccounts }) => {
   const { user } = useUser();
 
   const { data: accounts = [], isLoading, isError } = useAccounts();
-  console.log("AppLayout - accounts:", accounts);
-  console.log("AppLayout - accounts 타입:", typeof accounts);
-  console.log("AppLayout - accounts.length:", accounts?.length);
-  console.log("AppLayout - Array.isArray(accounts):", Array.isArray(accounts));
+  // console.log("AppLayout - accounts:", accounts);
+  // console.log("AppLayout - accounts 타입:", typeof accounts);
+  // console.log("AppLayout - accounts.length:", accounts?.length);
+  // console.log("AppLayout - Array.isArray(accounts):", Array.isArray(accounts));
   const deleteAccountMutation = useDeleteAccount();
 
   const handleAccountClick = (accountType) => {
@@ -153,13 +153,10 @@ const AppLayout = ({ children, selectedAccounts, setSelectedAccounts }) => {
       <div className="relative col-start-2 row-start-2 flex justify-center min-w-0 min-h-0">
         <div className="w-full h-full flex flex-col">
           {children}
-
-          {isComposeModalOpen && (
-            <MailComposeModal
-              isOpen={isComposeModalOpen}
-              onClose={() => setIsComposeModalOpen(false)}
-            />
-          )}
+          <MailComposeModal
+            isOpen={isComposeModalOpen}
+            onClose={() => setIsComposeModalOpen(false)}
+          />
         </div>
       </div>
 
@@ -192,9 +189,9 @@ const AppLayout = ({ children, selectedAccounts, setSelectedAccounts }) => {
                     className={`flex items-center gap-1 py-1 w-full rounded-md ${isSelected ? "bg-primary border-transparent" : "border border-gray-bf"}`}
                   >
                     <div
-                      className={`w-2 h-2 ${getAccountColor(account.address)} rounded ml-1.5`}
+                      className={`!w-2 !h-2 ${getAccountColor(account.address)} rounded ml-1.5`}
                     />
-                    <div className="flex items-center justify-between flex-1">
+                    <div className="flex items-center justify-between flex-1 overflow-auto">
                       <span
                         className={`font-b2 ${isSelected ? "text-gray-f5" : "text-gray-700"}`}
                       >

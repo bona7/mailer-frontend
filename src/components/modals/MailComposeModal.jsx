@@ -3,7 +3,7 @@ import { Button } from "@/components/ui/button";
 import { Input } from "@/components/ui/input";
 import ComposeDropdown from "@/components/compose_dropdown";
 import attachment from "@/assets/attachment.svg";
-import { X } from "lucide-react";
+import { X, Minus } from "lucide-react";
 
 import { useAddAccount, useAccounts } from "@/api/hooks/useAccounts";
 import { sendEmail } from "@/api/sendEmail";
@@ -45,6 +45,16 @@ function MailComposeModal({
     "#f0f0f0", // 연회색
     "#ffffff", // 흰색
   ];
+  const [composeState, setComposeState] = useState("normal"); // normal | minimized
+
+  useEffect(() => {
+    // composeState가 'normal'로 돌아올 때, 에디터의 내용을 body 상태와 동기화합니다.
+    // 이렇게 하면 창을 최소화했다가 다시 열었을 때 작성 중이던 내용이 유지됩니다.
+    if (composeState === "normal" && editorRef.current) {
+      editorRef.current.innerHTML = body;
+    }
+  }, [composeState]);
+
   // 배경색 지정
   const handleHighlightClick = (e) => {
     setColorPickerOpen((prev) => !prev);
@@ -260,16 +270,61 @@ function MailComposeModal({
     }
   }, [initialBody]);
 
+  useEffect(() => {
+    const handleResize = () => {
+      const width = window.innerWidth;
+
+      // 화면 폭이 800px 이하라면 자동으로 minimized
+      if (width < 750 && composeState !== "minimized") {
+        setComposeState("minimized");
+      }
+    };
+
+    window.addEventListener("resize", handleResize);
+    return () => window.removeEventListener("resize", handleResize);
+  }, [composeState]);
+
   if (!modalOpen) return null;
+
+  if (composeState === "minimized") {
+    return (
+      <div
+        className="
+        absolute bottom-0 right-0  z-50
+        w-[280px] h-[40px]
+        bg-white border border-secondary-dark
+        flex items-center justify-between
+        px-3 rounded-md cursor-pointer
+      "
+        onClick={() => setComposeState("normal")}
+      >
+        <span className="font-semibold text-sm">
+          {subject ? subject : "새 메일"}
+        </span>
+        <span className="text-gray-600">✎</span>
+      </div>
+    );
+  }
 
   return (
     <div className="absolute bottom-0 right-0 z-50">
-      <div className="relative w-[min(90cqw,640px)] h-[36.5rem] bg-gray-fa rounded-lg border border-secondary-dark p-5 flex flex-col">
+      <div
+        className="relative  
+        w-[min(50vw,640px)]
+        h-[calc(min(60vw,640px)*0.85)] 
+        bg-gray-fa rounded-lg border border-secondary-dark p-5 flex flex-col"
+      >
         <button
           onClick={onClose}
           className="absolute top-3 right-3 text-gray-8c hover:text-gray-1f"
         >
           <X className="w-5 h-5" />
+        </button>
+        <button
+          onClick={() => setComposeState("minimized")}
+          className="absolute top-3 right-10 text-gray-8c hover:text-gray-1f"
+        >
+          <Minus className="w-5 h-5" />
         </button>
         <div className="flex items-center border-b border-secondary-dark">
           <ComposeDropdown

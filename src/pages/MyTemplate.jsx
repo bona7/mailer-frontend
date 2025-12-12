@@ -131,7 +131,6 @@ const MyTemplate = () => {
       </AppLayout>
     );
   }
-
   return (
     <AppLayout
       selectedAccounts={selectedAccounts}
@@ -160,12 +159,12 @@ const MyTemplate = () => {
         ) : (
           accounts.map((account) => (
             <section key={account.id}>
-              <div className="flex items-center justify-between mb-2">
-                <div className="flex items-center gap-4">
-                  <h2 className="font-st1 text-primary-dark">
+              <div className="flex [@media(max-width:1000px)]:flex-col [@media(min-width:1000px)]:flex-row [@media(min-width:1000px)]:items-center [@media(min-width:1000px)]:justify-between mb-4 gap-2">
+                <div className="flex [@media(max-width:1000px)]:flex-col [@media(min-width:1000px)]:flex-row [@media(min-width:1000px)]:items-center gap-4 w-full">
+                  <h2 className="font-st1 text-primary-dark whitespace-nowrap">
                     {account.address}
                   </h2>
-                  <div className="flex gap-2">
+                  <div className="flex gap-2 overflow-x-auto whitespace-nowrap scrollbar-hide py-1">
                     {ALL_CATEGORIES.map((category) => (
                       <CategoryButton
                         key={category}
@@ -182,7 +181,7 @@ const MyTemplate = () => {
                   </div>
                 </div>
                 <CreateTemplateButton
-                  className="mr-4"
+                  className="shrink-0"
                   onClick={handleOpenCreateModal}
                 />
               </div>

@@ -1,21 +1,51 @@
-import { useState, useMemo } from "react";
+import { useState, useMemo, useEffect } from "react";
 import { Refresh } from "@/assets";
-import { MailList, AppLayout } from "@/components";
+import { MailList, AppLayout, TrashButton } from "@/components";
 import { useNavigate } from "react-router-dom";
 import { ChevronLeft, ChevronRight } from "lucide-react";
 import { useEmails } from "@/api/hooks/useEmails";
 import { useSyncAccount, useAccounts } from "@/api/hooks/useAccounts";
+import { useMutation, useQueryClient } from "@tanstack/react-query"; // useQueryClient 추가
+import { deleteEmail } from "../api/email"; // deleteEmail 임포트
 
 const MainPage = () => {
   const [selectedAccounts, setSelectedAccounts] = useState([]);
   console.log("selected Accounts (mainPage):", selectedAccounts);
   const [currentPage, setCurrentPage] = useState(1);
   const [isSyncing, setIsSyncing] = useState(false);
+  const [selectedMailIds, setSelectedMailIds] = useState([]);
   const navigate = useNavigate();
   const ITEMS_PER_PAGE = 20;
 
   const { data: accounts = [] } = useAccounts();
   const syncAccountMutation = useSyncAccount();
+  const queryClient = useQueryClient(); // useQueryClient 초기화
+
+  // 이메일 삭제를 위한 useMutation
+  const deleteEmailMutation = useMutation({
+    mutationFn: deleteEmail, // email.js의 deleteEmail 함수 사용
+    onSuccess: () => {
+      queryClient.invalidateQueries({ queryKey: ["emails"] }); // 삭제 후 이메일 목록 새로고침
+      setSelectedMailIds([]); // 선택된 메일 ID 초기화
+      alert("선택된 메일이 휴지통으로 이동되었습니다."); // 성공 알림
+    },
+    onError: (error) => {
+      console.error("메일 삭제 실패:", error);
+      alert("메일 삭제에 실패했습니다."); // 실패 알림
+    },
+  });
+
+  const handleMailCheckChange = (mailId, isChecked) => {
+    setSelectedMailIds((prevSelected) =>
+      isChecked
+        ? [...prevSelected, mailId]
+        : prevSelected.filter((id) => id !== mailId),
+    );
+  };
+
+  useEffect(() => {
+    console.log("MainPage - selectedMailIds:", selectedMailIds);
+  }, [selectedMailIds]);
 
   // API로부터 메일 목록 가져오기
   const accountsParam =
@@ -141,6 +171,33 @@ const MainPage = () => {
     }
   };
 
+  // 선택된 메일 삭제 (휴지통으로 이동) 핸들러
+  const handleDeleteSelectedMails = async () => {
+    if (selectedMailIds.length === 0) {
+      alert("삭제할 메일을 선택해주세요.");
+      return;
+    }
+
+    if (
+      !window.confirm(
+        `${selectedMailIds.length}개의 메일을 휴지통으로 이동하시겠습니까?`,
+      )
+    ) {
+      return;
+    }
+
+    try {
+      // 각 선택된 메일에 대해 삭제 뮤테이션 실행
+      for (const mailId of selectedMailIds) {
+        await deleteEmailMutation.mutateAsync(mailId);
+      }
+      // 모든 삭제 작업이 완료되면 onSuccess가 호출되어 쿼리 무효화 및 UI 업데이트 처리됨
+    } catch (error) {
+      // deleteEmailMutation 자체에서 오류 처리를 하므로 여기서는 추가 로깅 정도만
+      console.error("선택된 메일 삭제 중 오류 발생:", error);
+    }
+  };
+
   return (
     <AppLayout
       selectedAccounts={selectedAccounts}
@@ -187,6 +244,24 @@ const MainPage = () => {
           )}
         </div>
         <hr className="border-gray-bf" />
+        <div className="flex items-center justify-between mt-1.5">
+          <TrashButton
+            text={"Select All"}
+            onClick={() => {
+              if (selectedMailIds.length === currentEmails.length) {
+                // All are selected, deselect all
+                setSelectedMailIds([]);
+              } else {
+                // Select all
+                setSelectedMailIds(currentEmails.map((email) => email.id));
+              }
+            }}
+          />
+          <TrashButton
+            text={"Selected Delete"}
+            onClick={handleDeleteSelectedMails}
+          />
+        </div>
         <div className="flex flex-col overflow-y-auto min-h-0">
           {isMailLoading && (
             <div className="flex items-center justify-center p-8 text-gray-8c">
@@ -248,6 +323,9 @@ const MainPage = () => {
                 content={mailObject.email.preview}
                 account={mailObject.account_address}
                 onClick={() => navigate(`/mail/${mailObject.id}`)}
+                onCheckChange={(isChecked) =>
+                  handleMailCheckChange(mailObject.email.id, isChecked)
+                }
               />
             ))}
         </div>
