@@ -1,7 +1,7 @@
 import { useState } from "react";
 import { useParams } from "react-router-dom";
 import { useEmailDetail } from "@/api/hooks/useEmails";
-import AppLayout from "@/components/AppLayout";
+import { AppLayout, AttachmentCard } from "@/components";
 import { getAccountColor } from "@/lib/utils";
 import DOMPurify from "dompurify";
 
@@ -105,6 +105,22 @@ const MailDetail = () => {
           <span className="font-b1 text-gray-43 whitespace-pre-line">
             {EmailBody(mailObject.email.html_body)}
           </span>
+          {mailObject.email.attachments.length > 0 && (
+            <div className="mt-4 pt-4 border-t border-gray-bf">
+              <h3 className="font-h8 text-primary-dark mb-3">
+                {mailObject.email.attachments.length} Attachments
+              </h3>
+              <div className="flex flex-wrap gap-3">
+                {mailObject.email.attachments.map((attachment) => (
+                  <AttachmentCard
+                    key={attachment.id}
+                    fileName={attachment.file_name}
+                    downloadUrl={attachment.download_url}
+                  />
+                ))}
+              </div>
+            </div>
+          )}
         </div>
       </section>
     </AppLayout>

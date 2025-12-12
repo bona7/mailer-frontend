@@ -10,6 +10,7 @@ const MailList = ({
   onClick,
   checked,
   onCheckChange,
+  isRead,
 }) => {
   const accountColor = getAccountColor(account);
   const mailId = `${sender}-${time}-${title}`;
@@ -28,7 +29,9 @@ const MailList = ({
           />
         </div>
         <div className="flex items-center gap-2 w-40">
-          <div className={`w-2 h-2 rounded-full ${accountColor}`} />
+          <div>
+            <div className={`w-2 h-2 rounded-full ${accountColor}`} />
+          </div>
           <span className="font-semibold text-sm text-gray-59 truncate">
             {sender}
           </span>
