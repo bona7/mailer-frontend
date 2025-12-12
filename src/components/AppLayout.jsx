@@ -18,7 +18,7 @@ import { getAccountColor } from "@/lib/utils";
 import MailComposeModal from "@/components/modals/MailComposeModal";
 
 const AppLayout = ({ children, selectedAccounts, setSelectedAccounts }) => {
-  console.log("AppLayout - selectedAccounts:", selectedAccounts);
+  // console.log("AppLayout - selectedAccounts:", selectedAccounts);
   const navigate = useNavigate();
   const { signOut } = useClerk();
   const { user } = useUser();
@@ -191,7 +191,7 @@ const AppLayout = ({ children, selectedAccounts, setSelectedAccounts }) => {
                     <div
                       className={`!w-2 !h-2 ${getAccountColor(account.address)} rounded ml-1.5`}
                     />
-                    <div className="flex items-center justify-between flex-1 overflow-auto">
+                    <div className="flex items-center justify-between flex-1 overflow-auto scrollbar-hide">
                       <span
                         className={`font-b2 ${isSelected ? "text-gray-f5" : "text-gray-700"}`}
                       >

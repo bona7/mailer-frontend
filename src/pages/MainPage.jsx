@@ -3,14 +3,14 @@ import { Refresh } from "@/assets";
 import { MailList, AppLayout, TrashButton } from "@/components";
 import { useNavigate } from "react-router-dom";
 import { ChevronLeft, ChevronRight } from "lucide-react";
-import { useEmails } from "@/api/hooks/useEmails";
+import { useEmails, useUpdateEmailMetadata } from "@/api/hooks/useEmails";
 import { useSyncAccount, useAccounts } from "@/api/hooks/useAccounts";
-import { useMutation, useQueryClient } from "@tanstack/react-query"; // useQueryClient 추가
-import { deleteEmail } from "../api/email"; // deleteEmail 임포트
+import { useMutation, useQueryClient, useQueries } from "@tanstack/react-query"; // useQueryClient, useQueries 추가
+import { deleteEmail, getEmails } from "../api/email"; // deleteEmail과 getEmails 임포트
 
 const MainPage = () => {
   const [selectedAccounts, setSelectedAccounts] = useState([]);
-  console.log("selected Accounts (mainPage):", selectedAccounts);
+  // console.log("selected Accounts (mainPage):", selectedAccounts);
   const [currentPage, setCurrentPage] = useState(1);
   const [isSyncing, setIsSyncing] = useState(false);
   const [selectedMailIds, setSelectedMailIds] = useState([]);
@@ -20,20 +20,6 @@ const MainPage = () => {
   const { data: accounts = [] } = useAccounts();
   const syncAccountMutation = useSyncAccount();
   const queryClient = useQueryClient(); // useQueryClient 초기화
-
-  // 이메일 삭제를 위한 useMutation
-  const deleteEmailMutation = useMutation({
-    mutationFn: deleteEmail, // email.js의 deleteEmail 함수 사용
-    onSuccess: () => {
-      queryClient.invalidateQueries({ queryKey: ["emails"] }); // 삭제 후 이메일 목록 새로고침
-      setSelectedMailIds([]); // 선택된 메일 ID 초기화
-      alert("선택된 메일이 휴지통으로 이동되었습니다."); // 성공 알림
-    },
-    onError: (error) => {
-      console.error("메일 삭제 실패:", error);
-      alert("메일 삭제에 실패했습니다."); // 실패 알림
-    },
-  });
 
   const handleMailCheckChange = (mailId, isChecked) => {
     setSelectedMailIds((prevSelected) =>
@@ -56,15 +42,50 @@ const MainPage = () => {
       : "";
 
   console.log("MainPage - accountsParam:", accountsParam);
+
+  // inbox 와 starred 메일을 모두 받아오기
   const {
     data: emails = [],
     isLoading: isMailLoading,
     isError: isMailError,
     error: mailError,
     refetch,
-  } = useEmails({
-    folder: "inbox",
-    accounts: accountsParam,
+  } = useQueries({
+    queries: [
+      {
+        queryKey: ["emails", { folder: "inbox", accounts: accountsParam }],
+        queryFn: () => getEmails({ folder: "inbox", accounts: accountsParam }),
+      },
+      {
+        queryKey: ["emails", { folder: "starred", accounts: accountsParam }],
+        queryFn: () =>
+          getEmails({ folder: "starred", accounts: accountsParam }),
+      },
+    ],
+    combine: (results) => {
+      const inboxEmails = results[0].data || [];
+      const starredEmails = results[1].data || [];
+
+      console.log("MainPage - Inbox emails data:", inboxEmails);
+      console.log("MainPage - Total inbox emails:", inboxEmails.length);
+      console.log("MainPage - Starred emails data:", starredEmails);
+      console.log("MainPage - Total starred emails:", starredEmails.length);
+
+      const combinedEmails = [...inboxEmails, ...starredEmails].sort(
+        (a, b) => new Date(b.received_at) - new Date(a.received_at),
+      );
+      const isLoading = results.some((result) => result.isLoading);
+      const isError = results.some((result) => result.isError);
+      const errors = results.map((result) => result.error).filter(Boolean);
+
+      return {
+        data: combinedEmails,
+        isLoading,
+        isError,
+        error: errors.length > 0 ? errors[0] : undefined,
+        refetch: () => results.forEach((result) => result.refetch()),
+      };
+    },
   });
 
   const {
@@ -74,9 +95,16 @@ const MainPage = () => {
     error: syncError,
   } = useSyncAccount();
 
+  const updateEmailMetadataMutation = useUpdateEmailMetadata();
+
   // 디버깅용 로그
-  console.log("MainPage - emails:", emails);
+  // console.log("MainPage - emails:", emails);
   // console.log("MainPage - error:", error);
+
+  useEffect(() => {
+    console.log("MainPage - Combined emails data:", emails);
+    console.log("MainPage - Total combined emails:", emails.length);
+  }, [emails]);
 
   if (
     emails.length === 0 &&
@@ -85,7 +113,7 @@ const MainPage = () => {
     selectedAccounts.length > 0
   ) {
     console.warn(
-      "⚠️ 선택된 계정에 메일이 없습니다. 백엔드에서 메일을 동기화했는지 확인하세요.",
+      "⚠️ 선택된 계정에 메일이 없습니다. 메일을 동기화했는지 확인하세요.",
     );
   }
 
@@ -94,6 +122,7 @@ const MainPage = () => {
   const startIndex = (currentPage - 1) * ITEMS_PER_PAGE;
   const endIndex = startIndex + ITEMS_PER_PAGE;
   const currentEmails = emails.slice(startIndex, endIndex);
+  console.log("MainPage - currentEmails:", currentEmails);
 
   // 페이지 변경 핸들러
   const handlePrevPage = () => {
@@ -173,11 +202,6 @@ const MainPage = () => {
 
   // 선택된 메일 삭제 (휴지통으로 이동) 핸들러
   const handleDeleteSelectedMails = async () => {
-    if (selectedMailIds.length === 0) {
-      alert("삭제할 메일을 선택해주세요.");
-      return;
-    }
-
     if (
       !window.confirm(
         `${selectedMailIds.length}개의 메일을 휴지통으로 이동하시겠습니까?`,
@@ -185,16 +209,70 @@ const MainPage = () => {
     ) {
       return;
     }
-
     try {
       // 각 선택된 메일에 대해 삭제 뮤테이션 실행
-      for (const mailId of selectedMailIds) {
-        await deleteEmailMutation.mutateAsync(mailId);
-      }
+      await Promise.all(
+        selectedMailIds.map((mailId) => {
+          console.log("[Patch Mail] Request ID:", mailId);
+          return updateEmailMetadataMutation.mutateAsync({
+            emailMetadataId: mailId,
+            data: { folder: "trash" },
+          });
+        }),
+      );
+      alert("선택된 메일이 휴지통으로 이동되었습니다.");
+      setSelectedMailIds([]);
+
       // 모든 삭제 작업이 완료되면 onSuccess가 호출되어 쿼리 무효화 및 UI 업데이트 처리됨
     } catch (error) {
       // deleteEmailMutation 자체에서 오류 처리를 하므로 여기서는 추가 로깅 정도만
       console.error("선택된 메일 삭제 중 오류 발생:", error);
+    }
+  };
+  const handleSpamSelectedMails = async () => {
+    if (
+      !window.confirm(
+        `${selectedMailIds.length}개의 메일을 스팸함으로 이동하시겠습니까?`,
+      )
+    ) {
+      return;
+    }
+    try {
+      // 각 선택된 메일에 대해 삭제 뮤테이션 실행
+      await Promise.all(
+        selectedMailIds.map((mailId) => {
+          console.log("[Patch Mail] Request ID:", mailId);
+          return updateEmailMetadataMutation.mutateAsync({
+            emailMetadataId: mailId,
+            data: { folder: "spam" },
+          });
+        }),
+      );
+      alert("선택된 메일이 스팸함으로 이동되었습니다.");
+      setSelectedMailIds([]);
+    } catch (error) {
+      // deleteEmailMutation 자체에서 오류 처리를 하므로 여기서는 추가 로깅 정도만
+      console.error("스팸함으로 보내는 중 오류 발생:", error);
+    }
+  };
+
+  const handleStarredSelectedMails = async () => {
+    try {
+      // 각 선택된 메일에 대해 삭제 뮤테이션 실행
+      await Promise.all(
+        selectedMailIds.map((mailId) => {
+          console.log("[Patch Mail] Request ID:", mailId);
+          return updateEmailMetadataMutation.mutateAsync({
+            emailMetadataId: mailId,
+            data: { folder: "starred" },
+          });
+        }),
+      );
+      alert("선택된 메일이 중요메일함으로 이동되었습니다.");
+      setSelectedMailIds([]);
+    } catch (error) {
+      // deleteEmailMutation 자체에서 오류 처리를 하므로 여기서는 추가 로깅 정도만
+      console.error("중요메일함으로 보내는 중 오류 발생:", error);
     }
   };
 
@@ -244,7 +322,7 @@ const MainPage = () => {
           )}
         </div>
         <hr className="border-gray-bf" />
-        <div className="flex items-center justify-between mt-1.5">
+        <div className="flex items-center justify-between mt-1.5 mb-0.5">
           <TrashButton
             text={"Select All"}
             onClick={() => {
@@ -257,10 +335,26 @@ const MainPage = () => {
               }
             }}
           />
-          <TrashButton
-            text={"Selected Delete"}
-            onClick={handleDeleteSelectedMails}
-          />
+          <div className="flex gap-2">
+            {selectedMailIds.length > 0 && (
+              <>
+                <TrashButton
+                  text={"Starred"}
+                  onClick={handleStarredSelectedMails}
+                  className="px-2"
+                />
+                <TrashButton
+                  text={"Spam"}
+                  onClick={handleSpamSelectedMails}
+                  className="px-2"
+                />
+                <TrashButton
+                  text={"Delete"}
+                  onClick={handleDeleteSelectedMails}
+                />
+              </>
+            )}
+          </div>
         </div>
         <div className="flex flex-col overflow-y-auto min-h-0">
           {isMailLoading && (
@@ -319,13 +413,15 @@ const MainPage = () => {
                   hour: "2-digit",
                   minute: "2-digit",
                 })}
+                checked={selectedMailIds.includes(mailObject.id)}
                 title={mailObject.email.subject}
                 content={mailObject.email.preview}
                 account={mailObject.account_address}
                 onClick={() => navigate(`/mail/${mailObject.id}`)}
                 onCheckChange={(isChecked) =>
-                  handleMailCheckChange(mailObject.email.id, isChecked)
+                  handleMailCheckChange(mailObject.id, isChecked)
                 }
+                isRead={mailObject.is_read}
               />
             ))}
         </div>

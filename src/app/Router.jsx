@@ -14,6 +14,7 @@ import {
   AccountListPage,
   CreateTemplatePage,
   Spam,
+  Starred,
 } from "@/pages";
 
 function Router() {
@@ -84,6 +85,14 @@ function Router() {
           element={
             <ProtectedRoute>
               <Spam />
+            </ProtectedRoute>
+          }
+        />
+        <Route
+          path="/starred"
+          element={
+            <ProtectedRoute>
+              <Starred />
             </ProtectedRoute>
           }
         />

@@ -98,7 +98,7 @@ export const getEmailDetail = async (emailMetadataId) => {
  * await updateEmailMetadata(123, { folder: "starred", is_pinned: true });
  */
 export const updateEmailMetadata = async (emailMetadataId, data) => {
-  const response = await api.patch(`/metadata/${emailMetadataId}/`, data);
+  const response = await api.patch(`/email/${emailMetadataId}/`, data);
   return response.data;
 };
 
@@ -124,6 +124,6 @@ export const updateEmailMetadata = async (emailMetadataId, data) => {
  * await deleteEmail(456); // 반환값 없음
  */
 export const deleteEmail = async (emailMetadataId) => {
-  const response = await api.delete(`/metadata/${emailMetadataId}/`);
+  const response = await api.delete(`/email/${emailMetadataId}/`);
   return response.data;
 };
