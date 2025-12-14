@@ -81,21 +81,32 @@ const CreateTemplateModal = ({ onClose, onTemplateCreated }) => {
             value={about}
             onChange={(e) => setAbout(e.target.value)}
             className="h-[36px] rounded-lg border border-secondary-dark p-2 placeholder:text-gray-8c focus:outline-none"
-            placeholder="Write the brife information about template"
+            placeholder="Template Category"
           />
           <input
             type="text"
             value={title}
             onChange={(e) => setTitle(e.target.value)}
             className="h-[36px] rounded-lg border border-secondary-dark p-2 placeholder:text-gray-8c focus:outline-none"
-            placeholder="Write the title"
+            placeholder="Brief Information about Template"
           />
           <textarea
             value={content}
             onChange={(e) => setContent(e.target.value)}
-            className="h-[295px] resize-none rounded-lg border border-secondary-dark p-2 placeholder:text-gray-8c focus:outline-none"
-            placeholder="Write the template content"
+            className="h-64 resize-none rounded-lg border border-secondary-dark p-2 placeholder:text-gray-8c focus:outline-none"
+            placeholder="Template Content"
           />
+        </div>
+
+        {/* Footer with Add button */}
+        <div className="mt-4 flex justify-end">
+          <button
+            onClick={handleCreate}
+            disabled={createLoading}
+            className="px-6 py-2 rounded-lg bg-secondary-dark text-white font-semibold hover:bg-secondary-light disabled:opacity-50 disabled:cursor-not-allowed"
+          >
+            {createLoading ? "Adding..." : "Add"}
+          </button>
         </div>
       </div>
     </div>

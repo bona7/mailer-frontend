@@ -67,6 +67,7 @@ const AppLayout = ({ children, selectedAccounts, setSelectedAccounts }) => {
   };
 
   const [isComposeModalOpen, setIsComposeModalOpen] = useState(false);
+  const [initialRecipient, setInitialRecipient] = useState("");
 
   return (
     <div className="relative grid grid-cols-[10rem_1fr_14rem] grid-rows-[auto_1fr] w-full h-dvh gap-x-4 pb-10 md:px-10 lg:px-16 overflow-hidden">
@@ -157,7 +158,11 @@ const AppLayout = ({ children, selectedAccounts, setSelectedAccounts }) => {
           {isComposeModalOpen && (
             <MailComposeModal
               isOpen={isComposeModalOpen}
-              onClose={() => setIsComposeModalOpen(false)}
+              onClose={() => {
+                setIsComposeModalOpen(false);
+                setInitialRecipient("");
+              }}
+              initialRecipient={initialRecipient}
             />
           )}
         </div>
@@ -225,19 +230,31 @@ const AppLayout = ({ children, selectedAccounts, setSelectedAccounts }) => {
               Contacts
             </CardTitle>
           </CardHeader>
-          <CardContent className="space-y-1 pb-3 pr-3">
+          <CardContent className="space-y-1 pb-3 pr-3 pl-4">
             {contacts.map((contact, index) => (
-              <div key={index} className="flex items-center gap-1 py-1">
+              <button
+                key={index}
+                onClick={() => {
+                  setInitialRecipient(contact);
+                  setIsComposeModalOpen(true);
+                }}
+                className="flex items-center gap-1 py-1 w-full rounded-md hover:bg-primary-light/20 transition-colors cursor-pointer"
+              >
                 <Contact className="w-2.5 h-2.5" />
                 <div className="flex items-center justify-between flex-1">
-                  <span className="font-b1 text-sm text-black">{contact}</span>
+                  <span className="font-st2 text-sm text-gray-700">
+                    {contact}
+                  </span>
                   <span className="pr-2">
                     <X className="!size-3" />
                   </span>
                 </div>
-              </div>
+              </button>
             ))}
-            <Button className="!mt-3 w-full h-7 text-primary rounded-md bg-transparent hover:bg-transparent hover:text-primary-light">
+            <Button
+              onClick={() => alert("즐겨찾기 추가 기능은 현재 준비중입니다.")}
+              className="!mt-3 w-full h-7 text-primary rounded-md bg-transparent hover:bg-transparent hover:text-primary-light"
+            >
               <Plus className="w-4 h-4" />
             </Button>
           </CardContent>
