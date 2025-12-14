@@ -138,7 +138,7 @@ const MyTemplate = () => {
       setSelectedAccounts={setSelectedAccounts}
     >
       <main className="col-start-2 row-start-2 p-6 space-y-4 bg-gray-f5/40 rounded-lg border border-primary overflow-y-auto">
-        <div className="sticky top-0 z-10 flex items-center gap-2 bg-gray-f5/40 pb-4">
+        <div className="sticky top-0 z-10 flex items-center gap-2 bg-gray-f5/40">
           <h1 className="font-h7 text-primary-dark">My Templates</h1>
           <button
             onClick={handleRefreshTemplates}
