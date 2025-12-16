@@ -1,6 +1,7 @@
 import AppLayout from "@/components/AppLayout";
 import TemplateCard from "@/components/TemplateCard";
 import TemplateDetail from "@/components/modals/TemplateDetail";
+import MailComposeModal from "@/components/modals/MailComposeModal";
 import { Separator } from "@/components/ui/separator";
 import CategoryButton from "@/components/CategoryButton";
 import CreateTemplateButton from "@/components/CreateTemplateButton";
@@ -19,7 +20,7 @@ const ALL_CATEGORIES = [
   "My Own Template",
 ];
 const CATEGORY_MAP = {
-  "My Own Template": "개인",
+  "My Own Template": "개인 템플릿",
 };
 
 const MyTemplate = () => {
@@ -27,11 +28,20 @@ const MyTemplate = () => {
   const [isModalOpen, setIsModalOpen] = useState(false);
   const [selectedTemplate, setSelectedTemplate] = useState(null);
   const [categoriesByAccount, setCategoriesByAccount] = useState({});
+  const [isComposeModalOpen, setIsComposeModalOpen] = useState(false);
+  const [composeTemplateBody, setComposeTemplateBody] = useState("");
 
   // 모달 오픈 핸들러 (CreateTemplate)
   const [isCreateModalOpen, setIsCreateModalOpen] = useState(false);
-  const handleOpenCreateModal = () => setIsCreateModalOpen(true);
-  const handleCloseCreateModal = () => setIsCreateModalOpen(false);
+  const [selectedAccountId, setSelectedAccountId] = useState(null);
+  const handleOpenCreateModal = (accountId) => {
+    setSelectedAccountId(accountId);
+    setIsCreateModalOpen(true);
+  };
+  const handleCloseCreateModal = () => {
+    setIsCreateModalOpen(false);
+    setSelectedAccountId(null);
+  };
 
   const { user } = useUser();
   const { data: accounts = [], isLoading: accountsLoading } = useAccounts();
@@ -40,6 +50,22 @@ const MyTemplate = () => {
   const { data: myTemplates = [], isLoading: templatesLoading } =
     useMyTemplates(userPk);
   const queryClient = useQueryClient();
+
+  // myTemplates 변경 감지
+  useEffect(() => {
+    console.log("📋 myTemplates updated:", myTemplates);
+    console.log("Total templates count:", myTemplates.length);
+    if (myTemplates.length > 0) {
+      console.log(
+        "첫 번째 템플릿 구조:",
+        JSON.stringify(myTemplates[0], null, 2),
+      );
+      console.log(
+        "마지막 템플릿 구조:",
+        JSON.stringify(myTemplates[myTemplates.length - 1], null, 2),
+      );
+    }
+  }, [myTemplates]);
 
   useEffect(() => {
     if (accounts.length > 0) {
@@ -83,22 +109,42 @@ const MyTemplate = () => {
   const templatesByAccount = useMemo(() => {
     const grouped = {};
 
+    console.log("=== 템플릿 필터링 디버그 ===");
+    console.log("전체 템플릿:", myTemplates);
+    console.log("계정 목록:", accounts);
+    console.log("카테고리 설정:", categoriesByAccount);
+
     accounts.forEach((account) => {
       const activeCategories = categoriesByAccount[account.id] || [];
       const activeMappedCategories = activeCategories.map(
         (c) => CATEGORY_MAP[c] || c,
       );
 
+      const filteredTemplates = myTemplates.filter((template) => {
+        const matchAccount = template.email_account?.id === account.id;
+        const matchCategory = activeMappedCategories.includes(
+          template.main_category,
+        );
+
+        console.log(`템플릿 ${template.id}:`, {
+          email_account_id: template.email_account?.id,
+          account_id: account.id,
+          matchAccount,
+          main_category: template.main_category,
+          activeMappedCategories,
+          matchCategory,
+        });
+
+        return matchAccount && matchCategory;
+      });
+
       grouped[account.id] = {
         account,
-        templates: myTemplates.filter(
-          (template) =>
-            template.email_account?.id === account.id &&
-            activeMappedCategories.includes(template.main_category),
-        ),
+        templates: filteredTemplates,
       };
     });
 
+    console.log("그룹화 결과:", grouped);
     return grouped;
   }, [accounts, myTemplates, categoriesByAccount]);
 
@@ -115,6 +161,16 @@ const MyTemplate = () => {
   const handleAddSuccess = () => {
     queryClient.invalidateQueries({ queryKey: ["myTemplates", userPk] });
     handleCloseModal();
+  };
+
+  const handleCompose = (template) => {
+    console.log("📧 Compose clicked, template:", template);
+    const bodyText = template.template_content || template.body || "";
+    console.log("Template body:", bodyText);
+    setComposeTemplateBody(bodyText);
+    setIsComposeModalOpen(true);
+    handleCloseModal(); // TemplateDetail 모달 닫기
+    console.log("isComposeModalOpen set to true");
   };
 
   if (accountsLoading || templatesLoading) {
@@ -183,7 +239,7 @@ const MyTemplate = () => {
                 </div>
                 <CreateTemplateButton
                   className="mr-4"
-                  onClick={handleOpenCreateModal}
+                  onClick={() => handleOpenCreateModal(account.id)}
                 />
               </div>
               <div className="flex overflow-x-auto gap-8 p-2">
@@ -224,6 +280,7 @@ const MyTemplate = () => {
               template={selectedTemplate}
               onClose={handleCloseModal}
               onAddSuccess={handleAddSuccess}
+              onCompose={handleCompose}
             />
           </div>
         </div>
@@ -235,9 +292,27 @@ const MyTemplate = () => {
           onClick={handleCloseCreateModal}
         >
           <div onClick={(e) => e.stopPropagation()}>
-            <CreateTemplateModal onClose={handleCloseCreateModal} />
+            <CreateTemplateModal
+              onClose={handleCloseCreateModal}
+              accountId={selectedAccountId}
+              userPk={userPk}
+            />
           </div>
         </div>
+      )}
+
+      {isComposeModalOpen && (
+        <>
+          {console.log(
+            "👀 Rendering MailComposeModal, isComposeModalOpen:",
+            isComposeModalOpen,
+          )}
+          <MailComposeModal
+            isOpen={isComposeModalOpen}
+            onClose={() => setIsComposeModalOpen(false)}
+            initialBody={composeTemplateBody}
+          />
+        </>
       )}
     </AppLayout>
   );

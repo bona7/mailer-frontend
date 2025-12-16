@@ -1,42 +1,37 @@
-import api from "../app/axios";
+import axios from "../app/axios";
 
 export const getViewTemplates = async () => {
-  const response = await api.get("/template/viewtemplate/");
+  const response = await axios.get("/template/viewtemplate/");
   return response.data;
 };
 
 export const getViewTemplateById = async (id) => {
-  const response = await api.get(`/template/viewtemplate/${id}/`);
+  const response = await axios.get(`/template/viewtemplate/${id}/`);
   return response.data;
 };
 
 export const getMyTemplates = async (userId) => {
-  const response = await api.get(`/template/mytemplate/list/${userId}/`);
+  const response = await axios.get(`/template/mytemplate/list/${userId}/`); // Corrected to use path parameter
+  return response.data;
+};
+
+export const createTemplate = async (templateData) => {
+  const response = await axios.post(
+    "/template/mytemplate/create/",
+    templateData,
+  );
   return response.data;
 };
 
 export const addTemplateToMyTemplates = async (templateId, data) => {
-  if (!templateId) {
-    throw new Error("templateId가 제공되지 않았습니다.");
-  }
-
-  console.log("addTemplateToMyTemplates 호출:", {
-    templateId,
-    requestBody: data,
-  });
-
-  const response = await api.post(
+  const response = await axios.post(
     `/template/viewtemplate/${templateId}/`,
     data,
   );
-  console.log("addTemplateToMyTemplates 응답:", response.data);
   return response.data;
 };
 
 export const deleteMyTemplate = async (templateId) => {
-  if (!templateId) {
-    throw new Error("templateId가 제공되지 않았습니다.");
-  }
-  const response = await api.delete(`/template/mytemplate/${templateId}/`);
+  const response = await axios.delete(`/template/mytemplate/${templateId}/`);
   return response.data;
 };

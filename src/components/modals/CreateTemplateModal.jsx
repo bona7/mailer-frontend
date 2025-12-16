@@ -1,20 +1,13 @@
 import { useState } from "react";
 import { useMutation, useQueryClient } from "@tanstack/react-query";
+import { createTemplate } from "../../api/template"; // Import the actual API function
 
-// Dummy function to simulate template creation
-const createDummyTemplate = async (templateData) => {
-  console.log("Creating dummy template with:", templateData);
-  // Simulate network delay
-  await new Promise((resolve) => setTimeout(resolve, 1000));
-  // Return a dummy response
-  return {
-    id: Math.random().toString(36).substr(2, 9),
-    ...templateData,
-    created_at: new Date().toISOString(),
-  };
-};
-
-const CreateTemplateModal = ({ onClose, onTemplateCreated }) => {
+const CreateTemplateModal = ({
+  onClose,
+  onTemplateCreated,
+  accountId,
+  userPk,
+}) => {
   const queryClient = useQueryClient();
   const [name, setName] = useState("");
   const [about, setAbout] = useState("");
@@ -22,19 +15,23 @@ const CreateTemplateModal = ({ onClose, onTemplateCreated }) => {
   const [content, setContent] = useState("");
 
   const { mutate: create, isLoading: createLoading } = useMutation({
-    mutationFn: createDummyTemplate, // Use the dummy function
+    mutationFn: createTemplate, // Use the actual API function
     onSuccess: (data) => {
-      console.log("Dummy template created:", data);
-      // We can still invalidate queries to see how the UI would react
-      queryClient.invalidateQueries({ queryKey: ["templates"] });
+      console.log("✅ Template created successfully:", data);
+      console.log("Invalidating queries for userPk:", userPk);
+      queryClient.invalidateQueries({ queryKey: ["myTemplates", userPk] });
       if (onTemplateCreated) {
         onTemplateCreated(data);
       }
       onClose();
     },
     onError: (error) => {
-      // This is less likely to happen with a dummy function, but good practice
-      console.error("Error creating dummy template:", error);
+      console.error("❌ Error creating template:", error);
+      console.error("Error response:", error.response?.data);
+      alert(
+        "Failed to create template: " +
+          (error.response?.data?.detail || error.message),
+      );
     },
   });
 
@@ -43,12 +40,20 @@ const CreateTemplateModal = ({ onClose, onTemplateCreated }) => {
       alert("Template name, title, and content are required.");
       return;
     }
-    create({
-      topic: name,
-      sub_category: about,
-      title: title,
+    if (!accountId) {
+      alert("계정 정보가 없습니다.");
+      return;
+    }
+    const templateData = {
+      email_account_ids: [accountId], // 선택된 계정 ID 전달
+      template_title: name,
+      main_category: "개인", // My Own Template 카테고리에 표시되도록
+      topic: about,
+      sub_category: title,
       template_content: content,
-    });
+    };
+    console.log("📤 Sending template data:", templateData);
+    create(templateData);
   };
 
   return (
