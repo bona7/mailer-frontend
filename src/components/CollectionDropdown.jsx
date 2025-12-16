@@ -6,6 +6,7 @@ const CollectionDropdown = ({
   onDone,
   onSelectionChange,
   initialSelection = [],
+  isAdding = false,
 }) => {
   const [selectedCollections, setSelectedCollections] =
     useState(initialSelection);
@@ -67,9 +68,10 @@ const CollectionDropdown = ({
             <div className="mt-1 mr-2 mb-2 flex justify-end">
               <Button
                 onClick={handleDone}
-                className="bg-secondary-dark hover:bg-secondary-light text-gray-f0 font-button px-2 py-2 h-auto"
+                disabled={isAdding}
+                className="bg-secondary-dark hover:bg-secondary-light text-gray-f0 font-button px-2 py-2 h-auto disabled:opacity-50"
               >
-                Done
+                {isAdding ? "Adding..." : "Add"}
               </Button>
             </div>
           </>

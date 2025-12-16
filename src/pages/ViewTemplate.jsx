@@ -38,6 +38,7 @@ const ViewTemplate = () => {
   const handleCompose = (template) => {
     setComposeBody(template.template_content || template.body || "");
     setIsComposeOpen(true);
+    handleCloseModal(); // TemplateDetail 모달 닫기
   };
 
   const handleCloseCompose = () => {
@@ -149,6 +150,7 @@ const ViewTemplate = () => {
               <TemplateDetail
                 template={selectedTemplate}
                 onClose={handleCloseModal}
+                onCompose={handleCompose}
               />
             )}
           </div>
