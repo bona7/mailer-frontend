@@ -14,10 +14,27 @@ export const useEmails = (params = {}) => {
 };
 
 export const useEmailDetail = (emailMetadataId) => {
+  const queryClient = useQueryClient();
   return useQuery({
     queryKey: ["email", emailMetadataId],
     queryFn: () => getEmailDetail(emailMetadataId),
     enabled: !!emailMetadataId,
+    onSuccess: () => {
+      queryClient.invalidateQueries({
+        predicate: (query) => {
+          console.log("🔍 checking queryKey:", query.queryKey);
+          const match =
+            Array.isArray(query.queryKey) && query.queryKey[0] === "emails";
+
+          if (match) {
+            console.log("🧨 invalidated query:", query.queryKey);
+          }
+
+          return match;
+        },
+        // Array.isArray(query.queryKey) && query.queryKey[0] === "emails",
+      });
+    },
   });
 };
 

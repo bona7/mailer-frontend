@@ -29,10 +29,6 @@ const MainPage = () => {
     );
   };
 
-  useEffect(() => {
-    console.log("MainPage - selectedMailIds:", selectedMailIds);
-  }, [selectedMailIds]);
-
   // API로부터 메일 목록 가져오기
   const accountsParam =
     selectedAccounts.length > 0
@@ -55,21 +51,25 @@ const MainPage = () => {
       {
         queryKey: ["emails", { folder: "inbox", accounts: accountsParam }],
         queryFn: () => getEmails({ folder: "inbox", accounts: accountsParam }),
+        refetchOnMount: true,
+        cacheTime: 5 * 60 * 1000,
       },
       {
         queryKey: ["emails", { folder: "starred", accounts: accountsParam }],
         queryFn: () =>
           getEmails({ folder: "starred", accounts: accountsParam }),
+        refetchOnMount: true,
+        cacheTime: 5 * 60 * 1000,
       },
     ],
     combine: (results) => {
       const inboxEmails = results[0].data || [];
       const starredEmails = results[1].data || [];
 
-      console.log("MainPage - Inbox emails data:", inboxEmails);
-      console.log("MainPage - Total inbox emails:", inboxEmails.length);
-      console.log("MainPage - Starred emails data:", starredEmails);
-      console.log("MainPage - Total starred emails:", starredEmails.length);
+      // console.log("MainPage - Inbox emails data:", inboxEmails);
+      // console.log("MainPage - Total inbox emails:", inboxEmails.length);
+      // console.log("MainPage - Starred emails data:", starredEmails);
+      // console.log("MainPage - Total starred emails:", starredEmails.length);
 
       const combinedEmails = [...inboxEmails, ...starredEmails].sort(
         (a, b) => new Date(b.received_at) - new Date(a.received_at),
@@ -88,6 +88,13 @@ const MainPage = () => {
     },
   });
 
+  // // 캐시된 쿼리 확인
+  // const allQueries = queryClient.getQueryCache().getAll();
+
+  // allQueries.forEach((q) => {
+  //   console.log("📦 cache queryKey:", q.queryKey);
+  // });
+
   const {
     mutateAsync: syncAccountMutate,
     isLoading: isSyncLoading,
@@ -101,10 +108,10 @@ const MainPage = () => {
   // console.log("MainPage - emails:", emails);
   // console.log("MainPage - error:", error);
 
-  useEffect(() => {
-    console.log("MainPage - Combined emails data:", emails);
-    console.log("MainPage - Total combined emails:", emails.length);
-  }, [emails]);
+  // useEffect(() => {
+  //   console.log("MainPage - Combined emails data:", emails);
+  //   console.log("MainPage - Total combined emails:", emails.length);
+  // }, [emails]);
 
   if (
     emails.length === 0 &&
@@ -122,7 +129,7 @@ const MainPage = () => {
   const startIndex = (currentPage - 1) * ITEMS_PER_PAGE;
   const endIndex = startIndex + ITEMS_PER_PAGE;
   const currentEmails = emails.slice(startIndex, endIndex);
-  console.log("MainPage - currentEmails:", currentEmails);
+  // console.log("MainPage - currentEmails:", currentEmails);
 
   // 페이지 변경 핸들러
   const handlePrevPage = () => {
@@ -144,7 +151,6 @@ const MainPage = () => {
     console.log("🔄 새로고침 시작");
     setIsSyncing(true);
 
-    // 동기화할 계정 결정: 선택된 계정이 있으면 선택된 계정만, 없으면 모든 계정
     const accountsToSync =
       selectedAccounts.length > 0 ? selectedAccounts : accounts;
 
@@ -160,28 +166,57 @@ const MainPage = () => {
 
         try {
           const syncResult = await syncAccountMutate(account.id);
-          console.log(`✅ 계정 ${account.id} 동기화 API 응답:`, syncResult);
-          console.log(`📧 동기화 메시지:`, syncResult?.message);
 
-          if (syncResult?.synced_count !== undefined) {
-            console.log(`📊 동기화된 메일 수:`, syncResult.synced_count);
+          // ✅ 응답 구조 검증 추가
+          console.log(`✅ 계정 ${account.id} 동기화 API 응답:`, syncResult);
+
+          // syncResult가 undefined이거나 data가 없는 경우 처리
+          if (!syncResult) {
+            console.warn(`⚠️ 계정 ${account.id}: 동기화 응답이 비어있습니다`);
+            continue;
           }
+
+          // 응답 데이터 구조에 따라 접근 방식 조정
+          const responseData = syncResult.data || syncResult;
+          console.log(
+            `📧 동기화 메시지:`,
+            responseData?.message || "메시지 없음",
+          );
+
+          if (responseData?.synced_count !== undefined) {
+            console.log(`📊 동기화된 메일 수:`, responseData.synced_count);
+          }
+
+          // ✅ 백엔드 작업 완료 대기 시간 추가
+          await new Promise((resolve) => setTimeout(resolve, 500));
         } catch (syncErr) {
           console.error(`❌ 계정 ${account.id} 동기화 실패:`, syncErr);
-          console.error("동기화 에러 상세:", syncErr.response?.data);
-          throw syncErr;
+          console.error("동기화 에러 상세:", {
+            response: syncErr.response?.data,
+            status: syncErr.response?.status,
+            message: syncErr.message,
+          });
+          // ✅ 에러 발생 시에도 계속 진행 (throw 제거)
         }
       }
 
       console.log("\n✅ 모든 계정 동기화 완료");
 
+      // ✅ 동기화 완료 후 충분한 대기 시간
+      await new Promise((resolve) => setTimeout(resolve, 1000));
+
       // 동기화 완료 후 이메일 목록 새로고침
       console.log("📧 이메일 목록 새로고침 중...");
       const refreshResult = await refetch();
-      console.log("📧 새로고침 완료");
-      console.log("📊 가져온 메일 수:", refreshResult.data?.length || 0);
 
-      if (refreshResult.data?.length === 0) {
+      console.log("📧 새로고침 완료");
+
+      // ✅ refetch 결과 구조 확인
+      const emailData = refreshResult?.data || refreshResult;
+      const emailCount = Array.isArray(emailData) ? emailData.length : 0;
+      console.log("📊 가져온 메일 수:", emailCount);
+
+      if (emailCount === 0) {
         console.warn(
           "⚠️ 동기화 후에도 메일이 0개입니다. 백엔드 로그를 확인하세요.",
         );
@@ -189,11 +224,15 @@ const MainPage = () => {
         console.warn("  1. 백엔드에서 IMAP 연결이 성공했는지");
         console.warn("  2. 실제로 메일을 fetch했는지");
         console.warn("  3. DB에 저장되었는지");
+        console.warn("  4. API 응답에 데이터가 포함되어 있는지");
       }
     } catch (err) {
       console.error("❌ 동기화 실패:", err);
-      console.error("에러 상세:", err.response?.data);
-      console.error("에러 스택:", err.stack);
+      console.error("에러 상세:", {
+        response: err.response?.data,
+        message: err.message,
+        stack: err.stack,
+      });
     } finally {
       setIsSyncing(false);
       console.log("🔄 동기화 프로세스 종료\n");

@@ -4,6 +4,7 @@ import { useEmailDetail } from "@/api/hooks/useEmails";
 import { AppLayout, AttachmentCard } from "@/components";
 import { getAccountColor } from "@/lib/utils";
 import DOMPurify from "dompurify";
+import { useQueryClient } from "@tanstack/react-query";
 
 const MailDetail = () => {
   const [selectedAccounts, setSelectedAccounts] = useState([]);
@@ -18,7 +19,13 @@ const MailDetail = () => {
   const emailId = parseInt(id, 10);
 
   console.log("fetched email:", mailObject);
-  // const { data: accounts, isLoading, isError } = useAccounts(); // useAccounts 훅 사용
+
+  // const queryClient = useQueryClient();
+  // const allQueries = queryClient.getQueryCache().getAll();
+
+  // allQueries.forEach((q) => {
+  //   console.log("📦 cache queryKey:", q.queryKey);
+  // });
 
   // 로딩 또는 에러 상태 처리
   if (isMailDetailLoading)

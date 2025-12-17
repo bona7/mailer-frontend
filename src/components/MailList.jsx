@@ -17,7 +17,7 @@ const MailList = ({
 
   return (
     <div
-      className={`w-full cursor-pointer hover:bg-gray-f5 pt-4 `}
+      className={`w-full cursor-pointer hover:bg-gray-f5 pt-4`}
       onClick={onClick}
     >
       <div className="flex items-center gap-2.5 pb-1">
@@ -32,14 +32,22 @@ const MailList = ({
           <div>
             <div className={`w-2 h-2 rounded-full ${accountColor}`} />
           </div>
-          <span className="font-semibold text-sm text-gray-59 truncate">
+          <span
+            className={`font-semibold text-sm ${isRead ? "text-gray-8c" : "text-primary-dark"} truncate`}
+          >
             {sender}
           </span>
         </div>
 
         <div className="flex-1 truncate">
-          <span className="font-semibold text-sm text-gray-59">{title}</span>
-          <span className="text-sm text-gray-8c overflow-hidden whitespace-nowrap text-ellipsis">
+          <span
+            className={`font-semibold text-sm ${isRead ? "text-gray-8c" : "text-primary-dark"}`}
+          >
+            {title}
+          </span>
+          <span
+            className={`text-sm text-gray-8c overflow-hidden whitespace-nowrap text-ellipsis`}
+          >
             {" "}
             {content}
           </span>
