@@ -1,7 +1,7 @@
 import { useState, useMemo, useEffect } from "react";
 import { Refresh } from "@/assets";
 import { MailList, AppLayout, TrashButton } from "@/components";
-import { useNavigate } from "react-router-dom";
+import { useNavigate, useSearchParams } from "react-router-dom";
 import { ChevronLeft, ChevronRight } from "lucide-react";
 import { useEmails, useUpdateEmailMetadata } from "@/api/hooks/useEmails";
 import { useSyncAccount, useAccounts } from "@/api/hooks/useAccounts";
@@ -15,6 +15,8 @@ const MainPage = () => {
   const [isSyncing, setIsSyncing] = useState(false);
   const [selectedMailIds, setSelectedMailIds] = useState([]);
   const navigate = useNavigate();
+  const [searchParams] = useSearchParams();
+  const searchQuery = searchParams.get("q") || "";
   const ITEMS_PER_PAGE = 20;
 
   const { data: accounts = [] } = useAccounts();
@@ -37,7 +39,7 @@ const MainPage = () => {
           .join(",")
       : "";
 
-  // console.log("MainPage - accountsParam:", accountsParam);
+  console.log("MainPage - accountsParam:", accountsParam);
 
   // inbox 와 starred 메일을 모두 받아오기
   const {
@@ -49,15 +51,30 @@ const MainPage = () => {
   } = useQueries({
     queries: [
       {
-        queryKey: ["emails", { folder: "inbox", accounts: accountsParam }],
-        queryFn: () => getEmails({ folder: "inbox", accounts: accountsParam }),
+        queryKey: [
+          "emails",
+          { folder: "inbox", accounts: accountsParam, query: searchQuery },
+        ],
+        queryFn: () =>
+          getEmails({
+            folder: "inbox",
+            accounts: accountsParam,
+            query: searchQuery,
+          }),
         refetchOnMount: true,
         cacheTime: 5 * 60 * 1000,
       },
       {
-        queryKey: ["emails", { folder: "starred", accounts: accountsParam }],
+        queryKey: [
+          "emails",
+          { folder: "starred", accounts: accountsParam, query: searchQuery },
+        ],
         queryFn: () =>
-          getEmails({ folder: "starred", accounts: accountsParam }),
+          getEmails({
+            folder: "starred",
+            accounts: accountsParam,
+            query: searchQuery,
+          }),
         refetchOnMount: true,
         cacheTime: 5 * 60 * 1000,
       },

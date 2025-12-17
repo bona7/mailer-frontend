@@ -19,6 +19,14 @@ import MailComposeModal from "@/components/modals/MailComposeModal";
 
 const AppLayout = ({ children, selectedAccounts, setSelectedAccounts }) => {
   // console.log("AppLayout - selectedAccounts:", selectedAccounts);
+  const [searchQuery, setSearchQuery] = useState("");
+
+  const handleSearch = (e) => {
+    if (e.key === "Enter") {
+      navigate(`/?q=${searchQuery}`);
+    }
+  };
+
   const navigate = useNavigate();
   const { signOut } = useClerk();
   const { user } = useUser();
@@ -165,6 +173,9 @@ const AppLayout = ({ children, selectedAccounts, setSelectedAccounts }) => {
         <div className="col-start-2">
           <Input
             placeholder="search"
+            value={searchQuery}
+            onChange={(e) => setSearchQuery(e.target.value)}
+            onKeyDown={handleSearch}
             className="w-full h-8 bg-transparent rounded-md border border-primary placeholder:font-b1"
           />
         </div>
