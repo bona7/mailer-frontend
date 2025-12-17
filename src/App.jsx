@@ -1,11 +1,14 @@
 import Router from "./app/Router";
 import "./App.css";
 import { ToastProvider } from "@/components/ui/SendToastProvider";
+import { AISummaryProvider } from "./context/AISummaryContext";
 
 function App() {
   return (
     <ToastProvider>
-      <Router />
+      <AISummaryProvider>
+        <Router />
+      </AISummaryProvider>
     </ToastProvider>
   );
 }

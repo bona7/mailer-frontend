@@ -1,11 +1,13 @@
-import React, { useState } from "react";
+import { useSummarizeEmail } from "@/api/hooks/useSummary";
+import { useAISummary } from "@/context/AISummaryContext";
+import React, { useState, useEffect } from "react";
 import { Avatar, AvatarFallback } from "@/components/ui/avatar";
 import { Button } from "@/components/ui/button";
 import { Card, CardContent, CardHeader, CardTitle } from "@/components/ui/card";
 import { Input } from "@/components/ui/input";
 import { Plus } from "lucide-react";
 import { logo, X, Contact } from "@/assets";
-import { useNavigate } from "react-router-dom";
+import { useNavigate, useSearchParams } from "react-router-dom";
 import { useClerk, useUser } from "@clerk/clerk-react";
 import { useAccounts, useDeleteAccount } from "@/api/hooks/useAccounts";
 
@@ -13,13 +15,44 @@ import { useQueries } from "@tanstack/react-query";
 import { getEmails } from "@/api/email";
 import { Send } from "lucide-react";
 import { Inbox, Template, Trash, Compose } from "@/assets";
-import { contacts, aiSummaries } from "@/data/sidebar_MainPage.jsx";
+import { contacts } from "@/data/sidebar_MainPage.jsx";
 import { getAccountColor } from "@/lib/utils";
 import MailComposeModal from "@/components/modals/MailComposeModal";
 
 const AppLayout = ({ children, selectedAccounts, setSelectedAccounts }) => {
+  const { selectedEmail, setAiSumSelectedId, setSelectedEmail } =
+    useAISummary();
+  const {
+    mutate: summarize,
+    isPending: isSummarizing,
+    data: summaryData,
+    error: summaryError,
+    reset,
+  } = useSummarizeEmail();
+
+  useEffect(() => {
+    if (selectedEmail) {
+      console.log(
+        `AI Summary request initiated for email ID: ${selectedEmail.id}`,
+      );
+      summarize(selectedEmail.id);
+    } else {
+      reset();
+    }
+  }, [selectedEmail, summarize, reset]);
+
+  useEffect(() => {
+    if (summaryData) {
+      console.log("AI Summary response:", summaryData);
+    }
+  }, [summaryData]);
   // console.log("AppLayout - selectedAccounts:", selectedAccounts);
-  const [searchQuery, setSearchQuery] = useState("");
+  const [searchParams] = useSearchParams();
+  const [searchQuery, setSearchQuery] = useState(searchParams.get("q") || "");
+
+  useEffect(() => {
+    setSearchQuery(searchParams.get("q") || "");
+  }, [searchParams]);
 
   const handleSearch = (e) => {
     if (e.key === "Enter") {
@@ -30,6 +63,12 @@ const AppLayout = ({ children, selectedAccounts, setSelectedAccounts }) => {
   const navigate = useNavigate();
   const { signOut } = useClerk();
   const { user } = useUser();
+
+  const handleLogoClick = () => {
+    setAiSumSelectedId(null);
+    setSelectedEmail(null);
+    navigate("/");
+  };
 
   const { data: accounts = [], isLoading, isError } = useAccounts();
   // console.log("AppLayout - accounts:", accounts);
@@ -165,9 +204,7 @@ const AppLayout = ({ children, selectedAccounts, setSelectedAccounts }) => {
             src={logo}
             alt="Logo"
             className="w-28 h-6 cursor-pointer"
-            onClick={() => {
-              navigate("/");
-            }}
+            onClick={handleLogoClick}
           />
         </div>
         <div className="col-start-2">
@@ -338,23 +375,41 @@ const AppLayout = ({ children, selectedAccounts, setSelectedAccounts }) => {
             <CardTitle className="font-st1 text-primary-dark">
               AI Summary
             </CardTitle>
-            <span className="font-b2">Title: {aiSummaries[0].title}</span>
+            <span
+              className="font-b2 truncate cursor-pointer hover:underline"
+              onClick={() =>
+                selectedEmail && navigate(`/mail/${selectedEmail.id}`)
+              }
+            >
+              Title: {selectedEmail?.email.subject || "선택된 메일 없음"}
+            </span>
           </CardHeader>
           <CardContent className="px-3 space-y-4 grow">
-            {aiSummaries.map((summary, index) => (
-              <div
-                key={index}
-                className="p-2 space-y-2 rounded bg-primary-light/30 h-full"
-              >
+            {selectedEmail ? (
+              <div className="p-2 space-y-2 rounded bg-primary-light/30 h-full">
                 <div className="flex items-center justify-between">
-                  <span className="font-b2 text-black">{summary.to}</span>
-                  <span className="font-b2 text-black">{summary.date}</span>
+                  <span className="font-b2 text-black truncate">
+                    To: {selectedEmail.account_address}
+                  </span>
+                  {/* <span className="font-b2 text-black">
+                    {new Date(selectedEmail.received_at).toLocaleDateString()}
+                  </span> */}
                 </div>
-                <div className="font-overline text-black">
-                  {summary.content}
+                <div className="font-b2 text-black">
+                  {isSummarizing ? (
+                    <p>요약 중...</p>
+                  ) : summaryError ? (
+                    <p className="text-red-500">요약 중 오류가 발생했습니다.</p>
+                  ) : summaryData ? (
+                    <p>{summaryData.summarized_content}</p>
+                  ) : null}
                 </div>
               </div>
-            ))}
+            ) : (
+              <div className="flex items-center justify-center h-full text-center text-gray-500 p-4">
+                <p>AI로 요약할 메일을 선택해주세요.</p>
+              </div>
+            )}
           </CardContent>
         </Card>
       </aside>

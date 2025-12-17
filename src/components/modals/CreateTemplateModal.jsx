@@ -21,7 +21,7 @@ const CreateTemplateModal = ({ onClose, onTemplateCreated }) => {
   const [title, setTitle] = useState("");
   const [content, setContent] = useState("");
 
-  const { mutate: create, isLoading: createLoading } = useMutation({
+  const { mutate: create, isPending: createLoading } = useMutation({
     mutationFn: createDummyTemplate, // Use the dummy function
     onSuccess: (data) => {
       console.log("Dummy template created:", data);

@@ -11,6 +11,8 @@ const MailList = ({
   checked,
   onCheckChange,
   isRead,
+  aiSumChecked,
+  onAiSumCheckChange,
 }) => {
   const accountColor = getAccountColor(account);
   const mailId = `${sender}-${time}-${title}`;
@@ -55,8 +57,16 @@ const MailList = ({
 
         <div className="flex items-center gap-3 text-sm text-gray-59 pr-2">
           <span>{time}</span>
-          <div className="flex items-center gap-1">
-            <Checkbox id={mailId} size="sm" />
+          <div
+            className="flex items-center gap-1"
+            onClick={(e) => e.stopPropagation()}
+          >
+            <Checkbox
+              id={mailId}
+              size="sm"
+              checked={aiSumChecked}
+              onCheckedChange={onAiSumCheckChange}
+            />
             <label className="text-sm font-medium">AI Sum.</label>
           </div>
         </div>

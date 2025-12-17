@@ -7,6 +7,7 @@ import { useEmails, useUpdateEmailMetadata } from "@/api/hooks/useEmails";
 import { useSyncAccount, useAccounts } from "@/api/hooks/useAccounts";
 import { useMutation, useQueryClient, useQueries } from "@tanstack/react-query"; // useQueryClient, useQueries 추가
 import { deleteEmail, getEmails } from "../api/email"; // deleteEmail과 getEmails 임포트
+import { useAISummary } from "@/context/AISummaryContext";
 
 const MainPage = () => {
   const [selectedAccounts, setSelectedAccounts] = useState([]);
@@ -14,6 +15,8 @@ const MainPage = () => {
   const [currentPage, setCurrentPage] = useState(1);
   const [isSyncing, setIsSyncing] = useState(false);
   const [selectedMailIds, setSelectedMailIds] = useState([]);
+  const { aiSumSelectedId, setAiSumSelectedId, setSelectedEmail } =
+    useAISummary();
   const navigate = useNavigate();
   const [searchParams] = useSearchParams();
   const searchQuery = searchParams.get("q") || "";
@@ -31,6 +34,10 @@ const MainPage = () => {
     );
   };
 
+  const handleAiSumCheckChange = (mailId) => {
+    setAiSumSelectedId((prevId) => (prevId === mailId ? null : mailId));
+  };
+
   // API로부터 메일 목록 가져오기
   const accountsParam =
     selectedAccounts.length > 0
@@ -39,7 +46,7 @@ const MainPage = () => {
           .join(",")
       : "";
 
-  console.log("MainPage - accountsParam:", accountsParam);
+  // console.log("MainPage - accountsParam:", accountsParam);
 
   // inbox 와 starred 메일을 모두 받아오기
   const {
@@ -105,6 +112,23 @@ const MainPage = () => {
     },
   });
 
+  useEffect(() => {
+    if (aiSumSelectedId) {
+      const email = emails.find((e) => e.id === aiSumSelectedId);
+      setSelectedEmail(email || null);
+    } else {
+      setSelectedEmail(null);
+    }
+  }, [aiSumSelectedId, emails, setSelectedEmail]);
+
+  // Clean up AI summary selection when MainPage unmounts
+  useEffect(() => {
+    return () => {
+      setAiSumSelectedId(null);
+      setSelectedEmail(null);
+    };
+  }, [setAiSumSelectedId, setSelectedEmail]);
+
   // // 캐시된 쿼리 확인
   // const allQueries = queryClient.getQueryCache().getAll();
 
@@ -114,7 +138,7 @@ const MainPage = () => {
 
   const {
     mutateAsync: syncAccountMutate,
-    isLoading: isSyncLoading,
+    isPending: isSyncLoading,
     isError: isSyncError,
     error: syncError,
   } = useSyncAccount();
@@ -478,6 +502,8 @@ const MainPage = () => {
                   handleMailCheckChange(mailObject.id, isChecked)
                 }
                 isRead={mailObject.is_read}
+                aiSumChecked={aiSumSelectedId === mailObject.id}
+                onAiSumCheckChange={() => handleAiSumCheckChange(mailObject.id)}
               />
             ))}
         </div>
