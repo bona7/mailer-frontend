@@ -37,7 +37,7 @@ const MainPage = () => {
           .join(",")
       : "";
 
-  console.log("MainPage - accountsParam:", accountsParam);
+  // console.log("MainPage - accountsParam:", accountsParam);
 
   // inbox 와 starred 메일을 모두 받아오기
   const {

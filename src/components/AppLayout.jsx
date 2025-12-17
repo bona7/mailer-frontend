@@ -9,11 +9,11 @@ import { useNavigate } from "react-router-dom";
 import { useClerk, useUser } from "@clerk/clerk-react";
 import { useAccounts, useDeleteAccount } from "@/api/hooks/useAccounts";
 
-import {
-  sidebarItems,
-  contacts,
-  aiSummaries,
-} from "@/data/sidebar_MainPage.jsx";
+import { useQueries } from "@tanstack/react-query";
+import { getEmails } from "@/api/email";
+import { Send } from "lucide-react";
+import { Inbox, Template, Trash, Compose } from "@/assets";
+import { contacts, aiSummaries } from "@/data/sidebar_MainPage.jsx";
 import { getAccountColor } from "@/lib/utils";
 import MailComposeModal from "@/components/modals/MailComposeModal";
 
@@ -30,13 +30,93 @@ const AppLayout = ({ children, selectedAccounts, setSelectedAccounts }) => {
   // console.log("AppLayout - Array.isArray(accounts):", Array.isArray(accounts));
   const deleteAccountMutation = useDeleteAccount();
 
-  const handleAccountClick = (accountType) => {
-    console.log("Clicked account:", accountType);
-    setSelectedAccounts((prev) =>
-      prev.includes(accountType)
-        ? prev.filter((t) => t !== accountType)
-        : [...prev, accountType],
-    );
+  const accountsParam =
+    selectedAccounts.length > 0
+      ? selectedAccounts.map((acc) => acc.address).join(",")
+      : accounts.map((acc) => acc.address).join(",");
+
+  const emailCounts = useQueries({
+    queries: ["inbox", "starred", "spam"].map((folder) => ({
+      queryKey: ["emails", { folder, accounts: accountsParam }],
+      queryFn: () => getEmails({ folder, accounts: accountsParam }),
+      select: (data) => (Array.isArray(data) ? data.length : 0), // Only select the length
+    })),
+    combine: (results) => {
+      return {
+        inbox: results[0].data ?? 0,
+        starred: results[1].data ?? 0,
+        spam: results[2].data ?? 0,
+        isLoading: results.some((result) => result.isLoading),
+      };
+    },
+  });
+
+  const sidebarItems = [
+    {
+      icon: Compose,
+      label: "Compose",
+      action: "openComposeModal",
+      hasSubmenu: false,
+    },
+    {
+      icon: Inbox,
+      label: `Inbox (${emailCounts.isLoading ? "..." : emailCounts.inbox})`,
+      path: "/",
+      hasSubmenu: true,
+      submenu: [
+        {
+          label: `All email(${emailCounts.isLoading ? "..." : emailCounts.inbox})`,
+          path: "/",
+        },
+        {
+          label: `Starred (${emailCounts.isLoading ? "..." : emailCounts.starred})`,
+          path: "/starred",
+        },
+        {
+          label: `Spam (${emailCounts.isLoading ? "..." : emailCounts.spam})`,
+          path: "/spam",
+        },
+      ],
+    },
+    {
+      icon: Template,
+      label: "Template",
+      hasSubmenu: true,
+      submenu: [
+        { label: "View Templates", path: "/viewtemplate" },
+        { label: "My Templates", path: "/mytemplate" },
+      ],
+    },
+    {
+      icon: Send,
+      label: "Sent",
+      hasSubmenu: true,
+      submenu: [
+        { label: "All sent email", path: "/sent" },
+        { label: "Draft", path: "/" },
+        { label: "Schedule sent", path: "/" },
+      ],
+    },
+    {
+      icon: Trash,
+      label: "Trash",
+      path: "/trash",
+      hasSubmenu: false,
+    },
+  ];
+
+  const handleAccountClick = (clickedAccount) => {
+    setSelectedAccounts((prev) => {
+      const isAlreadySelected = prev.some(
+        (account) => account.id === clickedAccount.id,
+      );
+
+      if (isAlreadySelected) {
+        return prev.filter((account) => account.id !== clickedAccount.id);
+      } else {
+        return [...prev, clickedAccount];
+      }
+    });
   };
 
   const handleDeleteAccount = async (e, accountId) => {
@@ -181,7 +261,9 @@ const AppLayout = ({ children, selectedAccounts, setSelectedAccounts }) => {
             )}
             {Array.isArray(accounts) &&
               accounts.map((account, index) => {
-                const isSelected = selectedAccounts.includes(account);
+                const isSelected = selectedAccounts.some(
+                  (selectedAccount) => selectedAccount.id === account.id,
+                );
                 return (
                   <button
                     key={index}
