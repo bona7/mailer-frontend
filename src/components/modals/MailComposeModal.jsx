@@ -15,6 +15,7 @@ function MailComposeModal({
   onClose,
   isAddAccountMode = false,
   initialBody = "",
+  initialRecipient = "",
 }) {
   const modalOpen = typeof open === "boolean" ? open : isOpen;
   const { data: accounts = [] } = useAccounts();
@@ -28,6 +29,13 @@ function MailComposeModal({
       setSelectedFromEmail(accounts[0]);
     }
   }, [accounts, selectedFromEmail]);
+
+  useEffect(() => {
+    if (initialRecipient) {
+      setRecipientInput(initialRecipient);
+    }
+  }, [initialRecipient]);
+
   const [attachedFiles, setAttachedFiles] = useState([]);
   const [recipients, setRecipients] = useState([]);
   const [recipientInput, setRecipientInput] = useState("");
@@ -36,6 +44,7 @@ function MailComposeModal({
   const editorRef = useRef(null);
   const [colorPickerOpen, setColorPickerOpen] = useState(false);
   const [colorAnchor, setColorAnchor] = useState(null);
+  const [selectedFont, setSelectedFont] = useState("Montserrat");
   const highlightColors = [
     "#fff9c4", // 연노랑
     "#ffe0b2", // 연주황
@@ -90,6 +99,16 @@ function MailComposeModal({
     if (editorRef.current) {
       editorRef.current.focus();
       document.execCommand("underline", false, null);
+    }
+  };
+
+  // 폰트 변경
+  const handleFontChange = (e) => {
+    const fontName = e.target.value;
+    setSelectedFont(fontName);
+    if (editorRef.current) {
+      editorRef.current.focus();
+      document.execCommand("fontName", false, fontName);
     }
   };
 
@@ -451,8 +470,13 @@ function MailComposeModal({
           </div>
           <div className="flex items-center gap-0">
             {/* Formatting buttons */}
-            <select className="bg-transparent">
+            <select
+              className="bg-transparent accent-secondary-dark [&>option]:bg-white"
+              value={selectedFont}
+              onChange={handleFontChange}
+            >
               <option>Montserrat</option>
+              <option>Pretendard</option>
             </select>
             <Button variant="ghost" size="icon" onClick={handleBoldClick}>
               <b>B</b>

@@ -7,7 +7,7 @@ import instance from "@/app/axios";
 
 import { addTemplateToMyTemplates } from "@/api/template";
 
-const TemplateDetail = ({ template, onClose, onAddSuccess }) => {
+const TemplateDetail = ({ template, onClose, onAddSuccess, onCompose }) => {
   const { user } = useUser();
   const [isDropdownOpen, setIsDropdownOpen] = useState(false);
   const [isHeartFilled, setIsHeartFilled] = useState(false);
@@ -41,10 +41,9 @@ const TemplateDetail = ({ template, onClose, onAddSuccess }) => {
       });
       alert("템플릿이 성공적으로 추가되었습니다.");
       setIsHeartFilled(true);
+      setIsDropdownOpen(false); // 드롭다운 닫기
       if (onAddSuccess) {
         onAddSuccess();
-      } else {
-        onClose();
       }
     } catch (error) {
       console.error("템플릿 추가 실패:", error);
@@ -54,13 +53,19 @@ const TemplateDetail = ({ template, onClose, onAddSuccess }) => {
     }
   };
 
+  const handleComposeClick = () => {
+    console.log("📤 Compose button clicked in TemplateDetail");
+    console.log("onCompose prop:", onCompose);
+    if (onCompose) {
+      onCompose(template);
+    } else {
+      console.error("❌ onCompose prop is not provided");
+    }
+  };
+
   const handleCollectionChange = (selectedIds) => {
     setSelectedAccountsForAdd(selectedIds);
     setIsHeartFilled(selectedIds.length > 0);
-  };
-
-  const handleCollectionDone = () => {
-    setIsDropdownOpen(false);
   };
 
   return (
@@ -86,10 +91,9 @@ const TemplateDetail = ({ template, onClose, onAddSuccess }) => {
             <div className="flex items-center gap-1.5 mt-2">
               <Button
                 className="bg-secondary-dark hover:bg-secondary-light text-gray-f0 font-button px-2 py-2 h-auto"
-                onClick={handleAddTemplate}
-                disabled={isAdding}
+                onClick={handleComposeClick}
               >
-                {isAdding ? "Adding..." : "Add"}
+                Compose
               </Button>
               <div className="relative">
                 <Button
@@ -107,9 +111,10 @@ const TemplateDetail = ({ template, onClose, onAddSuccess }) => {
                 </Button>
                 {isDropdownOpen && (
                   <CollectionDropdown
-                    onDone={handleCollectionDone}
+                    onDone={handleAddTemplate}
                     onSelectionChange={handleCollectionChange}
                     initialSelection={selectedAccountsForAdd}
+                    isAdding={isAdding}
                   />
                 )}
               </div>
@@ -127,7 +132,7 @@ const TemplateDetail = ({ template, onClose, onAddSuccess }) => {
         </div>
 
         {/* Right Column */}
-        <div className="flex flex-col gap-2">
+        <div className="flex flex-col gap-2 w-[472px]">
           <div className="flex flex-col gap-0.5">
             <label className="font-overline pl-1 text-gray-8c">Title</label>
             <div className="bg-transparent border-[1.5px] border-secondary-dark rounded-lg pl-5 pr-6 py-2 whitespace-pre-wrap font-b2 text-gray-8c overflow-y-auto">

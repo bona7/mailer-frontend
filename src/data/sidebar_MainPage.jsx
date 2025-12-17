@@ -47,11 +47,11 @@ const sidebarItems = [
 ];
 
 const contacts = [
-  "Lewis Hamilton",
-  "Carlos Sainz",
-  "Charles Leclerc",
-  "유지원(서울대 멋사)",
-  "김민지(서울대 멋사)",
+  "bona718@snu.ac.kr",
+  "korj03kory@snu.ac.kr",
+  "dongin1001@snu.ac.kr",
+  "ajy1216@snu.ac.kr",
+  "jdnjsyoo@snu.ac.kr",
 ];
 
 const aiSummaries = [
