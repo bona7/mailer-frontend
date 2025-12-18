@@ -1,6 +1,6 @@
 import { cn } from "@/lib/utils";
 
-const CreateTemplateButton = ({ onClick }) => {
+const CreateTemplateButton = ({ onClick, className, ...props }) => {
   return (
     <button
       onClick={onClick}

@@ -65,7 +65,7 @@ const ViewTemplate = () => {
         selectedAccounts={selectedAccounts}
         setSelectedAccounts={setSelectedAccounts}
       >
-        <main className="col-start-2 row-start-2 p-6 space-y-4 bg-gray-f5/40 rounded-lg border border-primary overflow-y-auto">
+        <main className="col-start-2 row-start-2 p-6 space-y-4 rounded-lg border border-primary overflow-y-auto">
           <div className="flex items-center justify-center h-full">
             <p className="font-b1 text-gray-bf">템플릿을 불러오는 중...</p>
           </div>
@@ -81,7 +81,7 @@ const ViewTemplate = () => {
         selectedAccounts={selectedAccounts}
         setSelectedAccounts={setSelectedAccounts}
       >
-        <main className="col-start-2 row-start-2 p-6 space-y-4 bg-gray-f5/40 rounded-lg border border-primary overflow-y-auto">
+        <main className="col-start-2 row-start-2 p-6 space-y-4 rounded-lg border border-primary overflow-y-auto">
           <div className="flex flex-col items-center justify-center h-full gap-4">
             <p className="font-b1 text-red-500">
               템플릿을 불러오는데 실패했습니다.
@@ -104,39 +104,45 @@ const ViewTemplate = () => {
       selectedAccounts={selectedAccounts}
       setSelectedAccounts={setSelectedAccounts}
     >
-      <main className="col-start-2 row-start-2 p-6 space-y-4 bg-gray-f5/40 rounded-lg border border-primary overflow-y-auto">
-        <div className="sticky top-0 z-10 bg-gray-f5/40 pb-4">
+      <main className="col-start-2 row-start-2 px-6 rounded-lg border border-primary overflow-y-auto">
+        <div className="sticky top-0 z-10 pt-4 bg-456FB1/65 backdrop-blur-sm">
           <h1 className="font-h7 text-primary-dark">View Templates</h1>
           <Separator className="bg-gray-bf my-1.5" />
         </div>
-
-        {templates.length === 0 && (
-          <div className="flex items-center justify-center p-8">
-            <p className="font-b1 text-gray-bf">등록된 템플릿이 없습니다.</p>
-          </div>
-        )}
-
-        {Object.entries(groupedTemplates).map(([main_category, templates]) => (
-          <section key={main_category}>
-            <h2 className="font-st1 text-primary-dark mb-2">{main_category}</h2>
-            <div className="flex overflow-x-auto gap-8 p-2">
-              {templates.map((template) => (
-                <TemplateCard
-                  key={template.id}
-                  template={{
-                    id: template.id, // ID를 전달해야 handleOpenModal에서 사용 가능
-                    name: template.topic,
-                    about: template.sub_category,
-                    body: truncate(template.template_content, 100),
-                    template_content: template.template_content,
-                  }}
-                  onClick={() => handleOpenModal(template)}
-                  onCompose={() => handleCompose(template)}
-                />
-              ))}
+        <div className="pt-4 pb-6">
+          {templates.length === 0 && (
+            <div className="flex items-center justify-center p-8">
+              <p className="font-b1 text-gray-bf">등록된 템플릿이 없습니다.</p>
             </div>
-          </section>
-        ))}
+          )}
+
+          {Object.entries(groupedTemplates).map(
+            ([main_category, templates]) => (
+              <section key={main_category}>
+                <h2 className="font-st1 text-primary-dark mb-2">
+                  {main_category}
+                </h2>
+                <div className="flex overflow-x-auto gap-8 p-2">
+                  {templates.map((template) => (
+                    <TemplateCard
+                      key={template.id}
+                      template={{
+                        id: template.id, // ID를 전달해야 handleOpenModal에서 사용 가능
+                        main_category: template.main_category,
+                        name: template.topic,
+                        about: template.sub_category,
+                        body: truncate(template.template_content, 100),
+                        template_content: template.template_content,
+                      }}
+                      onClick={() => handleOpenModal(template)}
+                      onCompose={() => handleCompose(template)}
+                    />
+                  ))}
+                </div>
+              </section>
+            ),
+          )}
+        </div>
       </main>
 
       {isModalOpen && (
