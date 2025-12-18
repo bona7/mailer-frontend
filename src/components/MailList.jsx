@@ -10,13 +10,16 @@ const MailList = ({
   onClick,
   checked,
   onCheckChange,
+  isRead,
+  aiSumChecked,
+  onAiSumCheckChange,
 }) => {
   const accountColor = getAccountColor(account);
   const mailId = `${sender}-${time}-${title}`;
 
   return (
     <div
-      className={`w-full cursor-pointer hover:bg-gray-f5 pt-4 `}
+      className={`w-full cursor-pointer hover:bg-gray-f5 pt-4`}
       onClick={onClick}
     >
       <div className="flex items-center gap-2.5 pb-1">
@@ -28,15 +31,25 @@ const MailList = ({
           />
         </div>
         <div className="flex items-center gap-2 w-40">
-          <div className={`w-2 h-2 rounded-full ${accountColor}`} />
-          <span className="font-semibold text-sm text-gray-59 truncate">
+          <div>
+            <div className={`w-2 h-2 rounded-full ${accountColor}`} />
+          </div>
+          <span
+            className={`font-semibold text-sm ${isRead ? "text-gray-8c" : "text-primary-dark"} truncate`}
+          >
             {sender}
           </span>
         </div>
 
         <div className="flex-1 truncate">
-          <span className="font-semibold text-sm text-gray-59">{title}</span>
-          <span className="text-sm text-gray-8c overflow-hidden whitespace-nowrap text-ellipsis">
+          <span
+            className={`font-semibold text-sm ${isRead ? "text-gray-8c" : "text-primary-dark"}`}
+          >
+            {title}
+          </span>
+          <span
+            className={`text-sm text-gray-8c overflow-hidden whitespace-nowrap text-ellipsis`}
+          >
             {" "}
             {content}
           </span>
@@ -44,8 +57,16 @@ const MailList = ({
 
         <div className="flex items-center gap-3 text-sm text-gray-59 pr-2">
           <span>{time}</span>
-          <div className="flex items-center gap-1">
-            <Checkbox id={mailId} size="sm" />
+          <div
+            className="flex items-center gap-1"
+            onClick={(e) => e.stopPropagation()}
+          >
+            <Checkbox
+              id={mailId}
+              size="sm"
+              checked={aiSumChecked}
+              onCheckedChange={onAiSumCheckChange}
+            />
             <label className="text-sm font-medium">AI Sum.</label>
           </div>
         </div>

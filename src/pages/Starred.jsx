@@ -8,7 +8,7 @@ import {
   useDeleteEmail,
 } from "@/api/hooks/useEmails";
 
-const Trash = () => {
+const Starred = () => {
   const [selectedAccounts, setSelectedAccounts] = useState([]);
   const [selectedMailIds, setSelectedMailIds] = useState([]);
   const [currentPage, setCurrentPage] = useState(1);
@@ -33,7 +33,7 @@ const Trash = () => {
     error: mailError,
     refetch,
   } = useEmails({
-    folder: "trash",
+    folder: "starred",
     accounts: accountsParam,
   });
 
@@ -69,7 +69,7 @@ const Trash = () => {
   // 선택된 메일 복구
   const handleRecoverSelectedMails = async () => {
     if (selectedMailIds.length === 0) {
-      alert("복구할 메일을 선택해주세요.");
+      alert("받은편지함으로 복구할 메일을 선택해주세요.");
       return;
     }
     try {
@@ -91,16 +91,10 @@ const Trash = () => {
       console.error("선택된 메일 복구 중 오류 발생:", error);
     }
   };
-
-  // 선택된 메일 완전 삭제 핸들러
-  const handleCompletelyDelete = async () => {
-    if (selectedMailIds.length === 0) {
-      alert("삭제할 메일을 선택해주세요.");
-      return;
-    }
+  const handleDeleteSelectedMails = async () => {
     if (
       !window.confirm(
-        `${selectedMailIds.length}개의 메일을 완전히 삭제하시겠습니까? 이 작업은 복구할 수 없습니다.`,
+        `${selectedMailIds.length}개의 메일을 휴지통으로 이동하시겠습니까?`,
       )
     ) {
       return;
@@ -109,11 +103,14 @@ const Trash = () => {
       // 각 선택된 메일에 대해 삭제 뮤테이션 실행
       await Promise.all(
         selectedMailIds.map((mailId) => {
-          console.log("[Completely Delete Mail] Request ID:", mailId);
-          return deleteEmailMutation.mutateAsync(mailId);
+          console.log("[Patch Mail] Request ID:", mailId);
+          return updateEmailMetadataMutation.mutateAsync({
+            emailMetadataId: mailId,
+            data: { folder: "trash" },
+          });
         }),
       );
-      alert("선택된 메일이 삭제되었습니다.");
+      alert("선택된 메일이 휴지통으로 이동되었습니다.");
       setSelectedMailIds([]);
 
       // 모든 삭제 작업이 완료되면 onSuccess가 호출되어 쿼리 무효화 및 UI 업데이트 처리됨
@@ -130,7 +127,7 @@ const Trash = () => {
     >
       <section className="h-full bg-gray-f5/20 rounded-lg border border-primary p-4 flex flex-col">
         <div className="flex items-center justify-between gap-2 pl-1.5">
-          <h2 className="font-h7 text-primary-dark">Trash</h2>
+          <h2 className="font-h7 text-primary-dark">Starred</h2>
           {totalPages > 1 && (
             <div className="flex items-center gap-1">
               <button
@@ -171,22 +168,19 @@ const Trash = () => {
           />
           <div className="flex gap-2">
             <TrashButton
-              text={"Delete Forever"}
-              onClick={handleCompletelyDelete}
+              text={"Delete From Starred"}
+              onClick={handleRecoverSelectedMails}
               className="px-2"
             />
 
-            <TrashButton
-              text={"Selected Recover"}
-              onClick={handleRecoverSelectedMails}
-            />
+            <TrashButton text={"Delete"} onClick={handleDeleteSelectedMails} />
           </div>
         </div>
 
         <div className="flex flex-col overflow-y-auto">
           {!isMailLoading && !isMailError && currentEmails.length === 0 && (
             <div className="flex items-center justify-center p-8 text-gray-8c">
-              휴지통이 비어 있습니다.
+              스팸함이 비어 있습니다.
             </div>
           )}
           {!isMailLoading &&
@@ -225,4 +219,4 @@ const Trash = () => {
   );
 };
 
-export default Trash;
+export default Starred;

@@ -13,6 +13,8 @@ import {
   AddAccountPage,
   AccountListPage,
   CreateTemplatePage,
+  Spam,
+  Starred,
 } from "@/pages";
 
 function Router() {
@@ -75,6 +77,22 @@ function Router() {
           element={
             <ProtectedRoute>
               <Trash />
+            </ProtectedRoute>
+          }
+        />
+        <Route
+          path="/spam"
+          element={
+            <ProtectedRoute>
+              <Spam />
+            </ProtectedRoute>
+          }
+        />
+        <Route
+          path="/starred"
+          element={
+            <ProtectedRoute>
+              <Starred />
             </ProtectedRoute>
           }
         />

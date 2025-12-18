@@ -56,7 +56,7 @@ function ComposeDropdown({ options, selectedOption, onOptionChange }) {
             onClick={() => setIsOpen(!isOpen)}
           >
             <div
-              className={`${getAccountColor(selectedOption.type)} items-center rounded-full w-2 h-2`}
+              className={`${getAccountColor(selectedOption.address)} items-center rounded-full w-2 h-2`}
             ></div>
             {selectedOption.address}
           </span>
@@ -65,7 +65,13 @@ function ComposeDropdown({ options, selectedOption, onOptionChange }) {
           <div className="absolute z-10 w-full mt-1 rounded-lg border bg-gray-fa border-secondary-dark">
             <ul className="py-1 max-h-48 overflow-y-auto">
               {options.map((option) => {
-                const accountColor = getAccountColor(option.type);
+                const accountColor = getAccountColor(option.address);
+                console.log(
+                  "compose_dropdown - option:",
+                  option,
+                  "accountColor:",
+                  accountColor,
+                );
                 return (
                   <li
                     key={option.address}

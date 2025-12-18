@@ -1,42 +1,169 @@
-import React, { useState } from "react";
+import { useSummarizeEmail } from "@/api/hooks/useSummary";
+import { useAISummary } from "@/context/AISummaryContext";
+import React, { useState, useEffect } from "react";
 import { Avatar, AvatarFallback } from "@/components/ui/avatar";
 import { Button } from "@/components/ui/button";
 import { Card, CardContent, CardHeader, CardTitle } from "@/components/ui/card";
 import { Input } from "@/components/ui/input";
 import { Plus } from "lucide-react";
 import { logo, X, Contact } from "@/assets";
-import { useNavigate } from "react-router-dom";
+import { useNavigate, useSearchParams } from "react-router-dom";
 import { useClerk, useUser } from "@clerk/clerk-react";
 import { useAccounts, useDeleteAccount } from "@/api/hooks/useAccounts";
 
-import {
-  sidebarItems,
-  contacts,
-  aiSummaries,
-} from "@/data/sidebar_MainPage.jsx";
+import { useQueries } from "@tanstack/react-query";
+import { getEmails } from "@/api/email";
+import { Send } from "lucide-react";
+import { Inbox, Template, Trash, Compose } from "@/assets";
+import { contacts } from "@/data/sidebar_MainPage.jsx";
 import { getAccountColor } from "@/lib/utils";
 import MailComposeModal from "@/components/modals/MailComposeModal";
 
 const AppLayout = ({ children, selectedAccounts, setSelectedAccounts }) => {
-  console.log("AppLayout - selectedAccounts:", selectedAccounts);
+  const { selectedEmail, setAiSumSelectedId, setSelectedEmail } =
+    useAISummary();
+  const {
+    mutate: summarize,
+    isPending: isSummarizing,
+    data: summaryData,
+    error: summaryError,
+    reset,
+  } = useSummarizeEmail();
+
+  useEffect(() => {
+    if (selectedEmail) {
+      console.log(
+        `AI Summary request initiated for email ID: ${selectedEmail.id}`,
+      );
+      summarize(selectedEmail.id);
+    } else {
+      reset();
+    }
+  }, [selectedEmail, summarize, reset]);
+
+  useEffect(() => {
+    if (summaryData) {
+      console.log("AI Summary response:", summaryData);
+    }
+  }, [summaryData]);
+  // console.log("AppLayout - selectedAccounts:", selectedAccounts);
+  const [searchParams] = useSearchParams();
+  const [searchQuery, setSearchQuery] = useState(searchParams.get("q") || "");
+
+  useEffect(() => {
+    setSearchQuery(searchParams.get("q") || "");
+  }, [searchParams]);
+
+  const handleSearch = (e) => {
+    if (e.key === "Enter") {
+      navigate(`/?q=${searchQuery}`);
+    }
+  };
+
   const navigate = useNavigate();
   const { signOut } = useClerk();
   const { user } = useUser();
 
+  const handleLogoClick = () => {
+    setAiSumSelectedId(null);
+    setSelectedEmail(null);
+    navigate("/");
+  };
+
   const { data: accounts = [], isLoading, isError } = useAccounts();
-  console.log("AppLayout - accounts:", accounts);
-  console.log("AppLayout - accounts 타입:", typeof accounts);
-  console.log("AppLayout - accounts.length:", accounts?.length);
-  console.log("AppLayout - Array.isArray(accounts):", Array.isArray(accounts));
+  // console.log("AppLayout - accounts:", accounts);
+  // console.log("AppLayout - accounts 타입:", typeof accounts);
+  // console.log("AppLayout - accounts.length:", accounts?.length);
+  // console.log("AppLayout - Array.isArray(accounts):", Array.isArray(accounts));
   const deleteAccountMutation = useDeleteAccount();
 
-  const handleAccountClick = (accountType) => {
-    console.log("Clicked account:", accountType);
-    setSelectedAccounts((prev) =>
-      prev.includes(accountType)
-        ? prev.filter((t) => t !== accountType)
-        : [...prev, accountType],
-    );
+  const accountsParam =
+    selectedAccounts.length > 0
+      ? selectedAccounts.map((acc) => acc.address).join(",")
+      : accounts.map((acc) => acc.address).join(",");
+
+  const emailCounts = useQueries({
+    queries: ["inbox", "starred", "spam"].map((folder) => ({
+      queryKey: ["emails", { folder, accounts: accountsParam }],
+      queryFn: () => getEmails({ folder, accounts: accountsParam }),
+      select: (data) => (Array.isArray(data) ? data.length : 0), // Only select the length
+    })),
+    combine: (results) => {
+      return {
+        inbox: results[0].data ?? 0,
+        starred: results[1].data ?? 0,
+        spam: results[2].data ?? 0,
+        isLoading: results.some((result) => result.isLoading),
+      };
+    },
+  });
+
+  const sidebarItems = [
+    {
+      icon: Compose,
+      label: "Compose",
+      action: "openComposeModal",
+      hasSubmenu: false,
+    },
+    {
+      icon: Inbox,
+      label: `Inbox (${emailCounts.isLoading ? "..." : emailCounts.inbox})`,
+      path: "/",
+      hasSubmenu: true,
+      submenu: [
+        {
+          label: `All email(${emailCounts.isLoading ? "..." : emailCounts.inbox})`,
+          path: "/",
+        },
+        {
+          label: `Starred (${emailCounts.isLoading ? "..." : emailCounts.starred})`,
+          path: "/starred",
+        },
+        {
+          label: `Spam (${emailCounts.isLoading ? "..." : emailCounts.spam})`,
+          path: "/spam",
+        },
+      ],
+    },
+    {
+      icon: Template,
+      label: "Template",
+      hasSubmenu: true,
+      submenu: [
+        { label: "View Templates", path: "/viewtemplate" },
+        { label: "My Templates", path: "/mytemplate" },
+      ],
+    },
+    {
+      icon: Send,
+      label: "Sent",
+      hasSubmenu: true,
+      submenu: [
+        { label: "All sent email", path: "/sent" },
+        { label: "Draft", path: "/" },
+        { label: "Schedule sent", path: "/" },
+      ],
+    },
+    {
+      icon: Trash,
+      label: "Trash",
+      path: "/trash",
+      hasSubmenu: false,
+    },
+  ];
+
+  const handleAccountClick = (clickedAccount) => {
+    setSelectedAccounts((prev) => {
+      const isAlreadySelected = prev.some(
+        (account) => account.id === clickedAccount.id,
+      );
+
+      if (isAlreadySelected) {
+        return prev.filter((account) => account.id !== clickedAccount.id);
+      } else {
+        return [...prev, clickedAccount];
+      }
+    });
   };
 
   const handleDeleteAccount = async (e, accountId) => {
@@ -78,14 +205,15 @@ const AppLayout = ({ children, selectedAccounts, setSelectedAccounts }) => {
             src={logo}
             alt="Logo"
             className="w-28 h-6 cursor-pointer"
-            onClick={() => {
-              navigate("/");
-            }}
+            onClick={handleLogoClick}
           />
         </div>
         <div className="col-start-2">
           <Input
             placeholder="search"
+            value={searchQuery}
+            onChange={(e) => setSearchQuery(e.target.value)}
+            onKeyDown={handleSearch}
             className="w-full h-8 bg-transparent rounded-md border border-primary placeholder:font-b1"
           />
         </div>
@@ -189,7 +317,9 @@ const AppLayout = ({ children, selectedAccounts, setSelectedAccounts }) => {
             )}
             {Array.isArray(accounts) &&
               accounts.map((account, index) => {
-                const isSelected = selectedAccounts.includes(account);
+                const isSelected = selectedAccounts.some(
+                  (selectedAccount) => selectedAccount.id === account.id,
+                );
                 return (
                   <button
                     key={index}
@@ -197,9 +327,9 @@ const AppLayout = ({ children, selectedAccounts, setSelectedAccounts }) => {
                     className={`flex items-center gap-1 py-1 w-full rounded-md ${isSelected ? "bg-primary border-transparent" : "border border-gray-bf"}`}
                   >
                     <div
-                      className={`w-2 h-2 ${getAccountColor(account.address)} rounded ml-1.5`}
+                      className={`!w-2 !h-2 ${getAccountColor(account.address)} rounded ml-1.5`}
                     />
-                    <div className="flex items-center justify-between flex-1">
+                    <div className="flex items-center justify-between flex-1 overflow-auto scrollbar-hide">
                       <span
                         className={`font-b2 ${isSelected ? "text-gray-f5" : "text-gray-700"}`}
                       >
@@ -265,23 +395,41 @@ const AppLayout = ({ children, selectedAccounts, setSelectedAccounts }) => {
             <CardTitle className="font-st1 text-primary-dark">
               AI Summary
             </CardTitle>
-            <span className="font-b2">Title: {aiSummaries[0].title}</span>
+            <span
+              className="font-b2 truncate cursor-pointer hover:underline"
+              onClick={() =>
+                selectedEmail && navigate(`/mail/${selectedEmail.id}`)
+              }
+            >
+              Title: {selectedEmail?.email.subject || "선택된 메일 없음"}
+            </span>
           </CardHeader>
           <CardContent className="px-3 space-y-4 grow">
-            {aiSummaries.map((summary, index) => (
-              <div
-                key={index}
-                className="p-2 space-y-2 rounded bg-primary-light/30 h-full"
-              >
+            {selectedEmail ? (
+              <div className="p-2 space-y-2 rounded bg-primary-light/30 h-full">
                 <div className="flex items-center justify-between">
-                  <span className="font-b2 text-black">{summary.to}</span>
-                  <span className="font-b2 text-black">{summary.date}</span>
+                  <span className="font-b2 text-black truncate">
+                    To: {selectedEmail.account_address}
+                  </span>
+                  {/* <span className="font-b2 text-black">
+                    {new Date(selectedEmail.received_at).toLocaleDateString()}
+                  </span> */}
                 </div>
-                <div className="font-overline text-black">
-                  {summary.content}
+                <div className="font-b2 text-black">
+                  {isSummarizing ? (
+                    <p>요약 중...</p>
+                  ) : summaryError ? (
+                    <p className="text-red-500">요약 중 오류가 발생했습니다.</p>
+                  ) : summaryData ? (
+                    <p>{summaryData.summarized_content}</p>
+                  ) : null}
                 </div>
               </div>
-            ))}
+            ) : (
+              <div className="flex items-center justify-center h-full text-center text-gray-500 p-4">
+                <p>AI로 요약할 메일을 선택해주세요.</p>
+              </div>
+            )}
           </CardContent>
         </Card>
       </aside>

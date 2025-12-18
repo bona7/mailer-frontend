@@ -1,9 +1,10 @@
 import { useState } from "react";
 import { useParams } from "react-router-dom";
 import { useEmailDetail } from "@/api/hooks/useEmails";
-import AppLayout from "@/components/AppLayout";
+import { AppLayout, AttachmentCard } from "@/components";
 import { getAccountColor } from "@/lib/utils";
 import DOMPurify from "dompurify";
+import { useQueryClient } from "@tanstack/react-query";
 
 const MailDetail = () => {
   const [selectedAccounts, setSelectedAccounts] = useState([]);
@@ -18,7 +19,13 @@ const MailDetail = () => {
   const emailId = parseInt(id, 10);
 
   console.log("fetched email:", mailObject);
-  // const { data: accounts, isLoading, isError } = useAccounts(); // useAccounts 훅 사용
+
+  // const queryClient = useQueryClient();
+  // const allQueries = queryClient.getQueryCache().getAll();
+
+  // allQueries.forEach((q) => {
+  //   console.log("📦 cache queryKey:", q.queryKey);
+  // });
 
   // 로딩 또는 에러 상태 처리
   if (isMailDetailLoading)
@@ -105,6 +112,22 @@ const MailDetail = () => {
           <span className="font-b1 text-gray-43 whitespace-pre-line">
             {EmailBody(mailObject.email.html_body)}
           </span>
+          {mailObject.email.attachments.length > 0 && (
+            <div className="mt-4 pt-4 border-t border-gray-bf">
+              <h3 className="font-h8 text-primary-dark mb-3">
+                {mailObject.email.attachments.length} Attachments
+              </h3>
+              <div className="flex flex-wrap gap-3">
+                {mailObject.email.attachments.map((attachment) => (
+                  <AttachmentCard
+                    key={attachment.id}
+                    fileName={attachment.file_name}
+                    downloadUrl={attachment.download_url}
+                  />
+                ))}
+              </div>
+            </div>
+          )}
         </div>
       </section>
     </AppLayout>

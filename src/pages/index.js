@@ -11,6 +11,7 @@ import MyTemplate from "./MyTemplate";
 import AddAccountPage from "./AccountAdd"; // This is the form component
 import AccountListPage from "./AccountListPage";
 import CreateTemplatePage from "./CreateTemplate";
+import Starred from "./Starred";
 
 export {
   SignUp,
@@ -26,4 +27,5 @@ export {
   AddAccountPage,
   AccountListPage,
   CreateTemplatePage,
+  Starred,
 };
