@@ -352,8 +352,8 @@ function MailComposeModal({
             onOptionChange={setSelectedFromEmail}
           />
         </div>
-        <div className="flex items-start border-b border-secondary-dark py-1">
-          <label className="text-gray-8c font-st2 mt-1 mr-2 shrink-0">
+        <div className="flex items-start border-b border-secondary-dark">
+          <label className="text-gray-8c font-st2 mt-1.5 mr-2 shrink-0">
             Recipients
           </label>
 

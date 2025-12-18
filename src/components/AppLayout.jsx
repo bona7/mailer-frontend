@@ -71,10 +71,10 @@ const AppLayout = ({ children, selectedAccounts, setSelectedAccounts }) => {
   };
 
   const { data: accounts = [], isLoading, isError } = useAccounts();
-  // console.log("AppLayout - accounts:", accounts);
-  // console.log("AppLayout - accounts 타입:", typeof accounts);
-  // console.log("AppLayout - accounts.length:", accounts?.length);
-  // console.log("AppLayout - Array.isArray(accounts):", Array.isArray(accounts));
+  console.log("AppLayout - accounts:", accounts);
+  console.log("AppLayout - accounts 타입:", typeof accounts);
+  console.log("AppLayout - accounts.length:", accounts?.length);
+  console.log("AppLayout - Array.isArray(accounts):", Array.isArray(accounts));
   const deleteAccountMutation = useDeleteAccount();
 
   const accountsParam =
@@ -139,7 +139,7 @@ const AppLayout = ({ children, selectedAccounts, setSelectedAccounts }) => {
       label: "Sent",
       hasSubmenu: true,
       submenu: [
-        { label: "All sent email", path: "/sent" },
+        { label: "All sent email", path: "/" },
         { label: "Draft", path: "/" },
         { label: "Schedule sent", path: "/" },
       ],
