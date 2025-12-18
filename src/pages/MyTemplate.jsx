@@ -192,21 +192,11 @@ const MyTemplate = () => {
       selectedAccounts={selectedAccounts}
       setSelectedAccounts={setSelectedAccounts}
     >
-      <main className="col-start-2 row-start-2 p-6 space-y-4 bg-gray-f5/40 rounded-lg border border-primary overflow-y-auto">
-        <div className="sticky top-0 z-10 flex items-center gap-2 bg-gray-f5/40">
+      <main className="col-start-2 row-start-2 p-6 space-y-4 rounded-lg border border-primary overflow-y-auto">
+        <div className="sticky top-0 z-10 bg-456FB1/65 backdrop-blur-sm">
           <h1 className="font-h7 text-primary-dark">My Templates</h1>
-          <button
-            onClick={handleRefreshTemplates}
-            disabled={templatesLoading}
-            className="p-0 bg-transparent border-none cursor-pointer disabled:opacity-50"
-            title="새로고침"
-          >
-            <Refresh
-              className={`w-4 h-4 ${templatesLoading ? "animate-spin" : ""}`}
-            />
-          </button>
+          <Separator className="bg-gray-bf my-1.5" />
         </div>
-        <Separator className="bg-gray-bf my-1.5" />
 
         {accounts.length === 0 ? (
           <div className="flex items-center justify-center h-full">
