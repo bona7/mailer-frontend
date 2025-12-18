@@ -63,11 +63,11 @@ const MailList = ({
           >
             <Checkbox
               id={mailId}
-              size="sm"
+              size="med"
               checked={aiSumChecked}
               onCheckedChange={onAiSumCheckChange}
             />
-            <label className="text-sm font-medium">AI Sum.</label>
+            <label className="font-caption">AI Sum.</label>
           </div>
         </div>
       </div>
