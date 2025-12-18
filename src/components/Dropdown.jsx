@@ -41,7 +41,7 @@ function Dropdown({
         <button
           type="button"
           onClick={() => setIsOpen(!isOpen)}
-          className="flex items-center justify-between w-full px-4 py-3 sm:py-3 border rounded-xl bg-white border-primary-dark text-primary-light h-10"
+          className="flex justify-between items-center w-full px-4 py-3 sm:py-3 border rounded-xl bg-white border-primary-dark text-primary-dark h-10"
         >
           <svg
             className={`w-4 h-4 pr-1 text-gray-500 transition-transform ${
@@ -59,7 +59,7 @@ function Dropdown({
               d="M19 9l-7 7-7-7"
             ></path>
           </svg>
-          <span className="flex-grow text-center font-b1">
+          <span className="flex-grow pl-2 items-center text-left font-b1">
             {selectedOption}
           </span>
         </button>
@@ -70,7 +70,7 @@ function Dropdown({
                 <li
                   key={option}
                   onClick={() => handleOptionClick(option)}
-                  className="px-4 py-2 text-sm text-gray-26 hover:bg-gray-100 cursor-pointer"
+                  className="px-4 py-2 text-sm text-primary-dark hover:bg-gray-100 cursor-pointer"
                 >
                   {option}
                 </li>
