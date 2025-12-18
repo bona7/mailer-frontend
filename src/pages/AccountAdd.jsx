@@ -195,8 +195,9 @@ function AddAccountPage() {
       await syncAccountMutation.mutateAsync(accountId);
       console.log("메일 동기화 완료");
 
-      // 완료 후 이동
-      navigate("/accountadded");
+      // 완료 후 alert 표시
+      alert("계정 등록이 완료되었습니다.");
+      navigate("/");
     } catch (err) {
       console.error("계정 연동 에러:", err);
       console.error("에러 응답 전체:", err.response);
@@ -266,7 +267,7 @@ function AddAccountPage() {
               type="email"
               value={email}
               onChange={(e) => setEmail(e.target.value)}
-              placeholder="user@example.com"
+              placeholder="이메일 주소를 입력하세요."
               className="w-full px-4 py-3 border rounded-xl placeholder-gray-bf border-primary-dark h-11"
               disabled={showOnboarding}
             />
@@ -279,7 +280,7 @@ function AddAccountPage() {
               type="password"
               value={password}
               onChange={(e) => setPassword(e.target.value)}
-              placeholder="••••••••"
+              placeholder="앱 비밀번호를 발급받으세요."
               className="w-full px-4 py-3 border rounded-xl placeholder-gray-bf border-primary-dark h-11"
               disabled={showOnboarding}
             />
