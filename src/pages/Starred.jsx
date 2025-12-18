@@ -180,7 +180,7 @@ const Starred = () => {
         <div className="flex flex-col overflow-y-auto">
           {!isMailLoading && !isMailError && currentEmails.length === 0 && (
             <div className="flex items-center justify-center p-8 text-gray-8c">
-              스팸함이 비어 있습니다.
+              중요 메일함이 비어 있습니다.
             </div>
           )}
           {!isMailLoading &&
