@@ -74,7 +74,6 @@ function AddAccountPage() {
   // Confirm 버튼 클릭 시 온보딩 섹션 표시
   const handleConfirm = async () => {
     if (email && password) {
-      setShowOnboarding(true);
       setError("");
       try {
         // 1단계: 계정 생성 (email, password만 전송)
@@ -120,6 +119,7 @@ function AddAccountPage() {
           }
         }
         setAccountId(newAccountId);
+        setShowOnboarding(true);
       } catch (err) {
         console.error("계정 연동 에러:", err);
         console.error("에러 응답 전체:", err.response);
