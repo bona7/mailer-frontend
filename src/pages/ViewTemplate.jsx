@@ -105,7 +105,7 @@ const ViewTemplate = () => {
       setSelectedAccounts={setSelectedAccounts}
     >
       <main className="col-start-2 row-start-2 px-6 rounded-lg border border-primary overflow-y-auto">
-        <div className="sticky top-0 z-10 bg-456FB1/65 backdrop-blur-sm">
+        <div className="sticky top-0 z-10 pt-4 bg-456FB1/65 backdrop-blur-sm">
           <h1 className="font-h7 text-primary-dark">View Templates</h1>
           <Separator className="bg-gray-bf my-1.5" />
         </div>

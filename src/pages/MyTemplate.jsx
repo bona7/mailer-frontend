@@ -192,71 +192,74 @@ const MyTemplate = () => {
       selectedAccounts={selectedAccounts}
       setSelectedAccounts={setSelectedAccounts}
     >
-      <main className="col-start-2 row-start-2 p-6 space-y-4 rounded-lg border border-primary overflow-y-auto">
-        <div className="sticky top-0 z-10 bg-456FB1/65 backdrop-blur-sm">
+      <main className="col-start-2 row-start-2 px-6 space-y-4 rounded-lg border border-primary overflow-y-auto">
+        <div className="sticky top-0 z-10 pt-4 bg-456FB1/65 backdrop-blur-sm">
           <h1 className="font-h7 text-primary-dark">My Templates</h1>
           <Separator className="bg-gray-bf my-1.5" />
         </div>
-
-        {accounts.length === 0 ? (
-          <div className="flex items-center justify-center h-full">
-            <p className="font-b1 text-gray-bf">등록된 계정이 없습니다</p>
-          </div>
-        ) : (
-          accounts.map((account) => (
-            <section key={account.id}>
-              <div className="flex [@media(max-width:1000px)]:flex-col [@media(min-width:1000px)]:flex-row [@media(min-width:1000px)]:items-center [@media(min-width:1000px)]:justify-between mb-4 gap-2">
-                <div className="flex [@media(max-width:1000px)]:flex-col [@media(min-width:1000px)]:flex-row [@media(min-width:1000px)]:items-center gap-4 w-full">
-                  <h2 className="font-st1 text-primary-dark whitespace-nowrap">
-                    {account.address}
-                  </h2>
-                  <div className="flex gap-2 overflow-x-auto whitespace-nowrap scrollbar-hide py-1">
-                    {ALL_CATEGORIES.map((category) => (
-                      <CategoryButton
-                        key={category}
-                        selected={(
-                          categoriesByAccount[account.id] || []
-                        ).includes(category)}
-                        onClick={() =>
-                          handleCategoryToggle(account.id, category)
-                        }
-                      >
-                        {category}
-                      </CategoryButton>
-                    ))}
+        <div className="pt-4 pb-6">
+          {accounts.length === 0 ? (
+            <div className="flex items-center justify-center h-full">
+              <p className="font-b1 text-gray-bf">등록된 계정이 없습니다</p>
+            </div>
+          ) : (
+            accounts.map((account) => (
+              <section key={account.id}>
+                <div className="flex [@media(max-width:1000px)]:flex-col [@media(min-width:1000px)]:flex-row [@media(min-width:1000px)]:items-center [@media(min-width:1000px)]:justify-between mb-4 gap-2">
+                  <div className="flex [@media(max-width:1000px)]:flex-col [@media(min-width:1000px)]:flex-row [@media(min-width:1000px)]:items-center gap-4 w-full">
+                    <h2 className="font-st1 text-primary-dark whitespace-nowrap">
+                      {account.address}
+                    </h2>
+                    <div className="flex gap-2 overflow-x-auto whitespace-nowrap scrollbar-hide py-1">
+                      {ALL_CATEGORIES.map((category) => (
+                        <CategoryButton
+                          key={category}
+                          selected={(
+                            categoriesByAccount[account.id] || []
+                          ).includes(category)}
+                          onClick={() =>
+                            handleCategoryToggle(account.id, category)
+                          }
+                        >
+                          {category}
+                        </CategoryButton>
+                      ))}
+                    </div>
                   </div>
+                  <CreateTemplateButton
+                    className="mr-4"
+                    onClick={() => handleOpenCreateModal(account.id)}
+                  />
                 </div>
-                <CreateTemplateButton
-                  className="mr-4"
-                  onClick={() => handleOpenCreateModal(account.id)}
-                />
-              </div>
-              <div className="flex overflow-x-auto gap-8 p-2">
-                {templatesByAccount[account.id]?.templates?.length === 0 ? (
-                  <p className="font-b2 text-gray-8c py-4">
-                    이 계정에 해당하는 템플릿이 없습니다.
-                  </p>
-                ) : (
-                  templatesByAccount[account.id]?.templates?.map((template) => (
-                    <TemplateCard
-                      key={template.id}
-                      template={{
-                        id: template.id,
-                        name: template.topic,
-                        about: template.sub_category,
-                        body: template.template_content,
-                        main_category: template.main_category,
-                      }}
-                      onClick={() => handleOpenModal(template)}
-                      isFavorited={true}
-                      onHeartClick={() => handleDeleteTemplate(template.id)}
-                    />
-                  ))
-                )}
-              </div>
-            </section>
-          ))
-        )}
+                <div className="flex overflow-x-auto gap-8 p-2">
+                  {templatesByAccount[account.id]?.templates?.length === 0 ? (
+                    <p className="font-b2 text-gray-8c py-4">
+                      이 계정에 해당하는 템플릿이 없습니다.
+                    </p>
+                  ) : (
+                    templatesByAccount[account.id]?.templates?.map(
+                      (template) => (
+                        <TemplateCard
+                          key={template.id}
+                          template={{
+                            id: template.id,
+                            name: template.topic,
+                            about: template.sub_category,
+                            body: template.template_content,
+                            main_category: template.main_category,
+                          }}
+                          onClick={() => handleOpenModal(template)}
+                          isFavorited={true}
+                          onHeartClick={() => handleDeleteTemplate(template.id)}
+                        />
+                      ),
+                    )
+                  )}
+                </div>
+              </section>
+            ))
+          )}
+        </div>
       </main>
 
       {isModalOpen && selectedTemplate && (
