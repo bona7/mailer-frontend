@@ -45,6 +45,7 @@ function MailComposeModal({
   const [colorPickerOpen, setColorPickerOpen] = useState(false);
   const [colorAnchor, setColorAnchor] = useState(null);
   const [selectedFont, setSelectedFont] = useState("Montserrat");
+  const [fontPickerOpen, setFontPickerOpen] = useState(false);
   const highlightColors = [
     "#fff9c4", // 연노랑
     "#ffe0b2", // 연주황
@@ -103,13 +104,13 @@ function MailComposeModal({
   };
 
   // 폰트 변경
-  const handleFontChange = (e) => {
-    const fontName = e.target.value;
+  const handleFontChange = (fontName) => {
     setSelectedFont(fontName);
     if (editorRef.current) {
       editorRef.current.focus();
       document.execCommand("fontName", false, fontName);
     }
+    setFontPickerOpen(false);
   };
 
   const [sending, setSending] = useState(false);
@@ -470,14 +471,30 @@ function MailComposeModal({
           </div>
           <div className="flex items-center gap-0">
             {/* Formatting buttons */}
-            <select
-              className="bg-transparent accent-secondary-dark [&>option]:bg-white"
-              value={selectedFont}
-              onChange={handleFontChange}
-            >
-              <option>Montserrat</option>
-              <option>Pretendard</option>
-            </select>
+            <div className="relative">
+              <button
+                onClick={() => setFontPickerOpen(!fontPickerOpen)}
+                className="bg-transparent px-2 py-1 text-sm hover:bg-gray-100 rounded"
+              >
+                {selectedFont}
+              </button>
+              {fontPickerOpen && (
+                <div className="absolute left-0 bottom-8 z-50 bg-white border rounded shadow-md min-w-[120px]">
+                  <button
+                    onClick={() => handleFontChange("Montserrat")}
+                    className="w-full px-3 py-2 text-left text-sm hover:bg-gray-100"
+                  >
+                    Montserrat
+                  </button>
+                  <button
+                    onClick={() => handleFontChange("Pretendard")}
+                    className="w-full px-3 py-2 text-left text-sm hover:bg-gray-100"
+                  >
+                    Pretendard
+                  </button>
+                </div>
+              )}
+            </div>
             <Button variant="ghost" size="icon" onClick={handleBoldClick}>
               <b>B</b>
             </Button>
@@ -498,7 +515,7 @@ function MailComposeModal({
                 </span>
               </Button>
               {colorPickerOpen && (
-                <div className="absolute left-0 top-8 z-50 flex gap-1 p-2 bg-white border rounded shadow-md">
+                <div className="absolute right-0 bottom-10 z-50 flex gap-1 p-2 bg-white border rounded shadow-md">
                   {highlightColors.map((color) => (
                     <button
                       key={color}
