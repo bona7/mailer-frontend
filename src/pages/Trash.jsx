@@ -1,4 +1,4 @@
-import { useState } from "react";
+import { useState, useEffect } from "react";
 import { MailList, AppLayout, TrashButton } from "@/components";
 import { useNavigate } from "react-router-dom";
 import { ChevronLeft, ChevronRight } from "lucide-react";
@@ -7,11 +7,14 @@ import {
   useUpdateEmailMetadata,
   useDeleteEmail,
 } from "@/api/hooks/useEmails";
+import { useAISummary } from "@/context/AISummaryContext";
 
 const Trash = () => {
   const [selectedAccounts, setSelectedAccounts] = useState([]);
   const [selectedMailIds, setSelectedMailIds] = useState([]);
   const [currentPage, setCurrentPage] = useState(1);
+  const { aiSumSelectedId, setAiSumSelectedId, setSelectedEmail } =
+    useAISummary();
 
   const updateEmailMetadataMutation = useUpdateEmailMetadata();
   const deleteEmailMutation = useDeleteEmail();
@@ -44,6 +47,27 @@ const Trash = () => {
         : prevSelected.filter((id) => id !== mailId),
     );
   };
+
+  const handleAiSumCheckChange = (mailId) => {
+    setAiSumSelectedId((prevId) => (prevId === mailId ? null : mailId));
+  };
+
+  useEffect(() => {
+    if (aiSumSelectedId) {
+      const email = trashEmails.find((e) => e.id === aiSumSelectedId);
+      setSelectedEmail(email || null);
+    } else {
+      setSelectedEmail(null);
+    }
+  }, [aiSumSelectedId, trashEmails, setSelectedEmail]);
+
+  // Clean up AI summary selection when MainPage unmounts
+  useEffect(() => {
+    return () => {
+      setAiSumSelectedId(null);
+      setSelectedEmail(null);
+    };
+  }, [setAiSumSelectedId, setSelectedEmail]);
 
   // 페이지네이션 계산
   const totalPages = Math.ceil(trashEmails.length / ITEMS_PER_PAGE);
@@ -217,6 +241,8 @@ const Trash = () => {
                   handleMailCheckChange(mailObject.id, isChecked)
                 }
                 isRead={mailObject.is_read}
+                aiSumChecked={aiSumSelectedId === mailObject.id}
+                onAiSumCheckChange={() => handleAiSumCheckChange(mailObject.id)}
               />
             ))}
         </div>
