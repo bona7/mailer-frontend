@@ -112,7 +112,16 @@ const MailDetail = () => {
           <span className="font-b1 text-gray-43 whitespace-pre-line">
             {EmailBody(mailObject.email.html_body)}
           </span>
-          {mailObject.email.attachments.length > 0 && (
+          {mailObject.email.has_attachment &&
+          mailObject.email.attachments.length === 0 ? (
+            <div className="mt-4 pt-4 border-t border-gray-bf">
+              <h3 className="font-h8 text-primary-dark mb-3">Attachments</h3>
+              <div className="bg-gray-300 border border-gray-200 text-gray-600 font-b1 p-4 rounded-lg text-center">
+                서버 최적화를 위해 배포된 버전에서는 첨부파일 기능이
+                제거되었습니다.
+              </div>
+            </div>
+          ) : mailObject.email.attachments.length > 0 ? (
             <div className="mt-4 pt-4 border-t border-gray-bf">
               <h3 className="font-h8 text-primary-dark mb-3">
                 {mailObject.email.attachments.length} Attachments
@@ -127,7 +136,7 @@ const MailDetail = () => {
                 ))}
               </div>
             </div>
-          )}
+          ) : null}
         </div>
       </section>
     </AppLayout>
