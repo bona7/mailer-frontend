@@ -17,6 +17,7 @@ function SignUp() {
   const [passwordConfirmation, setPasswordConfirmation] = useState("");
   const [showPassword, setShowPassword] = useState(false);
   const [error, setError] = useState("");
+  const [isLoading, setIsLoading] = useState(false);
   const dropdownRef = useRef(null);
 
   // New state for verification
@@ -69,14 +70,23 @@ function SignUp() {
 
   const handleSignUpAndSendCode = async () => {
     setError("");
+    setIsLoading(true);
 
     if (!isLoaded) {
       console.log("Clerk가 아직 로드되지 않았습니다.");
+      setIsLoading(false);
+      return;
+    }
+
+    if (username.length > 10) {
+      setError("사용자 이름은 10자를 초과할 수 없습니다.");
+      setIsLoading(false);
       return;
     }
 
     if (password !== passwordConfirmation) {
       setError("비밀번호가 일치하지 않습니다.");
+      setIsLoading(false);
       return;
     }
 
@@ -98,14 +108,18 @@ function SignUp() {
     } catch (err) {
       console.error("회원가입 오류:", err);
       setError(err.errors?.[0]?.message || "회원가입에 실패했습니다.");
+    } finally {
+      setIsLoading(false);
     }
   };
 
   const handleVerifyAndSignIn = async () => {
     setError("");
+    setIsLoading(true);
 
     if (!isLoaded || !signUp) {
       setError("회원가입 정보를 찾을 수 없습니다.");
+      setIsLoading(false);
       return;
     }
 
@@ -143,6 +157,8 @@ function SignUp() {
     } catch (err) {
       console.error("인증 오류:", err);
       setError(err.errors?.[0]?.message || "인증에 실패했습니다.");
+    } finally {
+      setIsLoading(false);
     }
   };
 
@@ -181,6 +197,7 @@ function SignUp() {
             placeholder="Username"
             value={username}
             onChange={(e) => setUsername(e.target.value)}
+            maxLength={10}
             required
             className="w-[444px] h-10 px-2 border rounded-lg placeholder-gray-500 border-primary-dark text-sm focus:outline-none"
             disabled={isCodeSent}
@@ -356,10 +373,18 @@ function SignUp() {
 
           <button
             type="submit"
-            disabled={!isLoaded}
-            className="w-[444px] h-8 mt-2 sm:mt-2 mb-8 flex items-center justify-center rounded-xl text-white font-b2 bg-primary-dark disabled:opacity-50"
+            disabled={!isLoaded || isLoading}
+            className={`w-[444px] h-8 mt-2 sm:mt-2 mb-8 flex items-center justify-center rounded-xl text-white font-b2 bg-primary-dark disabled:opacity-50 ${
+              isLoading ? "bg-primary-dark/50" : ""
+            }`}
           >
-            {isCodeSent ? "Verify and Sign In" : "Sign Up"}
+            {isLoading
+              ? isCodeSent
+                ? "Verifying..."
+                : "Signing Up..."
+              : isCodeSent
+                ? "Verify and Sign In"
+                : "Sign Up"}
           </button>
         </form>
       </div>

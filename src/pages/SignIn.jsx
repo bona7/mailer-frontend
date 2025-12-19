@@ -14,6 +14,7 @@ function SignIn() {
   const [isDropdownOpen, setIsDropdownOpen] = useState(false);
   const [password, setPassword] = useState("");
   const [error, setError] = useState("");
+  const [isLoading, setIsLoading] = useState(false);
   const dropdownRef = useRef(null);
 
   const domains = [
@@ -58,6 +59,9 @@ function SignIn() {
       return;
     }
 
+    setIsLoading(true);
+    setError("");
+
     // 전체 이메일 주소 생성
     const fullEmail = `${emailPrefix}@${selectedDomain}`;
 
@@ -94,6 +98,8 @@ function SignIn() {
     } catch (err) {
       console.error("로그인 오류:", err);
       setError(err.errors?.[0]?.message || "로그인에 실패했습니다.");
+    } finally {
+      setIsLoading(false);
     }
   };
 
@@ -223,10 +229,12 @@ function SignIn() {
           />
           <button
             type="submit"
-            disabled={!isLoaded}
-            className="w-[444px] h-8 mt-2 sm:mt-2 flex items-center justify-center rounded-xl text-white font-b2 bg-primary-dark disabled:opacity-50"
+            disabled={!isLoaded || isLoading}
+            className={`w-[444px] h-8 mt-2 sm:mt-2 flex items-center justify-center rounded-xl text-white font-b2 bg-primary-dark disabled:opacity-50 ${
+              isLoading ? "bg-primary-dark/50" : ""
+            }`}
           >
-            Sign In
+            {isLoading ? "Signing In..." : "Sign In"}
           </button>
         </form>
       </div>
