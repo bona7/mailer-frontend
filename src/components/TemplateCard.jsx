@@ -11,7 +11,7 @@ const categoryImageMap = {
   대학교: univ_thumb,
   "업무/회사": work_thumb,
   "서비스 문의": other_thumb,
-  "My own templates": custom_thumb,
+  "개인 템플릿": custom_thumb,
 };
 
 const TemplateCard = ({

@@ -5,6 +5,7 @@ import { Separator } from "@/components/ui/separator";
 import {
   useViewTemplates,
   useViewTemplateById,
+  useMyTemplates,
 } from "@/api/hooks/useTemplates";
 import MailComposeModal from "@/components/modals/MailComposeModal";
 
@@ -24,6 +25,10 @@ const ViewTemplate = () => {
 
   const { data: selectedTemplate, isLoading: isLoadingDetail } =
     useViewTemplateById(selectedTemplateId);
+
+  const userPk =
+    typeof window !== "undefined" ? localStorage.getItem("user_id") : null;
+  const { data: myTemplates = [] } = useMyTemplates(userPk);
 
   const handleOpenModal = (template) => {
     setSelectedTemplateId(template.id);
@@ -157,6 +162,7 @@ const ViewTemplate = () => {
                 template={selectedTemplate}
                 onClose={handleCloseModal}
                 onCompose={handleCompose}
+                myTemplates={myTemplates}
               />
             )}
           </div>
