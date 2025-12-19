@@ -30,6 +30,7 @@ const MyTemplate = () => {
   const [categoriesByAccount, setCategoriesByAccount] = useState({});
   const [isComposeModalOpen, setIsComposeModalOpen] = useState(false);
   const [composeTemplateBody, setComposeTemplateBody] = useState("");
+  const [isSpinning, setIsSpinning] = useState(false);
 
   // 모달 오픈 핸들러 (CreateTemplate)
   const [isCreateModalOpen, setIsCreateModalOpen] = useState(false);
@@ -102,8 +103,17 @@ const MyTemplate = () => {
   };
 
   const handleRefreshTemplates = () => {
+    if (isSpinning || templatesLoading) return; // 중복 클릭 방지
+    setIsSpinning(true);
     queryClient.invalidateQueries({ queryKey: ["myTemplates", userPk] });
   };
+
+  // 새로고침 완료 시 spinning 중지
+  useEffect(() => {
+    if (!templatesLoading && isSpinning) {
+      setIsSpinning(false);
+    }
+  }, [templatesLoading, isSpinning]);
 
   // 계정별 + 카테고리별로 템플릿 그룹화 및 필터링
   const templatesByAccount = useMemo(() => {
@@ -194,7 +204,22 @@ const MyTemplate = () => {
     >
       <main className="col-start-2 row-start-2 px-6 space-y-4 rounded-lg border border-primary overflow-y-auto">
         <div className="sticky top-0 z-10 pt-4 bg-456FB1/65 backdrop-blur-sm">
-          <h1 className="font-h7 text-primary-dark">My Templates</h1>
+          <div className="flex items-center gap-1">
+            <h1 className="font-h7 text-primary-dark">My Templates</h1>
+            <button
+              type="button"
+              aria-label="템플릿 새로고침"
+              onClick={handleRefreshTemplates}
+              className={`group ml-2 p-1 rounded-full transition-all duration-200
+                ${isSpinning || templatesLoading ? "bg-primary/10" : ""}`}
+              disabled={isSpinning || templatesLoading}
+            >
+              <Refresh
+                className={`w-4 h-4 transition-all duration-200
+                  ${isSpinning || templatesLoading ? "text-primary-dark/40 animate-spin" : "text-primary-dark group-hover:text-primary/60"}`}
+              />
+            </button>
+          </div>
           <Separator className="bg-gray-bf my-1.5" />
         </div>
         <div className="pt-4 pb-6">

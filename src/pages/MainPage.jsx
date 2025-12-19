@@ -375,14 +375,16 @@ const MainPage = () => {
             <h2 className="font-h7 text-primary-dark">In box</h2>
             <button
               onClick={handleRefresh}
-              disabled={isMailLoading || isSyncing}
+              disabled={isMailLoading || isSyncing || isSyncLoading}
               className="p-0 bg-transparent border-none cursor-pointer disabled:opacity-50"
               title={
                 selectedAccounts.length > 0 ? "선택된 계정 동기화" : "새로고침"
               }
             >
               <Refresh
-                className={`w-4 h-4 ${isSyncing ? "animate-spin" : ""}`}
+                className={`w-4 h-4 ${
+                  isSyncing || isSyncLoading ? "animate-spin" : ""
+                }`}
               />
             </button>
           </div>
@@ -450,11 +452,7 @@ const MainPage = () => {
               로딩 중...
             </div>
           )}
-          {isSyncLoading && (
-            <div className="flex items-center justify-center p-8 text-gray-8c">
-              동기화 중...
-            </div>
-          )}
+
           {isMailError && (
             <div className="flex flex-col items-center justify-center p-8 text-red-600">
               <p>메일을 불러오는 중 오류가 발생했습니다.</p>
@@ -482,7 +480,6 @@ const MainPage = () => {
           )}
           {!isMailLoading &&
             !isSyncError &&
-            !isSyncLoading &&
             !isMailError &&
             currentEmails.map((mailObject) => (
               <MailList
