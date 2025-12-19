@@ -12,6 +12,7 @@ import { useState, useMemo, useEffect } from "react";
 import { useUser } from "@clerk/clerk-react";
 import { useQueryClient } from "@tanstack/react-query";
 import { Refresh } from "@/assets"; // Refresh SVG 컴포넌트 import
+import api from "@/app/axios"; // Add this import statement
 
 const ALL_CATEGORIES = [
   "대학교",
@@ -44,9 +45,42 @@ const MyTemplate = () => {
   };
 
   const { user } = useUser();
+  const [userPk, setUserPk] = useState(
+    typeof window !== "undefined" ? localStorage.getItem("user_id") : null,
+  );
+
+  useEffect(() => {
+    const fetchUserPk = async () => {
+      let currentPk =
+        typeof window !== "undefined" ? localStorage.getItem("user_id") : null;
+      if (!currentPk) {
+        try {
+          console.log(
+            "MyTemplate: user_id not in localStorage, fetching from /api/user/me/",
+          );
+          const response = await api.get("/user/me/");
+          currentPk = response.data.id;
+          if (currentPk) {
+            localStorage.setItem("user_id", currentPk);
+            console.log(
+              "MyTemplate: successfully fetched and set user_id:",
+              currentPk,
+            );
+          }
+        } catch (error) {
+          console.error("MyTemplate: Failed to fetch user details", error);
+        }
+      }
+      setUserPk(currentPk);
+    };
+
+    if (user) {
+      // Only run if clerk user is loaded
+      fetchUserPk();
+    }
+  }, [user]);
+
   const { data: accounts = [], isLoading: accountsLoading } = useAccounts();
-  const userPk =
-    typeof window !== "undefined" ? localStorage.getItem("user_id") : null;
   const { data: myTemplates = [], isLoading: templatesLoading } =
     useMyTemplates(userPk);
   const queryClient = useQueryClient();
