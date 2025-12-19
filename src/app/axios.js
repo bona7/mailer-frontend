@@ -16,8 +16,8 @@ instance.interceptors.request.use(
         const token = await window.Clerk.session?.getToken();
         if (token) {
           config.headers.Authorization = `Bearer ${token}`;
-          console.log("✅ Clerk JWT 전송 (전체):");
-          console.log(token);
+          // console.log("✅ Clerk JWT 전송 (전체):");
+          // console.log(token);
         } else {
           console.warn("⚠️ Clerk 토큰이 없습니다. 로그인 필요.");
         }

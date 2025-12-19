@@ -13,6 +13,7 @@ const MailList = ({
   isRead,
   aiSumChecked,
   onAiSumCheckChange,
+  isAiSumLoading,
 }) => {
   const accountColor = getAccountColor(account);
   const mailId = `${sender}-${time}-${title}`;
@@ -66,6 +67,7 @@ const MailList = ({
               size="med"
               checked={aiSumChecked}
               onCheckedChange={onAiSumCheckChange}
+              disabled={isAiSumLoading}
             />
             <label className="font-caption">AI Sum.</label>
           </div>

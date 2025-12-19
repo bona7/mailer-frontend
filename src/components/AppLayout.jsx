@@ -20,8 +20,12 @@ import { getAccountColor } from "@/lib/utils";
 import MailComposeModal from "@/components/modals/MailComposeModal";
 
 const AppLayout = ({ children, selectedAccounts, setSelectedAccounts }) => {
-  const { selectedEmail, setAiSumSelectedId, setSelectedEmail } =
-    useAISummary();
+  const {
+    selectedEmail,
+    setAiSumSelectedId,
+    setSelectedEmail,
+    setIsSummaryLoading,
+  } = useAISummary();
   const {
     mutate: summarize,
     isPending: isSummarizing,
@@ -29,6 +33,10 @@ const AppLayout = ({ children, selectedAccounts, setSelectedAccounts }) => {
     error: summaryError,
     reset,
   } = useSummarizeEmail();
+
+  useEffect(() => {
+    setIsSummaryLoading(isSummarizing);
+  }, [isSummarizing, setIsSummaryLoading]);
 
   useEffect(() => {
     if (selectedEmail) {
@@ -73,8 +81,8 @@ const AppLayout = ({ children, selectedAccounts, setSelectedAccounts }) => {
   const { data: accounts = [], isLoading, isError } = useAccounts();
   console.log("AppLayout - accounts:", accounts);
   console.log("AppLayout - accounts 타입:", typeof accounts);
-  console.log("AppLayout - accounts.length:", accounts?.length);
-  console.log("AppLayout - Array.isArray(accounts):", Array.isArray(accounts));
+  // console.log("AppLayout - accounts.length:", accounts?.length);
+  // console.log("AppLayout - Array.isArray(accounts):", Array.isArray(accounts));
   const deleteAccountMutation = useDeleteAccount();
 
   const accountsParam =
@@ -401,7 +409,9 @@ const AppLayout = ({ children, selectedAccounts, setSelectedAccounts }) => {
                 selectedEmail && navigate(`/mail/${selectedEmail.id}`)
               }
             >
-              Title: {selectedEmail?.email.subject || "선택된 메일 없음"}
+              {selectedEmail
+                ? `Title: ${selectedEmail?.email.subject}`
+                : "선택된 메일 없음"}
             </span>
           </CardHeader>
           <CardContent className="px-3 space-y-4 grow">

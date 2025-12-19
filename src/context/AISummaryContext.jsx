@@ -7,6 +7,7 @@ const AISummaryContext = createContext();
 export const AISummaryProvider = ({ children }) => {
   const [aiSumSelectedId, setAiSumSelectedId] = useState(null);
   const [selectedEmail, setSelectedEmail] = useState(null);
+  const [isSummaryLoading, setIsSummaryLoading] = useState(false); // 로딩 상태 추가
 
   // useMemo를 사용해 매번 새로운 객체가 생성되는 것을 방지 (성능 최적화)
   const value = useMemo(
@@ -15,8 +16,10 @@ export const AISummaryProvider = ({ children }) => {
       setAiSumSelectedId,
       selectedEmail,
       setSelectedEmail,
+      isSummaryLoading, // 로딩 상태와
+      setIsSummaryLoading, // 세터를 value에 추가
     }),
-    [aiSumSelectedId, selectedEmail],
+    [aiSumSelectedId, selectedEmail, isSummaryLoading],
   );
 
   return (

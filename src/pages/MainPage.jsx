@@ -15,8 +15,12 @@ const MainPage = () => {
   const [currentPage, setCurrentPage] = useState(1);
   const [isSyncing, setIsSyncing] = useState(false);
   const [selectedMailIds, setSelectedMailIds] = useState([]);
-  const { aiSumSelectedId, setAiSumSelectedId, setSelectedEmail } =
-    useAISummary();
+  const {
+    aiSumSelectedId,
+    setAiSumSelectedId,
+    setSelectedEmail,
+    isSummaryLoading,
+  } = useAISummary();
   const navigate = useNavigate();
   const [searchParams] = useSearchParams();
   const searchQuery = searchParams.get("q") || "";
@@ -35,6 +39,10 @@ const MainPage = () => {
   };
 
   const handleAiSumCheckChange = (mailId) => {
+    if (isSummaryLoading) {
+      alert("요약 응답을 기다리고 있습니다");
+      return;
+    }
     setAiSumSelectedId((prevId) => (prevId === mailId ? null : mailId));
   };
 
@@ -504,6 +512,7 @@ const MainPage = () => {
                 isRead={mailObject.is_read}
                 aiSumChecked={aiSumSelectedId === mailObject.id}
                 onAiSumCheckChange={() => handleAiSumCheckChange(mailObject.id)}
+                isAiSumLoading={isSummaryLoading}
               />
             ))}
         </div>
